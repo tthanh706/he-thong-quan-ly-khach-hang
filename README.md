@@ -1,64 +1,59 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+# 🔐 [AUTH-102] Scrum User Story: Forgotten Password Reset via Email
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+![PHP Version](https://img.shields.io/badge/PHP-8.2%2B-blue)
+![Laravel](https://img.shields.io/badge/Laravel-11.x-red)
+![Security](https://img.shields.io/badge/Security-Anti--Enumeration-green)
+![License](https://img.shields.io/badge/License-MIT-brightgreen)
 
-## About Laravel
+## 📌 1. Scrum User Story & Requirements
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+> **Là** một người dùng của hệ thống,  
+> **Tôi muốn** đặt lại mật khẩu khi quên thông qua email,  
+> **Để** tự lấy lại quyền truy cập tài khoản một cách nhanh chóng và an toàn khi đang đi gặp khách hàng.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### 📝 Core Requirements
+1. **Liên kết 30 phút:** Gửi email chứa liên kết đặt lại mật khẩu có thời gian hiệu lực đúng 30 phút (`expires_at = NOW() + 30m`).
+2. **Dùng 1 lần duy nhất:** Liên kết bị vô hiệu hóa ngay lập tức sau khi đổi mật khẩu thành công (`used_at = NOW()`).
+3. **Chống dò email (Anti-User Enumeration):** Dù email CÓ hay KHÔNG TỒN TẠI trong CSDL, hệ thống đều phản hồi cùng một thông báo trung tính.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## 🛠️ 2. Structure & Key Files
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+```bash
+app/
+├── app/
+│   ├── Http/
+│   │   ├── Controllers/Auth/ForgotPasswordController.php # Core Logic (Expiry, Single-use, Anti-enumeration)
+│   │   └── Requests/
+│   │       ├── SendResetLinkRequest.php
+│   │       └── ResetPasswordRequest.php
+│   ├── Models/PasswordResetToken.php                     # Eloquent Model for 30-min token
+│   └── Notifications/ResetPasswordNotification.php       # Email Notification
+├── database/migrations/
+│   └── 2026_09_27_000000_create_custom_password_reset_tokens_table.php
+├── resources/views/auth/
+│   ├── forgot-password.blade.php                        # Blade View Quên mật khẩu
+│   └── reset-password.blade.php                         # Blade View Đổi mật khẩu
+├── tests/Feature/ForgotPasswordTest.php                  # PHPUnit / Pest Feature Tests
+├── index.html                                            # Interactive Web Demo Simulator
+└── SCRUM_TICKET.md                                       # Scrum Ticket & Specification
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-## Laravel Sponsors
+## 🚀 3. Quick Start (Laravel Setup)
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+```bash
+# 1. Run Migration
+php artisan migrate
 
-### Premium Partners
+# 2. Run Tests
+php artisan test --filter=ForgotPasswordTest
+```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+---
 
-## Contributing
+## 🎨 4. Interactive Live Prototype
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Mở file `index.html` trực tiếp trên trình duyệt để chạy kịch bản giả lập UI, kiểm tra bộ đếm ngược 30 phút và log Database SHA-256 theo thời gian thực!

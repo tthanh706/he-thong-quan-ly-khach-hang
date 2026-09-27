@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>[AUTH-102] Scrum Specification & Live Interactive Demo - Đặt Lại Mật Khẩu qua Email</title>
+    <!-- Font Inter & JetBrains Mono from Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- FontAwesome icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Top Navigation Header -->
+    <header class="app-header">
+        <div class="header-container">
+            <div class="brand">
+                <div class="brand-logo">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <div class="brand-info">
+                    <h1>Scrum Feature Studio</h1>
+                    <span class="badge badge-ticket">AUTH-102</span>
+                    <span class="badge badge-status"><i class="fa-solid fa-circle-check"></i> Ready for Dev</span>
+                </div>
+            </div>
+
+            <!-- View Switcher -->
+            <nav class="view-tabs">
+                <button class="tab-btn active" data-tab="demo-view">
+                    <i class="fa-solid fa-laptop-code"></i> Live Interactive Demo
+                </button>
+                <button class="tab-btn" data-tab="spec-view">
+                    <i class="fa-solid fa-book-bookmark"></i> Scrum Specification (Jira / Ticket)
+                </button>
+                <button class="tab-btn" data-tab="security-view">
+                    <i class="fa-solid fa-user-shield"></i> Security & Architecture
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="main-content">
+
+        <!-- TAB 1: LIVE DEMO VIEW -->
+        <section id="demo-view" class="tab-content active">
+            <div class="demo-banner">
+                <div class="banner-text">
+                    <h2><i class="fa-solid fa-wand-magic-sparkles"></i> Môi Trường Giả Lập Tính Năng Quên Mật Khẩu</h2>
+                    <p>Trải nghiệm trực quan quy trình người dùng đi gặp khách lấy lại mật khẩu thông qua email, kiểm tra quy tắc bảo mật **30 phút**, **dùng 1 lần** và **chống dò email**.</p>
+                </div>
+                <div class="preset-controls">
+                    <span class="preset-label">Kịch bản thử nghiệm:</span>
+                    <button class="btn btn-sm btn-outline" id="btn-preset-valid">
+                        <i class="fa-solid fa-user-check"></i> 1. Email Tồn Tại
+                    </button>
+                    <button class="btn btn-sm btn-outline" id="btn-preset-invalid">
+                        <i class="fa-solid fa-user-slash"></i> 2. Email KHÔNG Tồn Tại
+                    </button>
+                    <button class="btn btn-sm btn-outline" id="btn-preset-expired">
+                        <i class="fa-solid fa-hourglass-end"></i> 3. Hết hạn 30 phút
+                    </button>
+                    <button class="btn btn-sm btn-outline" id="btn-preset-reused">
+                        <i class="fa-solid fa-arrows-rotate"></i> 4. Dùng lại Token
+                    </button>
+                </div>
+            </div>
+
+            <div class="demo-grid">
+                <!-- Left Column: User Phone/Screen Simulator -->
+                <div class="demo-card app-simulator">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fa-solid fa-mobile-screen-button"></i> Mobile / Client App View
+                        </div>
+                        <span class="step-indicator" id="current-step-badge">Bước 1: Quên Mật Khẩu</span>
+                    </div>
+
+                    <div class="card-body">
+                        <!-- Step 1: Request Reset Form -->
+                        <div id="step-forgot" class="simulator-screen active">
+                            <div class="auth-box">
+                                <div class="auth-icon">
+                                    <i class="fa-solid fa-lock-open"></i>
+                                </div>
+                                <h3>Quên Mật Khẩu?</h3>
+                                <p class="auth-desc">Nhập địa chỉ email đăng ký để nhận liên kết khôi phục tài khoản trong 30 phút.</p>
+
+                                <form id="forgot-form" onsubmit="return false;">
+                                    <div class="form-group">
+                                        <label for="email-input"><i class="fa-regular fa-envelope"></i> Địa chỉ Email</label>
+                                        <input type="email" id="email-input" class="form-control" placeholder="vidu: nguyen.van.a@company.com" value="user.demo@company.com" required>
+                                        <small class="form-hint">Email thử nghiệm có sẵn: <code>user.demo@company.com</code></small>
+                                    </div>
+
+                                    <button type="submit" id="btn-send-reset" class="btn btn-primary btn-block">
+                                        <i class="fa-solid fa-paper-plane"></i> Gửi Liên Kết Khôi Phục
+                                    </button>
+                                </form>
+
+                                <!-- Security Notice Banner -->
+                                <div class="security-tip">
+                                    <i class="fa-solid fa-shield-cat"></i>
+                                    <span>Hệ thống áp dụng chính sách bảo mật trung tính để chống dò địa chỉ email.</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Request Sent Confirmation -->
+                        <div id="step-sent" class="simulator-screen">
+                            <div class="auth-box text-center">
+                                <div class="success-icon pulse-animation">
+                                    <i class="fa-solid fa-envelope-circle-check"></i>
+                                </div>
+                                <h3 class="text-success">Đã Xử Lý Yêu Cầu!</h3>
+                                <div class="generic-notice-box">
+                                    <i class="fa-solid fa-circle-info"></i>
+                                    <p>Nếu địa chỉ email <strong><span id="display-target-email">user@company.com</span></strong> tồn tại trên hệ thống, chúng tôi đã gửi một liên kết hướng dẫn đặt lại mật khẩu. Vui lòng kiểm tra hộp thư (bao gồm cả mục thư rác/spam).</p>
+                                </div>
+                                <div class="anti-enumeration-tag">
+                                    <i class="fa-solid fa-lock"></i> <strong>Anti-User Enumeration:</strong> Phản hồi này hiển thị giống hệt nhau cho mọi email để đảm bảo tính riêng tư.
+                                </div>
+
+                                <div class="screen-actions">
+                                    <button class="btn btn-outline btn-block" onclick="resetToForgotStep()">
+                                        <i class="fa-solid fa-arrow-left"></i> Nhập Email Khác
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Reset Password Form -->
+                        <div id="step-reset" class="simulator-screen">
+                            <div class="auth-box">
+                                <div class="auth-icon icon-cyan">
+                                    <i class="fa-solid fa-key"></i>
+                                </div>
+                                <h3>Đặt Mật Khẩu Mới</h3>
+                                <p class="auth-desc">Mật khẩu mới phải có tối thiểu 8 ký tự, bao gồm chữ hoa, chữ thường và số.</p>
+
+                                <div class="token-status-pill valid" id="token-validity-pill">
+                                    <i class="fa-solid fa-clock"></i> Token hợp lệ (Còn <span id="token-timer-display">30:00</span>)
+                                </div>
+
+                                <form id="reset-form" onsubmit="return false;">
+                                    <div class="form-group">
+                                        <label for="new-pass"><i class="fa-solid fa-lock"></i> Mật khẩu mới</label>
+                                        <div class="password-input-wrap">
+                                            <input type="password" id="new-pass" class="form-control" placeholder="••••••••" required>
+                                            <button type="button" class="btn-toggle-pass" onclick="togglePasswordVis('new-pass')">
+                                                <i class="fa-regular fa-eye"></i>
+                                            </button>
+                                        </div>
+                                        <!-- Password Strength Meter -->
+                                        <div class="pass-strength-bar">
+                                            <div class="strength-fill" id="strength-fill"></div>
+                                        </div>
+                                        <span class="strength-text" id="strength-text">Độ mạnh: Chưa nhập</span>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="confirm-pass"><i class="fa-solid fa-shield-check"></i> Xác nhận mật khẩu mới</label>
+                                        <div class="password-input-wrap">
+                                            <input type="password" id="confirm-pass" class="form-control" placeholder="••••••••" required>
+                                            <button type="button" class="btn-toggle-pass" onclick="togglePasswordVis('confirm-pass')">
+                                                <i class="fa-regular fa-eye"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <button type="submit" id="btn-submit-new-pass" class="btn btn-success btn-block">
+                                        <i class="fa-solid fa-floppy-disk"></i> Cập Nhật Mật Khẩu
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Step 4: Password Changed Success -->
+                        <div id="step-success" class="simulator-screen">
+                            <div class="auth-box text-center">
+                                <div class="success-icon icon-emerald bounce-animation">
+                                    <i class="fa-solid fa-circle-check"></i>
+                                </div>
+                                <h3 class="text-success">Đổi Mật Khẩu Thành Công!</h3>
+                                <p class="auth-desc">Tài khoản của bạn đã được cập nhật mật khẩu mới. Bạn có thể đăng nhập ngay bây giờ.</p>
+
+                                <div class="info-alert">
+                                    <i class="fa-solid fa-triangle-exclamation"></i>
+                                    <span>Tất cả các phiên đăng nhập cũ trên thiết bị khác đã được vô hiệu hóa để bảo mật.</span>
+                                </div>
+
+                                <button class="btn btn-primary btn-block mt-3" onclick="resetToForgotStep()">
+                                    <i class="fa-solid fa-right-to-bracket"></i> Về Trang Đăng Nhập
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Step Lỗi: Token Expired or Used -->
+                        <div id="step-error" class="simulator-screen">
+                            <div class="auth-box text-center">
+                                <div class="error-icon bounce-animation">
+                                    <i class="fa-solid fa-circle-xmark"></i>
+                                </div>
+                                <h3 class="text-danger" id="error-title">Liên Kết Không Hợp Lệ</h3>
+                                <p class="auth-desc" id="error-desc">Liên kết đặt lại mật khẩu đã hết hạn (quá 30 phút) hoặc đã được sử dụng 1 lần trước đó.</p>
+
+                                <button class="btn btn-primary btn-block mt-3" onclick="resetToForgotStep()">
+                                    <i class="fa-solid fa-rotate-right"></i> Gửi Yêu Cầu Mới
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Right Column: Interactive Email Inbox & Database Monitor -->
+                <div class="demo-right-col">
+                    <!-- Virtual Email Inbox Simulator -->
+                    <div class="demo-card email-inbox-card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <i class="fa-solid fa-inbox"></i> Simulated Email Inbox (Hộp thư nhận)
+                            </div>
+                            <span class="badge badge-info" id="email-count-badge">0 Thư mới</span>
+                        </div>
+                        <div class="card-body">
+                            <div id="empty-inbox-view" class="empty-state">
+                                <i class="fa-solid fa-envelope-open"></i>
+                                <p>Hộp thư đang trống. Hãy nhập email và bấm "Gửi Liên Kết Khôi Phục" ở bảng bên trái.</p>
+                            </div>
+
+                            <div id="inbox-list" class="inbox-list" style="display: none;">
+                                <div class="email-item unread" id="latest-email-item">
+                                    <div class="email-item-header">
+                                        <div class="sender-info">
+                                            <div class="avatar-icon"><i class="fa-solid fa-building-shield"></i></div>
+                                            <div>
+                                                <strong>Hệ Thống Support</strong> &lt;no-reply@company.com&gt;<br>
+                                                <small>Gửi tới: <span id="mail-recipient">user.demo@company.com</span></small>
+                                            </div>
+                                        </div>
+                                        <span class="email-time" id="mail-timestamp">Vừa xong</span>
+                                    </div>
+                                    <div class="email-subject">
+                                        🔑 [Khôi Phục Tài Khoản] Yêu cầu đặt lại mật khẩu cho tài khoản của bạn
+                                    </div>
+                                    <div class="email-preview-body">
+                                        <p>Xin chào,</p>
+                                        <p>Chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản của bạn. Vui lòng bấm vào nút bên dưới để đổi mật khẩu.</p>
+                                        
+                                        <div class="email-cta-box">
+                                            <button class="btn btn-warning" id="btn-click-email-link">
+                                                <i class="fa-solid fa-link"></i> Đặt Lại Mật Khẩu Ngay
+                                            </button>
+                                            <div class="timer-countdown">
+                                                <i class="fa-solid fa-stopwatch"></i> Liên kết có hiệu lực trong: <strong id="inbox-timer">30:00</strong>
+                                            </div>
+                                        </div>
+
+                                        <p class="email-footer-note">
+                                            ⚠️ <strong>Lưu ý:</strong> Liên kết chỉ có hiệu lực đúng <strong>30 phút</strong> và chỉ sử dụng được <strong>1 lần duy nhất</strong>. Nếu bạn không yêu cầu, vui lòng bỏ qua email này.
+                                        </p>
+                                    </div>
+
+                                    <!-- Simulator Controls for Email -->
+                                    <div class="email-simulator-actions">
+                                        <span class="sim-label">Công cụ giả lập QA:</span>
+                                        <button class="btn btn-xs btn-outline-warning" id="btn-fastforward">
+                                            <i class="fa-solid fa-forward-fast"></i> Tua Nhanh 31 Phút (Test Hết Hạn)
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Database State & Audit Inspector -->
+                    <div class="demo-card db-inspector-card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <i class="fa-solid fa-database"></i> Database State & Token Hash Inspector
+                            </div>
+                            <span class="badge badge-dark">SHA-256 Hashed</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="db-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>User Email</th>
+                                            <th>Token Hash (SHA-256)</th>
+                                            <th>Hiệu Lực</th>
+                                            <th>Trạng Thái</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="db-tokens-tbody">
+                                        <tr>
+                                            <td colspan="5" class="text-center text-muted">Chưa có token nào trong Database</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="db-audit-log" id="audit-log-console">
+                                <div class="log-line text-muted">[System] Môi trường giả lập đã sẵn sàng.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- TAB 2: SCRUM SPECIFICATION VIEW -->
+        <section id="spec-view" class="tab-content">
+            <div class="spec-header">
+                <div>
+                    <h2><i class="fa-solid fa-clipboard-list"></i> Scrum User Story & Feature Backlog Document</h2>
+                    <p>Tài liệu chuẩn Jira/Confluence dành cho Product Owner, Developer và QA Tester.</p>
+                </div>
+                <div class="spec-actions">
+                    <button class="btn btn-outline" id="btn-copy-gherkin">
+                        <i class="fa-solid fa-copy"></i> Copy Acceptance Criteria (Gherkin)
+                    </button>
+                </div>
+            </div>
+
+            <div class="spec-grid">
+                <!-- User Story Card -->
+                <div class="spec-card">
+                    <div class="spec-card-title"><i class="fa-solid fa-bullseye"></i> 1. User Story</div>
+                    <div class="user-story-quote">
+                        <p><strong>Là</strong> một người dùng của hệ thống,</p>
+                        <p><strong>Tôi muốn</strong> đặt lại mật khẩu khi quên thông qua email,</p>
+                        <p><strong>Để</strong> tự lấy lại quyền truy cập tài khoản một cách nhanh chóng và an toàn khi đang đi gặp khách hàng.</p>
+                    </div>
+                </div>
+
+                <!-- Core Description -->
+                <div class="spec-card">
+                    <div class="spec-card-title"><i class="fa-solid fa-list-check"></i> 2. Yêu Cầu Mốt Chốt (Core Requirements)</div>
+                    <ul class="spec-bullet-list">
+                        <li><i class="fa-solid fa-clock text-warning"></i> <strong>Thời gian hiệu lực 30 phút:</strong> Liên kết gửi qua email có `expires_at = NOW() + 30 MINS`. Quá 30 phút liên kết tự động vô hiệu.</li>
+                        <li><i class="fa-solid fa-key text-primary"></i> <strong>Tính dùng một lần (Single-use):</strong> Đổi mật khẩu thành công sẽ đánh dấu `used_at = NOW()`. Truy cập lại sẽ nhận thông báo lỗi.</li>
+                        <li><i class="fa-solid fa-shield-halved text-success"></i> <strong>Chống dò địa chỉ email (Anti-Enumeration):</b> Dù email có tồn tại hay không trong CSDL, hệ thống đều phản hồi cùng một thông báo trung tính.</li>
+                    </ul>
+                </div>
+
+                <!-- Acceptance Criteria (Gherkin Format) -->
+                <div class="spec-card full-width">
+                    <div class="spec-card-title"><i class="fa-solid fa-vial-circle-check"></i> 3. Tiêu Chí Chấp Nhận (Acceptance Criteria - Gherkin)</div>
+                    <div class="gherkin-container">
+
+                        <div class="gherkin-block">
+                            <h4><span class="scenario-badge">Scenario 1</span> Yêu cầu gửi email khôi phục & Bảo mật chống dò email</h4>
+                            <div class="code-block">
+<span class="kw">Given</span> người dùng đang ở trang "Quên mật khẩu"
+<span class="kw">When</span> người dùng nhập email và nhấn "Gửi liên kết đặt lại"
+<span class="kw">Then</span> hệ thống phản hồi thông báo trung tính: <span class="str">"Nếu địa chỉ email của bạn tồn tại trên hệ thống, chúng tôi đã gửi một liên kết hướng dẫn đặt lại mật khẩu."</span>
+<span class="kw">And</span> nếu email TỒN TẠI trong CSDL: Hệ thống sinh Token (SHA-256) hạn 30 phút và gửi email.
+<span class="kw">And</span> nếu email KHÔNG TỒN TẠI: Hệ thống KHÔNG gửi email và KHÔNG báo lỗi "Email không tồn tại" ra UI.
+                            </div>
+                        </div>
+
+                        <div class="gherkin-block">
+                            <h4><span class="scenario-badge">Scenario 2</span> Kiểm tra hạn token 30 phút (30-Minute Expiry)</h4>
+                            <div class="code-block">
+<span class="kw">Given</span> người dùng nhận được email khôi phục mật khẩu
+<span class="kw">When</span> người dùng nhấp vào liên kết SAU 30 PHÚT kể từ thời điểm tạo
+<span class="kw">Then</span> giao diện hiển thị thông báo lỗi: <span class="str">"Liên kết đã hết hạn (chỉ có hiệu lực trong 30 phút). Vui lòng gửi lại yêu cầu mới."</span>
+<span class="kw">And</span> không cho phép thực hiện hành động đổi mật khẩu với token này.
+                            </div>
+                        </div>
+
+                        <div class="gherkin-block">
+                            <h4><span class="scenario-badge">Scenario 3</span> Kiểm tra tính dùng một lần (Single-Use Token)</h4>
+                            <div class="code-block">
+<span class="kw">Given</span> người dùng đã đặt lại mật khẩu thành công bằng liên kết nhận được
+<span class="kw">When</span> người dùng (hoặc bên thứ ba) nhấp vào cùng liên kết đó lần thứ hai
+<span class="kw">Then</span> hệ thống hiển thị thông báo lỗi: <span class="str">"Liên kết đặt lại mật khẩu này đã được sử dụng hoặc không còn hợp lệ."</span>
+                            </div>
+                        </div>
+
+                        <div class="gherkin-block">
+                            <h4><span class="scenario-badge">Scenario 4</span> Cập nhật mật khẩu mới & Đăng xuất phiên làm việc cũ</h4>
+                            <div class="code-block">
+<span class="kw">Given</span> người dùng truy cập liên kết hợp lệ (chưa hết 30 phút và chưa sử dụng)
+<span class="kw">When</span> người dùng nhập mật khẩu mới đúng quy định (>= 8 ký tự, chữ hoa, chữ thường, số) và xác nhận
+<span class="kw">Then</span> mật khẩu được băm và cập nhật vào CSDL
+<span class="kw">And</span> token được đánh dấu `used_at = NOW()`
+<span class="kw">And</span> toàn bộ Refresh Tokens / Sessions cũ của tài khoản bị hủy bỏ lập tức.
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Sub-tasks & Estimates -->
+                <div class="spec-card full-width">
+                    <div class="spec-card-title"><i class="fa-solid fa-list-ol"></i> 4. Technical Sub-Tasks & Story Point Breakdown (Total: 5 SP)</div>
+                    <div class="table-responsive">
+                        <table class="spec-table">
+                            <thead>
+                                <tr>
+                                    <th>STT</th>
+                                    <th>Phân Loại</th>
+                                    <th>Mô Tả Tasks Chi Tiết</th>
+                                    <th>Phụ Trách (Role)</th>
+                                    <th>Estimate</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td><span class="badge badge-db">Database</span></td>
+                                    <td>Thiết kế bảng `password_reset_tokens` (hỗ trợ hash SHA-256, expires_at 30m, used_at).</td>
+                                    <td>Backend Engineer</td>
+                                    <td>0.5 SP</td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td><span class="badge badge-be">Backend API</span></td>
+                                    <td>API `POST /api/auth/forgot-password`: Rate limit, sinh crypto token, lưu DB hash, gửi email async.</td>
+                                    <td>Backend Engineer</td>
+                                    <td>1.5 SP</td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td><span class="badge badge-be">Backend API</span></td>
+                                    <td>API `POST /api/auth/reset-password`: Validate expiry <=30m, single-use check, băm password, invalidate sessions.</td>
+                                    <td>Backend Engineer</td>
+                                    <td>1.0 SP</td>
+                                </tr>
+                                <tr>
+                                    <td>4</td>
+                                    <td><span class="badge badge-fe">Frontend UI</span></td>
+                                    <td>UI Trang Quên Mật Khẩu, Trang Nhập Mật Khẩu Mới + Thanh đo độ mạnh mật khẩu.</td>
+                                    <td>Frontend Engineer</td>
+                                    <td>1.0 SP</td>
+                                </tr>
+                                <tr>
+                                    <td>5</td>
+                                    <td><span class="badge badge-qa">QA / Test</span></td>
+                                    <td>Viết Unit Test & Integration Test (Token expiry, anti-enumeration response, single-use token).</td>
+                                    <td>QA Engineer</td>
+                                    <td>1.0 SP</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- TAB 3: SECURITY & ARCHITECTURE -->
+        <section id="security-view" class="tab-content">
+            <div class="spec-header">
+                <div>
+                    <h2><i class="fa-solid fa-shield-cat"></i> System Architecture & Security Guidelines</h2>
+                    <p>Chi tiết thiết kế Cơ Sở Dữ Liệu, Luồng dữ liệu Sequence Diagram và Quy tắc An Ninh Mạng.</p>
+                </div>
+            </div>
+
+            <div class="spec-grid">
+                <!-- Sequence Diagram -->
+                <div class="spec-card full-width">
+                    <div class="spec-card-title"><i class="fa-solid fa-diagram-project"></i> 1. Luồng Xử Lý Nối Tiếp (Sequence Flow Diagram)</div>
+                    <div class="sequence-flow-visual">
+                        <div class="flow-step">
+                            <div class="step-num">1</div>
+                            <div class="step-content">
+                                <h4>Client Yêu Cầu</h4>
+                                <p>User gửi `POST /forgot-password` kèm `email`</p>
+                            </div>
+                        </div>
+                        <div class="flow-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+                        <div class="flow-step">
+                            <div class="step-num">2</div>
+                            <div class="step-content">
+                                <h4>Backend Rate Limit & Check</h4>
+                                <p>Kiểm tra IP rate limit & Lookup User DB</p>
+                            </div>
+                        </div>
+                        <div class="flow-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+                        <div class="flow-step">
+                            <div class="step-num">3</div>
+                            <div class="step-content">
+                                <h4>Anti-Enumeration Response</h4>
+                                <p>Luôn trả về HTTP 200 OK + Generic Message</p>
+                            </div>
+                        </div>
+                        <div class="flow-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+                        <div class="flow-step">
+                            <div class="step-num">4</div>
+                            <div class="step-content">
+                                <h4>Sinh Token & Send Email</h4>
+                                <p>Lưu SHA-256(token) hạn 30m -> Gửi email async</p>
+                            </div>
+                        </div>
+                        <div class="flow-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+                        <div class="flow-step">
+                            <div class="step-num">5</div>
+                            <div class="step-content">
+                                <h4>Reset & Invalidate</h4>
+                                <p>Verify <=30m & used_at IS NULL -> Change Pass & revokes sessions</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Database DDL Card -->
+                <div class="spec-card">
+                    <div class="spec-card-title"><i class="fa-solid fa-database"></i> 2. SQL DDL Schema Bảng Database</div>
+                    <div class="code-block">
+<span class="kw">CREATE TABLE</span> password_reset_tokens (
+    id <span class="str">BIGINT PRIMARY KEY AUTO_INCREMENT</span>,
+    user_id <span class="str">BIGINT NOT NULL</span>,
+    token_hash <span class="str">VARCHAR(64) NOT NULL</span>, <span class="comment">-- SHA-256</span>
+    created_at <span class="str">TIMESTAMP DEFAULT CURRENT_TIMESTAMP</span>,
+    expires_at <span class="str">TIMESTAMP NOT NULL</span>, <span class="comment">-- NOW() + 30m</span>
+    used_at <span class="str">TIMESTAMP NULL DEFAULT NULL</span>,
+    ip_address <span class="str">VARCHAR(45) NULL</span>,
+    <span class="kw">FOREIGN KEY</span> (user_id) <span class="kw">REFERENCES</span> users(id),
+    <span class="kw">INDEX</span> idx_token_hash (token_hash)
+);
+                    </div>
+                </div>
+
+                <!-- Security Principles -->
+                <div class="spec-card">
+                    <div class="spec-card-title"><i class="fa-solid fa-lock"></i> 3. 5 Nguyên Tắc Bảo Mật Bắt Buộc</div>
+                    <div class="security-checklist">
+                        <div class="sec-item">
+                            <i class="fa-solid fa-shield-heart text-success"></i>
+                            <div>
+                                <strong>Chống dò tài khoản (Account Enumeration Prevention):</strong>
+                                <p>Giao diện & API không tiết lộ email có tồn tại hay không. Trả về cùng HTTP Code & Message.</p>
+                            </div>
+                        </div>
+                        <div class="sec-item">
+                            <i class="fa-solid fa-key text-warning"></i>
+                            <div>
+                                <strong>Băm Token (Token Hashing in DB):</strong>
+                                <p>Không lưu Token dạng thô (plain-text). Chỉ lưu SHA-256 hash của token để tránh kẻ gian đọc DB khôi phục mật khẩu.</p>
+                            </div>
+                        </div>
+                        <div class="sec-item">
+                            <i class="fa-solid fa-hourglass text-danger"></i>
+                            <div>
+                                <strong>Giới Hạn Đúng 30 Phút:</strong>
+                                <p>Token có thời gian sống ngắn (Short-lived 30 minutes) để hạn chế rủi ro lộ link trong hộp thư.</p>
+                            </div>
+                        </div>
+                        <div class="sec-item">
+                            <i class="fa-solid fa-user-xmark text-info"></i>
+                            <div>
+                                <strong>Thu Hồi Toàn Bộ Sessions Cũ:</strong>
+                                <p>Đổi mật khẩu xong lập tức xoá bỏ tất cả Refresh Tokens/Cookies cũ trên mọi thiết bị.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+        <p>Scrum User Story Ticket [AUTH-102] • Password Reset via Email Flow • Built with Clean HTML/CSS/JS</p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
