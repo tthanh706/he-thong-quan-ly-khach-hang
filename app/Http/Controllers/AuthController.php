@@ -86,4 +86,48 @@ if (!$user || !Hash::check($request->password, $user->password)) {
 
         return redirect('/login')->with('success', 'Bạn đã đăng xuất thành công.');
     }
+    //ADD*
+    // CHỨC NĂNG ĐỔI MẬT KHẨU (SCRUM-88)
+    
+
+    // 1. Hiển thị trang đổi mật khẩu
+    public function showChangePassword()
+    {
+        return view('auth.change-password');
+    }
+
+    // 2. Xử lý đổi mật khẩu
+    public function changePassword(Request $request)
+    {
+        // Validate dữ liệu theo yêu cầu SCRUM-88
+        $request->validate([
+            'current_password' => ['required'], // Bắt buộc nhập mật khẩu hiện tại
+            'new_password' => [
+                'required',
+                'confirmed',
+                Password::min(8)->letters()->numbers() // Tối thiểu 8 ký tự, có chữ và số
+            ],
+        ], [
+            'current_password.required' => 'Vui lòng nhập mật khẩu hiện tại.',
+            'new_password.required' => 'Vui lòng nhập mật khẩu mới.',
+            'new_password.min' => 'Mật khẩu mới phải có tối thiểu 8 ký tự.',
+            'new_password.confirmed' => 'Mật khẩu xác nhận không khớp.',
+        ]);
+
+        $user = Auth::user();
+
+        // Kiểm tra mật khẩu hiện tại có đúng không
+        if (!Hash::check($request->current_password, $user->password)) {
+            return back()->withErrors(['current_password' => 'Mật khẩu hiện tại không chính xác.']);
+        }
+
+        // Cập nhật mật khẩu mới vào DB
+        $user->password = Hash::make($request->new_password);
+        $user->save();
+
+        // Thu hồi các phiên đăng nhập khác
+        Auth::logoutOtherDevices($request->current_password);
+
+        return redirect()->back()->with('status', 'Đổi mật khẩu thành công và đã đăng xuất khỏi các thiết bị khác!');
+    }
 }
