@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\UserManagementController;
 
 // Trang đăng nhập
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -21,3 +22,7 @@ Route::get('/admin', function () {
 Route::get('/dashboard', function () {
     return 'Chào mừng bạn đến CRM!';
 })->middleware('auth');
+
+// Khóa tài khoản và bàn giao dữ liệu
+Route::post('/api/users/{user}/lock', [UserManagementController::class, 'lock'])
+    ->middleware('auth');
