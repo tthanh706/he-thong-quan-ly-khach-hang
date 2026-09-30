@@ -17,7 +17,7 @@ class UserManagementController extends Controller
     public function lock(Request $request, User $user)
     {
         // Chỉ Admin mới được thực hiện thao tác này
-        if (!Auth::check() || Auth::user()->role !== 'admin') {
+        if (! Auth::check() || Auth::user()->role !== 'admin') {
             return response()->json([
                 'message' => 'Bạn không có quyền thực hiện thao tác này.',
             ], 403);
@@ -50,7 +50,7 @@ class UserManagementController extends Controller
         // Người nhận bàn giao phải đang hoạt động
         $successor = User::find($transferToUserId);
 
-        if (!$successor || !$successor->is_active) {
+        if (! $successor || ! $successor->is_active) {
             return response()->json([
                 'message' => 'Nhân viên kế nhiệm không tồn tại hoặc đã bị khóa.',
             ], 422);

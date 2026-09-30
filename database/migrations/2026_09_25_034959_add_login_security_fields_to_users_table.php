@@ -7,28 +7,28 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
- * Run the migrations.
- */
-public function up(): void
-{
-    Schema::table('users', function (Blueprint $table) {
-        $table->string('role')->default('user')->after('password');
-        $table->unsignedInteger('failed_login_attempts')->default(0)->after('role');
-        $table->timestamp('locked_until')->nullable()->after('failed_login_attempts');
-    });
-}
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::table('users', function (Blueprint $table) {
+            $table->string('role')->default('user')->after('password');
+            $table->unsignedInteger('failed_login_attempts')->default(0)->after('role');
+            $table->timestamp('locked_until')->nullable()->after('failed_login_attempts');
+        });
+    }
 
-/**
- * Reverse the migrations.
- */
-public function down(): void
-{
-    Schema::table('users', function (Blueprint $table) {
-        $table->dropColumn([
-            'role',
-            'failed_login_attempts',
-            'locked_until',
-        ]);
-    });
-}
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn([
+                'role',
+                'failed_login_attempts',
+                'locked_until',
+            ]);
+        });
+    }
 };

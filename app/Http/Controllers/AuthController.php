@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
@@ -25,7 +25,7 @@ class AuthController extends Controller
         $user = User::where('email', $request->email)->first();
 
         // Tài khoản đã bị khóa bởi quản trị viên
-        if ($user && !$user->is_active) {
+        if ($user && ! $user->is_active) {
             return back()->withErrors([
                 'email' => 'Tài khoản đã bị khóa. Vui lòng liên hệ quản trị viên.',
             ])->withInput($request->only('email'));
@@ -39,7 +39,7 @@ class AuthController extends Controller
         }
 
         // Kiểm tra email + mật khẩu
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        if (! $user || ! Hash::check($request->password, $user->password)) {
 
             // Nếu có tài khoản thì tăng số lần đăng nhập sai
             if ($user) {
