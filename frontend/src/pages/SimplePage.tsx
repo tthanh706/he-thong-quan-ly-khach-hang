@@ -1,0 +1,1 @@
+export default function SimplePage({title}:{title:string}){return <><h1 className="page-title">{title}</h1><p className="page-subtitle">Chức năng này chỉ xuất hiện khi tài khoản có quyền tương ứng.</p><div className="card">Nội dung demo của {title}.</div></>}
