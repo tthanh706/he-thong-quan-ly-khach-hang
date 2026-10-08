@@ -40,8 +40,8 @@ input:focus, select:focus { border-color: #7545d9; box-shadow: 0 0 0 3px rgba(11
 .sidebar .brand { color: #c7a9ff; font-size: 20px; padding: 0 10px; }.side-caption { color: #85819d; font-size: 12px; padding: 5px 10px 25px; }
 nav { display: grid; gap: 6px; } nav button { text-align: left; color: #c7c4d5; background: transparent; border: 0; border-radius: 9px; padding: 11px 12px; } nav button:hover, nav button.active { color: #fff; background: #2a2448; }
 .sidebar-section-title { color: #85819d; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 14px 10px 6px; }
-.sidebar-error-nav { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 0 4px; }
-.sidebar-error-nav button { font-size: 11px; padding: 7px 6px; border-radius: 8px; background: rgba(255, 255, 255, 0.05); color: #c7c4d5; border: 1px solid rgba(255, 255, 255, 0.08); display: flex; align-items: center; justify-content: center; gap: 4px; transition: all 0.15s ease; cursor: pointer; }
+.sidebar-error-nav { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 4px; }
+.sidebar-error-nav button { flex: 1 1 calc(33% - 6px); min-width: 44px; font-size: 11px; padding: 7px 4px; border-radius: 8px; background: rgba(255, 255, 255, 0.05); color: #c7c4d5; border: 1px solid rgba(255, 255, 255, 0.08); display: flex; align-items: center; justify-content: center; gap: 3px; transition: all 0.15s ease; cursor: pointer; }
 .sidebar-error-nav button:hover { background: rgba(255, 255, 255, 0.12); color: #fff; }
 .sidebar-error-nav button.active { background: #7545d9; color: #fff; border-color: #7545d9; }
 .sidebar-bottom { margin-top: auto; border-top: 1px solid #302b4a; padding: 16px 10px 0; display: grid; gap: 10px; }

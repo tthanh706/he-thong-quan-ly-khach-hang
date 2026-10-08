@@ -176,3 +176,45 @@
   padding-top: 24px;
   border-top: 1px solid var(--border-color);
 }
+
+.password-tag {
+  display: inline-block;
+  background: #f1f5f9;
+  color: #0f172a;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-family: Consolas, monospace;
+  font-size: 13px;
+  border: 1px solid #cbd5e1;
+  font-weight: 500;
+}
+
+.password-auto {
+  color: #64748b;
+  font-style: italic;
+  font-size: 12px;
+}
+
+.role-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.role-badge.admin {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.role-badge.manager {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.role-badge.staff {
+  background: #e0e7ff;
+  color: #4338ca;
+}
+

@@ -27,6 +27,7 @@ class User extends Authenticatable
         'data_scope',
         'status',
         'sales_team_id',
+        'business_group',
     ];
 
     protected $hidden = ['password', 'remember_token', 'avatar_path'];

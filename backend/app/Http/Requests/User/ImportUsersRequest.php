@@ -23,8 +23,22 @@ class ImportUsersRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'file' => ['required', 'file', 'extensions:xlsx,csv', 'max:'.self::MAX_FILE_SIZE_KB],
-            'dry_run' => ['sometimes', 'boolean'],
+            'file' => [
+                'required',
+                'file',
+                function ($attribute, $value, $fail) {
+                    if (!$value instanceof \Illuminate\Http\UploadedFile) {
+                        return $fail('Tải file lên không thành công, vui lòng thử lại.');
+                    }
+                    $ext = strtolower($value->getClientOriginalExtension());
+                    if (!in_array($ext, ['xlsx', 'csv'], true)) {
+                        return $fail('Chỉ hỗ trợ file Excel (.xlsx) hoặc CSV (.csv).');
+                    }
+                },
+                'max:'.self::MAX_FILE_SIZE_KB,
+            ],
+            'dry_run' => ['sometimes'],
+            'is_preview' => ['sometimes'],
         ];
     }
 
