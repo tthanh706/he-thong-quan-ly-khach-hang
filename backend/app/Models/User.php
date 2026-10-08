@@ -25,7 +25,7 @@ class User extends Authenticatable
         'failed_login_attempts',
         'locked_until',
         'data_scope',
-        'is_active',
+        'status',
         'sales_team_id',
     ];
 
@@ -43,7 +43,6 @@ class User extends Authenticatable
             'locked_at' => 'datetime',
             'locked_until' => 'datetime',
             'password' => 'hashed',
-            'is_active' => 'boolean',
         ];
     }
 

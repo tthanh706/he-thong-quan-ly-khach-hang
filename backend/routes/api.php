@@ -21,14 +21,20 @@ use App\Http\Controllers\OpportunityController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
 Route::middleware('session.auth')->group(function (): void {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
+    Route::post('/change-password', [AuthController::class, 'changePassword']);
 
     Route::middleware('admin.role')->group(function (): void {
         Route::get('/accounts', [AccountController::class, 'index']);
+        Route::post('/accounts', [AccountController::class, 'store']);
         Route::post('/accounts/{user}/lock', [AccountController::class, 'lock']);
+        Route::post('/accounts/{user}/unlock', [AccountController::class, 'unlock']);
+        Route::patch('/accounts/{user}/role', [AccountController::class, 'updateRole']);
         Route::get('/handover-logs', [HandoverLogController::class, 'index']);
     });
 

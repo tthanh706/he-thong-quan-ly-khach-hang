@@ -4,7 +4,7 @@ import type { User } from '../types';
 export const profileService = {
   getProfile: () => api<{ success: boolean; data: User }>('/v1/profile'),
 
-  updateProfile: (data: { phone?: string | null; job_title?: string | null; email_signature?: string | null }) => 
+  updateProfile: (data: { name?: string | null; phone?: string | null; job_title?: string | null; email_signature?: string | null }) => 
     api<{ success: boolean; data: User; message: string }>('/v1/profile', {
       method: 'PATCH',
       body: JSON.stringify(data),
