@@ -24,13 +24,16 @@ export const useAuth = create<AuthState>()(
       },
 
       logout: async () => {
-        localStorage.removeItem('session_token');
-        localStorage.removeItem('auth-store');
-        sessionStorage.clear();
-        set({ user: null, token: null });
         try {
           await authApi.logout();
-        } catch {}
+        } catch {
+          // Bỏ qua lỗi backend nếu có
+        } finally {
+          localStorage.removeItem('session_token');
+          localStorage.removeItem('auth-store');
+          sessionStorage.clear();
+          set({ user: null, token: null });
+        }
       },
 
       setUser: (user) => set({ user }),

@@ -131,12 +131,23 @@ export default function App() {
       }
     };
 
+    const handleSessionExpired = (e: Event) => {
+      const customEvent = e as CustomEvent<{ message?: string }>;
+      setUser(null as any);
+      setPage('accounts');
+      setErrorStatus(null);
+      window.history.pushState(null, '', '/login');
+      toast.error(customEvent.detail?.message || 'Phiên làm việc đã hết hạn. Vui lòng đăng nhập lại.');
+    };
+
     window.addEventListener('popstate', handlePopState);
     window.addEventListener('app:http-error', handleHttpError);
+    window.addEventListener('app:session-expired', handleSessionExpired);
 
     return () => {
       window.removeEventListener('popstate', handlePopState);
       window.removeEventListener('app:http-error', handleHttpError);
+      window.removeEventListener('app:session-expired', handleSessionExpired);
     };
   }, []);
 
@@ -154,21 +165,18 @@ export default function App() {
   }, [setUser]);
 
   async function handleLogout() {
-    localStorage.removeItem('session_token');
-    localStorage.removeItem('auth-store');
-    sessionStorage.clear();
-    setUser(null as any);
-    setErrorStatus(null);
-    if (page === 'error') {
-      setPage('accounts');
-    }
-    window.history.pushState(null, '', '/login');
-
     try {
       await authLogout();
     } catch {
       // Bỏ qua lỗi backend nếu có
     }
+    localStorage.removeItem('session_token');
+    localStorage.removeItem('auth-store');
+    sessionStorage.clear();
+    setUser(null as any);
+    setErrorStatus(null);
+    setPage('accounts');
+    window.history.pushState(null, '', '/login');
     toast.success('Đã đăng xuất thành công!');
   }
 
@@ -284,7 +292,7 @@ export default function App() {
               <button
                 className={page === 'error' && errorStatus === 401 ? 'active' : ''}
                 onClick={() => showError(401)}
-                title="Lỗi 401 - Chưa đăng nhập"
+                title="Lỗi 401 - Không được phép"
               >
                 <AlertTriangle size={11} /> 401
               </button>
@@ -294,6 +302,13 @@ export default function App() {
                 title="Lỗi 402 - Yêu cầu thanh toán"
               >
                 <AlertTriangle size={11} /> 402
+              </button>
+              <button
+                className={page === 'error' && errorStatus === 403 ? 'active' : ''}
+                onClick={() => showError(403)}
+                title="Lỗi 403 - Bị cấm truy cập"
+              >
+                <AlertTriangle size={11} /> 403
               </button>
               <button
                 className={page === 'error' && errorStatus === 404 ? 'active' : ''}

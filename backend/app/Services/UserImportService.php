@@ -39,11 +39,19 @@ class UserImportService
         'name' => ['name', 'full_name', 'ho_ten', 'ho_va_ten', 'ten', 'ten_nhan_vien'],
         'email' => ['email', 'e_mail', 'dia_chi_email', 'thu_dien_tu'],
         'role' => ['role', 'vai_tro', 'quyen', 'chuc_vu'],
+        'password' => ['password', 'mat_khau', 'matkhau', 'pass', 'mk'],
+        'business_group' => ['business_group', 'nhom_kinh_doanh', 'nhom', 'phong_ban', 'team'],
     ];
 
     private const REQUIRED_COLUMNS = ['name', 'email'];
 
-    private const COLUMN_LABELS = ['name' => 'Họ tên', 'email' => 'Email', 'role' => 'Vai trò'];
+    private const COLUMN_LABELS = [
+        'name' => 'Họ tên',
+        'email' => 'Email',
+        'role' => 'Vai trò',
+        'password' => 'Mật khẩu',
+        'business_group' => 'Nhóm kinh doanh',
+    ];
 
     public function __construct(private readonly SpreadsheetReaderService $spreadsheetReader) {}
 
@@ -90,9 +98,9 @@ class UserImportService
     public function buildTemplateCsv(): string
     {
         $lines = [
-            ['Họ tên', 'Email', 'Vai trò'],
-            ['Nguyễn Văn An', 'an.nguyen@company.com', UserRoleEnum::STAFF->value],
-            ['Trần Thị Bình', 'binh.tran@company.com', UserRoleEnum::MANAGER->value],
+            ['Họ tên', 'Email', 'Vai trò', 'Mật khẩu', 'Nhóm kinh doanh'],
+            ['Nguyễn Văn An', 'an.nguyen@company.com', UserRoleEnum::STAFF->value, 'Staff123456', 'Kinh doanh Miền Bắc'],
+            ['Trần Thị Bình', 'binh.tran@company.com', UserRoleEnum::MANAGER->value, 'Manager123456', 'Kinh doanh Miền Nam'],
         ];
 
         $handle = fopen('php://temp', 'r+');
@@ -147,10 +155,17 @@ class UserImportService
     {
         $records = [];
         foreach ($dataRows as $rowNumber => $cells) {
+            $rawPassword = $this->cell($cells, $columnMap, 'password');
+            $hasCustomPassword = ($rawPassword !== '');
+            $password = $hasCustomPassword ? $rawPassword : $this->generateTemporaryPassword();
+
             $records[$rowNumber] = [
                 'name' => $this->cell($cells, $columnMap, 'name'),
                 'email' => Str::lower($this->cell($cells, $columnMap, 'email')),
                 'role_input' => $this->cell($cells, $columnMap, 'role'),
+                'password' => $password,
+                'has_custom_password' => $hasCustomPassword,
+                'business_group' => $this->cell($cells, $columnMap, 'business_group'),
             ];
         }
 
@@ -183,6 +198,8 @@ class UserImportService
                 'name' => $record['name'],
                 'email' => $record['email'],
                 'role' => $role?->value ?? $record['role_input'],
+                'password' => $record['password'],
+                'business_group' => $record['business_group'],
                 'status' => $errors === [] ? self::ROW_STATUS_VALID : self::ROW_STATUS_INVALID,
                 'errors' => $errors,
             ];
@@ -192,20 +209,29 @@ class UserImportService
     }
 
     /**
-     * @param  array{name: string, email: string, role_input: string}  $record
+     * @param  array{name: string, email: string, role_input: string, password: string, has_custom_password: bool}  $record
      * @return array<int, string>
      */
     private function validateRecord(array $record, ?UserRoleEnum $role): array
     {
-        $validator = Validator::make($record, [
+        $rules = [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email:rfc', 'max:255'],
-        ], [
+        ];
+
+        if ($record['has_custom_password']) {
+            $rules['password'] = ['required', 'string', 'min:8', 'regex:/^(?=.*[A-Za-z])(?=.*\d)/'];
+        }
+
+        $validator = Validator::make($record, $rules, [
             'name.required' => 'Thiếu họ tên.',
             'name.max' => 'Họ tên không được vượt quá 255 ký tự.',
             'email.required' => 'Thiếu email.',
             'email.email' => 'Email không đúng định dạng.',
             'email.max' => 'Email không được vượt quá 255 ký tự.',
+            'password.required' => 'Thiếu mật khẩu.',
+            'password.min' => 'Mật khẩu phải có tối thiểu 8 ký tự.',
+            'password.regex' => 'Mật khẩu phải chứa ít nhất một chữ cái và một chữ số.',
         ]);
 
         $errors = $validator->errors()->all();
@@ -218,8 +244,8 @@ class UserImportService
     }
 
     /**
-     * @param  array<int, array{row: int, name: string, email: string, role: string, status: string, errors: array<int, string>}>  $rows
-     * @return array<int, array{row: int, name: string, email: string, role: string, status: string, errors: array<int, string>}>
+     * @param  array<int, array{row: int, name: string, email: string, role: string, password: string, business_group: string, status: string, errors: array<int, string>}>  $rows
+     * @return array<int, array{row: int, name: string, email: string, role: string, password: string, business_group: string, status: string, errors: array<int, string>}>
      */
     private function createUsers(array $rows, User $performedBy): array
     {
@@ -231,25 +257,31 @@ class UserImportService
                     continue;
                 }
 
-                $temporaryPassword = $this->generateTemporaryPassword();
-                $user = User::create([
+                $password = $row['password'];
+                $userData = [
                     'name' => $row['name'],
                     'email' => $row['email'],
                     'role' => $row['role'],
-                    'password' => Hash::make($temporaryPassword),
-                ]);
+                    'status' => 'active',
+                    'password' => Hash::make($password),
+                ];
+                if (!empty($row['business_group'])) {
+                    $userData['business_group'] = $row['business_group'];
+                }
+
+                $user = User::create($userData);
 
                 $rows[$index]['status'] = self::ROW_STATUS_CREATED;
-                $credentials[] = [$user, $temporaryPassword];
+                $credentials[] = [$user, $password];
             }
         });
 
-        foreach ($credentials as [$user, $temporaryPassword]) {
-            $this->sendWelcomeMail($user, $temporaryPassword);
+        foreach ($credentials as [$user, $password]) {
+            $this->sendWelcomeMail($user, $password);
         }
 
         Log::info('Nhập người dùng hàng loạt hoàn tất.', [
-            'performed_by_user_id' => $performedBy->id,
+            'performed_by_user_id' => $performedBy->id ?? null,
             'created_count' => count($credentials),
         ]);
 
@@ -335,6 +367,6 @@ class UserImportService
 
     private function generateTemporaryPassword(): string
     {
-        return 'Tmp'.Str::upper(Str::random(4)).random_int(1000, 9999).'a1';
+        return 'Staff'.random_int(100000, 999999);
     }
 }

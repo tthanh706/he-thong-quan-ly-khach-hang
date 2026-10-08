@@ -37,17 +37,20 @@ export async function api<T>(path: string, options: RequestInit = {}): Promise<T
   const body = await response.json().catch(() => ({}));
 
   if (response.status === 401) {
-    if (body.code === 'SESSION_EXPIRED') {
-      localStorage.removeItem('session_token');
+    localStorage.removeItem('session_token');
+    localStorage.removeItem('auth-store');
+
+    // Đăng xuất hoặc kiểm tra phiên ban đầu không bao giờ kích hoạt trang lỗi 401
+    const isAuthEndpoint = path.includes('/logout') || path.includes('/login') || path.includes('/me');
+    if (!isAuthEndpoint) {
+      window.dispatchEvent(
+        new CustomEvent('app:session-expired', {
+          detail: {
+            message: body.message ?? 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.',
+          },
+        })
+      );
     }
-    window.dispatchEvent(
-      new CustomEvent('app:http-error', {
-        detail: {
-          statusCode: 401,
-          message: body.message ?? 'Phiên đăng nhập đã hết hạn hoặc không hợp lệ.',
-        },
-      })
-    );
     throw new Error(body.message ?? 'Phiên đăng nhập đã hết hạn.');
   }
 

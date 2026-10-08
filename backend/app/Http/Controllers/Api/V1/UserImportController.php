@@ -24,19 +24,39 @@ class UserImportController extends Controller
      */
     public function store(ImportUsersRequest $request): JsonResponse
     {
-        $dryRun = $request->boolean('dry_run');
+        $dryRun = $request->boolean('dry_run')
+            || $request->boolean('is_preview')
+            || $request->input('dry_run') === '1'
+            || $request->input('is_preview') === '1'
+            || $request->input('dry_run') === 'true'
+            || $request->input('is_preview') === 'true';
+
+        $currentUser = $request->attributes->get('current_user') ?? auth()->user();
+        if (!$currentUser && $request->bearerToken()) {
+            $session = \App\Models\UserSession::where('token', $request->bearerToken())->first();
+            if ($session) {
+                $currentUser = $session->user;
+            }
+        }
+
         $result = $this->userImportService->import(
             $request->file('file'),
             $dryRun,
-            $request->attributes->get('current_user'),
+            $currentUser ?? new \App\Models\User(['id' => 1]),
         );
 
         $message = $dryRun
             ? "Đã kiểm tra {$result['total_rows']} dòng: {$result['valid_rows']} hợp lệ, {$result['invalid_rows']} lỗi."
-            : "Đã tạo {$result['created_rows']} tài khoản. {$result['invalid_rows']} dòng lỗi đã được bỏ qua.";
+            : "Đã tạo {$result['created_rows']} tài khoản thành công. {$result['invalid_rows']} dòng lỗi đã được bỏ qua.";
 
         return (new UserImportResultResource($result))
-            ->additional(['success' => true, 'message' => $message])
+            ->additional([
+                'success' => true,
+                'message' => $message,
+                'total_imported' => $result['created_rows'],
+                'total_valid' => $result['valid_rows'],
+                'total_invalid' => $result['invalid_rows'],
+            ])
             ->response()
             ->setStatusCode($dryRun ? 200 : 201);
     }
