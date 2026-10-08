@@ -341,7 +341,9 @@ export default function App() {
             </div>
             <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               <div style={{ fontWeight: 600, fontSize: '13px' }}>{user.name}</div>
-              <div style={{ fontSize: '11px', color: '#94a3b8' }}>{user.role ?? 'Thành viên'}</div>
+              <div style={{ fontSize: '11px', color: '#94a3b8' }}>
+                {user.role ?? 'Thành viên'} {user.businessGroup?.name ? `• ${user.businessGroup.name}` : (user as any).business_group ? `• ${(user as any).business_group}` : ''}
+              </div>
             </div>
           </div>
           <button 
@@ -374,7 +376,9 @@ export default function App() {
               </div>
               <div className="topbar-user-info">
                 <span className="topbar-name">{user.name}</span>
-                <span className="topbar-role">{user.role ?? 'Thành viên'}</span>
+                <span className="topbar-role">
+                  {user.role ?? 'Thành viên'} {user.businessGroup?.name ? `• ${user.businessGroup.name}` : (user as any).business_group ? `• ${(user as any).business_group}` : ''}
+                </span>
               </div>
             </div>
             <button 

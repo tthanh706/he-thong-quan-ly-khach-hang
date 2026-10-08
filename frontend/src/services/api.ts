@@ -118,6 +118,23 @@ export const changePasswordApi = (payload: any) =>
     body: JSON.stringify(payload),
   });
 
+export const forgotPasswordApi = (email: string) =>
+  api<{ success: boolean; message: string; token?: string }>('/forgot-password', {
+    method: 'POST',
+    body: JSON.stringify({ email }),
+  });
+
+export const resetPasswordApi = (payload: {
+  email: string;
+  token: string;
+  password: string;
+  password_confirmation: string;
+}) =>
+  api<{ success: boolean; message: string }>('/reset-password', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+
 export const authApi = {
   login: (payload: { email: string; password: string }) => api<{ success: boolean; session_token: string; user: import('../types').User }>('/login', {
     method: 'POST',
