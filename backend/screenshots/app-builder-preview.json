@@ -1,0 +1,38 @@
+{
+  "url": "http://127.0.0.1:8080/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Nautilus CRM · Catalog",
+      "hasCanvas": false,
+      "bodyTextLen": 1143,
+      "bodyTextHash": "51fa99e74991213daf8f62caf31adde94d6a77588af78138bfad433009ea2c6f",
+      "bodyTextPrefix": "Nautilus CRM NHÓM 2 · S2-05 / S2-07 Giám đốc kinh doanh Sprint 2",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Nautilus CRM · Catalog",
+      "hasCanvas": false,
+      "bodyTextLen": 1121,
+      "bodyTextHash": "ed5278e1a42f00017bf243ae230b8d4dc3ef08df4850d095dcd71e46a32b7801",
+      "bodyTextPrefix": "Nautilus CRM Giám đốc kinh doanh Sprint 2 · Catalog Tổng quan Sả",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview-mobile.png"
+    }
+  },
+  "brandWarnings": [
+    "BRAND NOTE: no custom public/og.jpg — the platform will serve the og.grok.me placeholder. Custom cards are the default for games of every kind (DOM board/word games included), whimsical apps, creative tools, and brand-forward pages — only plain utilities (converters, CRUD trackers, admin dashboards) keep the placeholder. If this app is not a plain utility, finish the brand-asset pass per /workspace/.grok/skills/og/SKILL.md."
+  ],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/app-builder-preview.json"
+}
