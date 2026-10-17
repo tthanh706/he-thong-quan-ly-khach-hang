@@ -22,6 +22,7 @@ export interface User {
   status?: string;
   is_active?: boolean;
   locked_at?: string | null;
+  lock_reason?: string | null;
   phone?: string | null;
   job_title?: string | null;
   email_signature?: string | null;
@@ -29,6 +30,8 @@ export interface User {
   scope?: DataScope;
   business_group_id?: number | null;
   businessGroup?: { id: number | null; name: string | null };
+  roles?: Role[];
+  business_groups?: BusinessGroup[];
   permissions?: Permission[];
   customers_count?: number;
   opportunities_count?: number;
@@ -47,43 +50,113 @@ export interface AuthResponse {
   message: string;
 }
 
-export type CustomerStatus = 'lead' | 'prospect' | 'active' | 'inactive';
+export type CustomerStatus = 'Tiềm năng' | 'Đang giao dịch' | 'Khách hàng' | 'Ngừng hợp tác' | 'lead' | 'prospect' | 'active' | 'inactive' | string;
 
 export interface Customer {
-  id: number;
+  id: number | string;
+  code?: string;
   name: string;
+  tax_code?: string | null;
+  taxCode?: string | null;
+  industry?: string | null;
+  company_size?: string | null;
+  scale?: string | null;
+  website?: string | null;
   email?: string | null;
   phone?: string | null;
   address?: string | null;
+  area?: string | null;
   company?: string | null;
-  status?: CustomerStatus | string;
+  status?: CustomerStatus;
+  tier?: string;
   assigned_to?: number | null;
   owner_id?: number | null;
+  ownerId?: number | null;
   owner?: User;
+  ownerName?: string;
+  parent_id?: number | null;
+  parentId?: number | null;
+  parentName?: string;
   notes?: string | null;
+  contacts?: Array<{
+    id: string;
+    name: string;
+    phone?: string;
+    email?: string;
+    title?: string;
+    is_primary?: boolean;
+  }>;
+  contactsCount?: number;
+  contractsCount?: number;
+  supportRequestsCount?: number;
+  periodicCaresCount?: number;
   created_at?: string;
+  createdAt?: string;
   updated_at?: string;
   assigned_user?: User;
 }
 
 export interface CustomerPayload {
   name: string;
+  code?: string;
+  tax_code?: string;
+  taxCode?: string;
+  industry?: string;
+  company_size?: string;
+  scale?: string;
+  website?: string;
+  address?: string;
+  area?: string;
   email?: string;
   phone?: string;
-  address?: string;
   company?: string;
-  status?: CustomerStatus | string;
+  status?: CustomerStatus;
+  tier?: string;
+  owner_id?: number;
+  ownerId?: number;
   assigned_to?: number;
+  parent_id?: number | null;
+  parentId?: number | null;
   notes?: string;
 }
 
 export interface CustomerFilters {
   search?: string;
-  status?: CustomerStatus | string | '';
+  status?: CustomerStatus | '';
+  industry?: string | '';
+  company_size?: string | '';
+  scale?: string | '';
+  area?: string | '';
+  owner_id?: number | '';
   assigned_to?: number | '';
+  contact_phone?: string;
+  has_parent?: boolean | '';
   per_page?: number;
   page?: number;
 }
+
+export interface SavedFilterItem {
+  id: number;
+  name: string;
+  module: string;
+  filters: CustomerFilters;
+  created_at?: string;
+}
+
+export interface CustomerFilterOptions {
+  statuses: string[];
+  company_sizes: string[];
+  industries: string[];
+  areas: string[];
+  owners: Array<{ id: number; name: string; email: string; role?: string }>;
+  current_user?: {
+    id: number;
+    name: string;
+    role?: string;
+    data_scope?: string;
+  };
+}
+
 
 export type CampaignStatus = 'draft' | 'active' | 'paused' | 'completed';
 
@@ -235,3 +308,81 @@ export interface CustomFieldItem {
 
 export * from './auditLog';
 export * from './customField';
+export * from './crm';
+
+export interface Contact {
+  id: string;
+  name: string;
+  full_name?: string;
+  title?: string;
+  job_title?: string;
+  email?: string;
+  phone?: string;
+  companyId?: string;
+  customer_id?: number | string;
+  companyName?: string;
+  customer?: { id: number; name: string };
+  department?: string;
+  isPrimary?: boolean;
+  is_primary?: boolean;
+  roleInDecision?: string;
+  decision_role?: string;
+  notes?: string;
+}
+
+export interface ContactHistory {
+  id: number | string;
+  contact_id?: number | string;
+  old_customer_id?: number | string;
+  new_customer_id?: number | string;
+  oldCustomerId?: number | string;
+  newCustomerId?: number | string;
+  oldCustomerName?: string;
+  newCustomerName?: string;
+  old_customer?: { id: number; name: string };
+  new_customer?: { id: number; name: string };
+  changed_by?: { id: number; name: string };
+  changed_at?: string;
+  changedAt?: string;
+}
+
+export interface Company {
+  id: string;
+  name: string;
+  code: string;
+  taxCode?: string;
+  industry?: string;
+  address?: string;
+  phone?: string;
+  email?: string;
+  website?: string;
+  status?: string;
+  tier?: string;
+  totalRevenue?: number;
+}
+
+export interface Subsidiary {
+  id: string;
+  name: string;
+  code: string;
+  taxCode: string;
+  industry: string;
+  address: string;
+  phone: string;
+  email: string;
+  tier: string;
+  totalContracts?: number;
+}
+
+export interface ParentCompany {
+  id: string;
+  name: string;
+  code: string;
+  taxCode: string;
+  industry: string;
+  address: string;
+  phone: string;
+  email: string;
+  tier: string;
+  subsidiaries: Subsidiary[];
+}

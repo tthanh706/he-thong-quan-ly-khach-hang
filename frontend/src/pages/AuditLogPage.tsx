@@ -265,7 +265,7 @@ function formatValue(value: string | null) {
   return value;
 }
 
-export default function AuditLogPage() {
+export default function AuditLogPage({ hideHeader = false }: { hideHeader?: boolean } = {}) {
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -371,13 +371,14 @@ export default function AuditLogPage() {
 
   return (
     <div style={pageStyles.wrapper}>
-      <div style={pageStyles.header}>
-        <h2 style={pageStyles.title}>Nhật ký thay đổi</h2>
-
-        <p style={pageStyles.subtitle}>
-          Theo dõi các thay đổi trên dữ liệu nhạy cảm của hệ thống quản lý khách hàng.
-        </p>
-      </div>
+      {!hideHeader && (
+        <div style={pageStyles.header}>
+          <h2 style={pageStyles.title}>Nhật ký thay đổi</h2>
+          <p style={pageStyles.subtitle}>
+            Theo dõi các thay đổi trên dữ liệu nhạy cảm của hệ thống quản lý khách hàng.
+          </p>
+        </div>
+      )}
 
       <form onSubmit={handleFilter} style={pageStyles.filterCard}>
         <div style={pageStyles.filterGrid}>

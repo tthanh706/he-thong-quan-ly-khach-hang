@@ -45,8 +45,8 @@ class UserAssignmentController extends Controller
         $requestedGroupIds = array_map('intval', $data['business_group_ids'] ?? []);
 
         // Không cho quản trị viên tự thu hồi vai trò admin của chính mình.
-        if ($currentUser->id === $user->id && $adminRole) {
-            $isCurrentlyAdmin = $user->roles()->where('roles.id', $adminRole->id)->exists();
+        if ($currentUser && $currentUser->id === $user->id && $adminRole) {
+            $isCurrentlyAdmin = $user->isAdmin();
             $keepsAdmin = in_array($adminRole->id, $requestedRoleIds, true);
 
             if ($isCurrentlyAdmin && !$keepsAdmin) {
@@ -68,6 +68,21 @@ class UserAssignmentController extends Controller
         DB::transaction(function () use ($user, $requestedRoleIds, $requestedGroupIds): void {
             $user->roles()->sync($requestedRoleIds);
             $user->businessGroups()->sync($requestedGroupIds);
+
+            // Cập nhật trường role và business_group_id để tương thích ngược
+            $roleNames = Role::whereIn('id', $requestedRoleIds)->pluck('name')->all();
+            if (in_array('admin', $roleNames, true)) {
+                $user->role = 'admin';
+            } elseif (in_array('manager', $roleNames, true)) {
+                $user->role = 'manager';
+            } elseif (in_array('team_leader', $roleNames, true)) {
+                $user->role = 'team_leader';
+            } elseif (!empty($roleNames)) {
+                $user->role = $roleNames[0];
+            }
+
+            $user->business_group_id = !empty($requestedGroupIds) ? $requestedGroupIds[0] : null;
+            $user->save();
         });
 
         $user->load(['roles', 'businessGroups']);

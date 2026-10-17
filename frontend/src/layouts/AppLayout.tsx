@@ -57,7 +57,7 @@ export default function AppLayout({ children }: { children?: ReactNode }) {
           <Link to="/profile" className="user-info" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', gap: '12px', alignItems: 'center', flex: 1 }}>
             <div className="avatar" style={{ overflow: 'hidden' }}>
               {user?.avatar_url ? (
-                <img src={user.avatar_url} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
+                <img src={user.avatar_url} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               ) : (
                 user?.name?.[0]?.toUpperCase()
               )}

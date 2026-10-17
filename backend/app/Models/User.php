@@ -4,14 +4,16 @@ namespace App\Models;
 
 use App\Enums\DataScopeEnum;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Storage;
 
 class User extends Authenticatable
 {
-    use Notifiable;
+    use HasFactory, Notifiable;
 
     protected $fillable = [
         'name',
@@ -19,6 +21,7 @@ class User extends Authenticatable
         'password',
         'role',
         'locked_at',
+        'lock_reason',
         'phone',
         'job_title',
         'email_signature',
@@ -62,6 +65,76 @@ class User extends Authenticatable
         return $this->hasMany(UserSession::class);
     }
 
+    public function roles(): BelongsToMany
+    {
+        return $this->belongsToMany(Role::class, 'role_user');
+    }
+
+    public function businessGroups(): BelongsToMany
+    {
+        return $this->belongsToMany(BusinessGroup::class, 'business_group_user');
+    }
+
+    public function periodicCares(): HasMany
+    {
+        return $this->hasMany(PeriodicCare::class, 'assignee_id');
+    }
+
+    public function supportRequests(): HasMany
+    {
+        return $this->hasMany(SupportRequest::class, 'assignee_id');
+    }
+
+    public function teamMemberIds(): array
+    {
+        $ids = [$this->id];
+
+        // 1. Nhóm theo sales_team_id nếu có
+        if (!empty($this->sales_team_id)) {
+            $teamIds = static::where('sales_team_id', $this->sales_team_id)->pluck('id')->toArray();
+            $ids = array_merge($ids, $teamIds);
+        }
+
+        // 2. Nhóm theo business_group_id hoặc pivot business_group_user
+        $groupIds = [];
+        if (!empty($this->business_group_id)) {
+            $groupIds[] = $this->business_group_id;
+        }
+
+        try {
+            $pivotGroupIds = $this->businessGroups()->pluck('business_groups.id')->toArray();
+            $groupIds = array_merge($groupIds, $pivotGroupIds);
+        } catch (\Throwable $e) {
+            // Trường hợp DB chưa sync relation
+        }
+
+        if (!empty($groupIds)) {
+            $groupIds = array_unique($groupIds);
+            $memberIds = static::where(function ($q) use ($groupIds) {
+                $q->whereIn('business_group_id', $groupIds)
+                  ->orWhereHas('businessGroups', function ($bq) use ($groupIds) {
+                      $bq->whereIn('business_groups.id', $groupIds);
+                  });
+            })->pluck('id')->toArray();
+
+            $ids = array_merge($ids, $memberIds);
+        }
+
+        return array_values(array_unique(array_map('intval', $ids)));
+    }
+
+    public function hasRole(string $roleName): bool
+    {
+        if (strtolower((string)$this->role) === strtolower($roleName)) {
+            return true;
+        }
+
+        return $this->relationLoaded('roles')
+            ? $this->roles->contains(fn ($r) => strtolower((string)$r->name) === strtolower($roleName))
+            : $this->roles()->where('name', $roleName)->exists();
+    }
+
+
     public function isLocked(): bool
     {
         return $this->locked_at !== null;
@@ -69,7 +142,13 @@ class User extends Authenticatable
 
     public function isAdmin(): bool
     {
-        return strtolower((string)$this->role) === 'admin';
+        if (strtolower((string)$this->role) === 'admin') {
+            return true;
+        }
+
+        return $this->relationLoaded('roles')
+            ? $this->roles->contains(fn ($r) => strtolower((string)$r->name) === 'admin')
+            : $this->roles()->where('name', 'admin')->exists();
     }
 
     public function can($abilities, $arguments = []): bool

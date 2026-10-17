@@ -388,31 +388,11 @@ export default function CustomFieldsPage() {
         gap: "20px",
       }}
     >
-      <div
-        style={{
-          textAlign: "center",
-          padding: "4px 0 6px",
-        }}
-      >
-        <h2
-          style={{
-            margin: 0,
-            color: "#0f172a",
-            fontSize: "22px",
-          }}
-        >
-          Trường tùy chỉnh
-        </h2>
-
-        <p
-          style={{
-            margin: "6px 0 0",
-            color: "#64748b",
-            fontSize: "13px",
-          }}
-        >
-          Khai báo trường mở rộng cho khách hàng và cơ hội.
-        </p>
+      <div className="page-title">
+        <div>
+          <h2>Quản lý Trường tùy chỉnh</h2>
+          <p>Khai báo và cấu hình các trường dữ liệu mở rộng cho khách hàng và cơ hội bán hàng.</p>
+        </div>
       </div>
 
       {error && (

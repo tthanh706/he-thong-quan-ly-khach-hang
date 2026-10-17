@@ -8,7 +8,10 @@ use App\Services\AccountHandoverService;
 use App\Services\AuditLogService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 
 class AccountController extends Controller
 {
@@ -21,6 +24,7 @@ class AccountController extends Controller
     {
         $accounts = User::query()
             ->withCount(['customers', 'opportunities'])
+            ->with(['roles', 'businessGroups'])
             ->orderBy('name')
             ->get();
 
@@ -64,6 +68,11 @@ class AccountController extends Controller
             'status' => 'active',
         ]);
 
+        $defaultRole = \App\Models\Role::where('name', $validated['role'])->first();
+        if ($defaultRole) {
+            $user->roles()->sync([$defaultRole->id]);
+        }
+
         $admin = $request->attributes->get('current_user');
         if ($admin && $this->auditLogService) {
             try {
@@ -98,7 +107,22 @@ class AccountController extends Controller
         }
 
         $target = User::findOrFail($request->integer('replacement_user_id'));
-        $result = $this->handoverService->lockAndHandover($user, $target, $admin);
+        $reason = $request->input('reason');
+        $result = $this->handoverService->lockAndHandover($user, $target, $admin, $reason);
+
+        if ($admin && $this->auditLogService) {
+            try {
+                $this->auditLogService->logChange(
+                    $admin->id,
+                    'updated',
+                    'User',
+                    $user->id,
+                    'locked_at',
+                    'active',
+                    $reason ? "locked ({$reason})" : 'locked'
+                );
+            } catch (\Throwable) {}
+        }
 
         return response()->json([
             'message' => 'Khóa tài khoản và bàn giao dữ liệu thành công.',
@@ -113,6 +137,7 @@ class AccountController extends Controller
     {
         $user->locked_at = null;
         $user->locked_until = null;
+        $user->lock_reason = null;
         $user->failed_login_attempts = 0;
         $user->save();
 
@@ -177,6 +202,198 @@ class AccountController extends Controller
             'success' => true,
             'message' => "Đã cập nhật vai trò người dùng thành '{$user->role}'.",
             'data' => $user,
+        ]);
+    }
+
+    /**
+     * Xóa một tài khoản người dùng
+     */
+    public function destroy(Request $request, User $user): JsonResponse
+    {
+        $admin = $request->attributes->get('current_user');
+
+        if ($admin && (int) $admin->id === (int) $user->id) {
+            return response()->json(['message' => 'Không thể tự xóa tài khoản của chính bạn.'], 422);
+        }
+
+        $customersCount = $user->customers()->count();
+        $oppsCount = $user->opportunities()->count();
+        if ($customersCount > 0 || $oppsCount > 0) {
+            return response()->json([
+                'message' => "Không thể xóa tài khoản '{$user->name}' do đang phụ trách {$customersCount} khách hàng và {$oppsCount} cơ hội. Vui lòng bàn giao dữ liệu trước khi xóa.",
+            ], 422);
+        }
+
+        DB::transaction(function () use ($user, $admin) {
+            $user->roles()->detach();
+            $user->businessGroups()->detach();
+
+            if (Schema::hasTable('permission_user')) {
+                DB::table('permission_user')->where('user_id', $user->id)->delete();
+            }
+            if (Schema::hasTable('user_sessions')) {
+                DB::table('user_sessions')->where('user_id', $user->id)->delete();
+            }
+            if (Schema::hasTable('api_tokens')) {
+                DB::table('api_tokens')->where('user_id', $user->id)->delete();
+            }
+            if (Schema::hasTable('user_activation_tokens')) {
+                DB::table('user_activation_tokens')->where('user_id', $user->id)->delete();
+            }
+            if (Schema::hasTable('password_reset_tokens')) {
+                DB::table('password_reset_tokens')->where('email', $user->email)->delete();
+            }
+            if (Schema::hasTable('handover_logs')) {
+                DB::table('handover_logs')
+                    ->where('source_user_id', $user->id)
+                    ->orWhere('target_user_id', $user->id)
+                    ->orWhere('performed_by_user_id', $user->id)
+                    ->delete();
+            }
+
+            if ($user->avatar_path) {
+                Storage::disk('public')->delete($user->avatar_path);
+            }
+
+            if ($admin && $this->auditLogService) {
+                try {
+                    $this->auditLogService->logChange(
+                        $admin->id,
+                        'deleted',
+                        'User',
+                        $user->id,
+                        'account',
+                        "{$user->name} ({$user->email})",
+                        null
+                    );
+                } catch (\Throwable) {}
+            }
+
+            $user->delete();
+        });
+
+        return response()->json([
+            'success' => true,
+            'message' => "Đã xóa tài khoản '{$user->name}' thành công!",
+        ]);
+    }
+
+    /**
+     * Xóa hàng loạt tài khoản người dùng
+     */
+    public function bulkDestroy(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'ids' => ['required', 'array', 'min:1'],
+            'ids.*' => ['integer'],
+        ], [
+            'ids.required' => 'Vui lòng chọn ít nhất một tài khoản để xóa.',
+            'ids.min' => 'Vui lòng chọn ít nhất một tài khoản để xóa.',
+        ]);
+
+        $admin = $request->attributes->get('current_user');
+        $ids = array_unique($validated['ids']);
+
+        if ($admin) {
+            $ids = array_values(array_filter($ids, fn ($id) => (int) $id !== (int) $admin->id));
+        }
+
+        if (empty($ids)) {
+            return response()->json(['message' => 'Không có tài khoản hợp lệ để xóa (không thể tự xóa tài khoản của chính bạn).'], 422);
+        }
+
+        $users = User::whereIn('id', $ids)->withCount(['customers', 'opportunities'])->get();
+
+        $deletableIds = [];
+        $skipped = [];
+
+        foreach ($users as $u) {
+            if ($u->customers_count > 0 || $u->opportunities_count > 0) {
+                $skipped[] = [
+                    'id' => $u->id,
+                    'name' => $u->name,
+                    'email' => $u->email,
+                    'reason' => "Đang phụ trách {$u->customers_count} khách hàng và {$u->opportunities_count} cơ hội",
+                ];
+            } else {
+                $deletableIds[] = $u->id;
+            }
+        }
+
+        if (empty($deletableIds)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không thể xóa các tài khoản đã chọn vì tất cả đều đang phụ trách dữ liệu khách hàng hoặc cơ hội.',
+                'skipped' => $skipped,
+            ], 422);
+        }
+
+        DB::transaction(function () use ($deletableIds, $users, $admin) {
+            foreach ($users as $u) {
+                if (in_array($u->id, $deletableIds, true)) {
+                    $u->roles()->detach();
+                    $u->businessGroups()->detach();
+
+                    if (Schema::hasTable('permission_user')) {
+                        DB::table('permission_user')->where('user_id', $u->id)->delete();
+                    }
+                    if (Schema::hasTable('user_sessions')) {
+                        DB::table('user_sessions')->where('user_id', $u->id)->delete();
+                    }
+                    if (Schema::hasTable('api_tokens')) {
+                        DB::table('api_tokens')->where('user_id', $u->id)->delete();
+                    }
+                    if (Schema::hasTable('user_activation_tokens')) {
+                        DB::table('user_activation_tokens')->where('user_id', $u->id)->delete();
+                    }
+                    if (Schema::hasTable('password_reset_tokens')) {
+                        DB::table('password_reset_tokens')->where('email', $u->email)->delete();
+                    }
+                    if (Schema::hasTable('handover_logs')) {
+                        DB::table('handover_logs')
+                            ->where('source_user_id', $u->id)
+                            ->orWhere('target_user_id', $u->id)
+                            ->orWhere('performed_by_user_id', $u->id)
+                            ->delete();
+                    }
+
+                    if ($u->avatar_path) {
+                        Storage::disk('public')->delete($u->avatar_path);
+                    }
+
+                    if ($admin && $this->auditLogService) {
+                        try {
+                            $this->auditLogService->logChange(
+                                $admin->id,
+                                'deleted',
+                                'User',
+                                $u->id,
+                                'account',
+                                "{$u->name} ({$u->email})",
+                                null
+                            );
+                        } catch (\Throwable) {}
+                    }
+
+                    $u->delete();
+                }
+            }
+        });
+
+        $deletedCount = count($deletableIds);
+        $skippedCount = count($skipped);
+
+        $msg = "Đã xóa thành công {$deletedCount} tài khoản.";
+        if ($skippedCount > 0) {
+            $msg .= " Bỏ qua {$skippedCount} tài khoản do đang phụ trách khách hàng hoặc cơ hội.";
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => $msg,
+            'deleted_count' => $deletedCount,
+            'skipped_count' => $skippedCount,
+            'skipped' => $skipped,
         ]);
     }
 }

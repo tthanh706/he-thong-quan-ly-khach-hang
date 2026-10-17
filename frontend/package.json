@@ -9,9 +9,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@ant-design/icons": "^6.3.4",
     "@hookform/resolvers": "^5.9.1",
     "@tanstack/react-query": "^5.104.1",
     "@vitejs/plugin-react": "latest",
+    "antd": "^6.6.6",
     "axios": "^1.20.0",
     "lucide-react": "^1.52.0",
     "react": "latest",

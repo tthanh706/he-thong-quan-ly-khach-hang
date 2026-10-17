@@ -3,7 +3,7 @@ import { useForm as useRHForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import toast from 'react-hot-toast';
-import { LogOut, Save, KeyRound, User as UserIcon, Lock } from 'lucide-react';
+import { LogOut, Save, KeyRound, User as UserIcon, Lock, Camera, Trash2, Loader2 } from 'lucide-react';
 import { profileService } from '../services/profileService';
 import { changePasswordApi } from '../services/api';
 import { useAuth } from '../hooks/useAuth';
@@ -30,7 +30,14 @@ export default function ProfilePage({ onLogout }: { onLogout?: () => void } = {}
   const { user, setUser } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isDeletingAvatar, setIsDeletingAvatar] = useState(false);
+  const [avatarError, setAvatarError] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setAvatarError(false);
+  }, [user?.avatar_url, previewUrl]);
 
   // Form Thông tin cá nhân
   const {
@@ -97,7 +104,7 @@ export default function ProfilePage({ onLogout }: { onLogout?: () => void } = {}
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-      toast.error('Vui lòng chọn file hình ảnh hợp lệ.');
+      toast.error('Vui lòng chọn file hình ảnh hợp lệ (PNG, JPG, WEBP, GIF).');
       return;
     }
 
@@ -106,18 +113,48 @@ export default function ProfilePage({ onLogout }: { onLogout?: () => void } = {}
       return;
     }
 
+    // Hiển thị xem trước ảnh ngay lập tức
+    const localPreview = URL.createObjectURL(file);
+    setPreviewUrl(localPreview);
+    setAvatarError(false);
+
     setIsUploading(true);
     try {
       const response = await profileService.uploadAvatar(file);
       toast.success('Cập nhật ảnh đại diện thành công!');
-      setUser(response.data);
+      const newAvatarUrl = response.data?.avatar_url
+        ? `${response.data.avatar_url}?t=${Date.now()}`
+        : null;
+      setUser({ ...user, ...response.data, avatar_url: newAvatarUrl });
+      setPreviewUrl(null);
+      URL.revokeObjectURL(localPreview);
     } catch (error: any) {
       toast.error(error.message || 'Không thể cập nhật ảnh đại diện.');
+      setPreviewUrl(null);
+      URL.revokeObjectURL(localPreview);
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
+    }
+  };
+
+  const handleDeleteAvatar = async () => {
+    if (!window.confirm('Bạn có chắc chắn muốn gỡ ảnh đại diện hiện tại?')) {
+      return;
+    }
+    setIsDeletingAvatar(true);
+    try {
+      const response = await profileService.deleteAvatar();
+      toast.success('Đã gỡ ảnh đại diện thành công!');
+      setAvatarError(false);
+      setPreviewUrl(null);
+      setUser({ ...user, ...response.data, avatar_url: null });
+    } catch (error: any) {
+      toast.error(error.message || 'Không thể gỡ ảnh đại diện.');
+    } finally {
+      setIsDeletingAvatar(false);
     }
   };
 
@@ -192,29 +229,80 @@ export default function ProfilePage({ onLogout }: { onLogout?: () => void } = {}
         </div>
 
         <div className="profile-avatar-section">
-          <div className="avatar-wrapper">
-            {user?.avatar_url ? (
-              <img src={user.avatar_url} alt="Avatar" className="avatar-image" crossOrigin="anonymous" />
+          <div
+            className="avatar-wrapper"
+            onClick={() => !isUploading && fileInputRef.current?.click()}
+            title="Nhấp để thay đổi ảnh đại diện"
+            role="button"
+            tabIndex={0}
+          >
+            {(previewUrl || (user?.avatar_url && !avatarError)) ? (
+              <img
+                src={previewUrl || user?.avatar_url!}
+                alt="Avatar"
+                className="avatar-image"
+                onError={() => {
+                  if (!previewUrl) setAvatarError(true);
+                }}
+              />
             ) : (
-              user?.name?.charAt(0).toUpperCase()
+              user?.name?.charAt(0).toUpperCase() || 'U'
+            )}
+            {!isUploading && (
+              <div className="avatar-hover-overlay">
+                <Camera size={22} />
+                <span>Đổi ảnh</span>
+              </div>
+            )}
+            {isUploading && (
+              <div
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  backgroundColor: 'rgba(0,0,0,0.6)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#fff',
+                  zIndex: 2,
+                }}
+              >
+                <Loader2 size={26} className="animate-spin" />
+              </div>
             )}
           </div>
           <div className="avatar-actions">
             <h3 style={{ margin: '0 0 6px 0', fontSize: '15px' }}>Ảnh đại diện</h3>
             <p style={{ margin: '0 0 12px 0', fontSize: '13px', color: '#64748b' }}>
-              Định dạng PNG, JPG (Dung lượng tối đa 2MB)
+              Định dạng PNG, JPG, WEBP (Dung lượng tối đa 2MB)
             </p>
-            <label className="avatar-upload-btn">
-              {isUploading ? 'Đang tải lên...' : 'Thay đổi ảnh'}
-              <input
-                type="file"
-                className="avatar-upload-input"
-                accept="image/*"
-                onChange={handleAvatarChange}
-                disabled={isUploading}
-                ref={fileInputRef}
-              />
-            </label>
+            <div className="avatar-btn-group">
+              <label className="avatar-upload-btn">
+                <Camera size={16} />
+                <span>{isUploading ? 'Đang tải lên...' : 'Thay đổi ảnh'}</span>
+                <input
+                  type="file"
+                  className="avatar-upload-input"
+                  accept="image/png,image/jpeg,image/webp,image/gif"
+                  onChange={handleAvatarChange}
+                  disabled={isUploading || isDeletingAvatar}
+                  ref={fileInputRef}
+                  style={{ display: 'none' }}
+                />
+              </label>
+              {(user?.avatar_url || previewUrl) && (
+                <button
+                  type="button"
+                  className="avatar-delete-btn"
+                  onClick={handleDeleteAvatar}
+                  disabled={isUploading || isDeletingAvatar}
+                  title="Gỡ bỏ ảnh đại diện này"
+                >
+                  <Trash2 size={16} />
+                  <span>{isDeletingAvatar ? 'Đang gỡ...' : 'Gỡ ảnh'}</span>
+                </button>
+              )}
+            </div>
           </div>
         </div>
 

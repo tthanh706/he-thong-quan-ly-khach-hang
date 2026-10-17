@@ -163,33 +163,23 @@ export default function OrgPage() {
   };
 
   return (
-    <div>
+    <section>
       {/* Page Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
+      <div className="page-title">
         <div>
-          <h2 style={{ fontSize: '22px', fontWeight: 'bold', color: '#0f172a', margin: '0 0 6px 0' }}>
-            Cơ cấu Tổ chức Doanh nghiệp
-          </h2>
-          <p style={{ color: '#64748b', fontSize: '14px', margin: 0 }}>
-            Quản lý sơ đồ phòng ban, đơn vị trực thuộc và các nhóm kinh doanh.
-          </p>
+          <h2>Cơ cấu Tổ chức Doanh nghiệp</h2>
+          <p>Quản lý sơ đồ phòng ban, đơn vị trực thuộc và các nhóm kinh doanh.</p>
         </div>
 
-        <button 
-          onClick={() => setShowModal(true)}
-          style={{
-            backgroundColor: '#2563eb',
-            color: '#ffffff',
-            padding: '10px 16px',
-            borderRadius: '6px',
-            border: 'none',
-            fontSize: '14px',
-            fontWeight: 500,
-            cursor: 'pointer'
-          }}
-        >
-          + Thêm đơn vị / Nhóm
-        </button>
+        <div className="page-title-actions">
+          <button 
+            type="button"
+            className="btn-primary-action"
+            onClick={() => setShowModal(true)}
+          >
+            + Thêm đơn vị / Nhóm
+          </button>
+        </div>
       </div>
 
       {/* Main Content Layout */}
@@ -352,7 +342,7 @@ export default function OrgPage() {
                     padding: '8px 16px',
                     borderRadius: '6px',
                     border: 'none',
-                    backgroundColor: '#2563eb',
+                    backgroundColor: '#7545d9',
                     color: '#ffffff',
                     fontSize: '14px',
                     fontWeight: 500,
@@ -366,6 +356,6 @@ export default function OrgPage() {
           </div>
         </div>
       )}
-    </div>
+    </section>
   );
 }
