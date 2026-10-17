@@ -16,10 +16,24 @@ import OrgPage from './pages/OrgPage';
 import CustomFieldsPage from './pages/CustomFieldsPage';
 import SalesProcessPage from './pages/SalesProcessPage';
 import SystemLogsPage from './pages/SystemLogsPage';
+import { Customer360Page } from './pages/Customer360Page';
+import { ContactsPage } from './pages/ContactsPage';
+import { ExcelImportPage } from './pages/ExcelImportPage';
+import { PeriodicCarePage } from './pages/PeriodicCarePage';
+import { SupportRequestPage } from './pages/SupportRequestPage';
+import TestSuitePage from './pages/TestSuitePage';
+import CustomerManagementPage from './pages/CustomerManagementPage';
+import { UserAvatar } from './components/common/UserAvatar';
 import './styles.css';
 
 type Page =
+  | 'customers'
   | 'data'
+  | 'customer-360'
+  | 'contacts'
+  | 'excel-import'
+  | 'support-requests'
+  | 'periodic-care'
   | 'products'
   | 'sales-process'
   | 'accounts'
@@ -28,11 +42,19 @@ type Page =
   | 'categories'
   | 'custom-fields'
   | 'system-logs'
+  | 'test-suite'
   | 'profile'
   | 'error';
 
 const PAGE_TITLES: Record<Page, string> = {
+  customers: '🏢 Quản lý khách hàng',
   data: '📁 Dữ liệu sở hữu',
+  'customer-360': '🌐 Khách hàng 360 & Tập đoàn',
+  contacts: '📇 Danh bạ Người liên hệ',
+  'excel-import': '📥 Nhập Khách hàng từ Excel',
+  'support-requests': '🎫 Yêu cầu hỗ trợ sau bán',
+  'periodic-care': '📅 Chăm sóc khách hàng định kỳ',
+  'test-suite': '🧪 Trung tâm kiểm thử hệ thống',
   products: '📦 Quản lý Sản phẩm & Bảng giá',
   'sales-process': '📈 Quy trình & Thiết lập Bán hàng',
   accounts: '👥 Quản lý Nhân sự & Tài khoản',
@@ -67,7 +89,13 @@ function parseLocation(): { page: Page; errorStatus: number | null } {
   }
 
   const validPages: Page[] = [
+    'customers',
     'data',
+    'customer-360',
+    'contacts',
+    'excel-import',
+    'support-requests',
+    'periodic-care',
     'products',
     'sales-process',
     'accounts',
@@ -76,6 +104,7 @@ function parseLocation(): { page: Page; errorStatus: number | null } {
     'categories',
     'custom-fields',
     'system-logs',
+    'test-suite',
     'profile',
   ];
 
@@ -242,16 +271,32 @@ export default function App() {
             📈 Quy trình bán hàng
           </button>
 
+          {/* PHÂN HỆ: KHÁCH HÀNG & CHĂM SÓC */}
+          <div className="sidebar-section-title">Khách hàng & Chăm sóc</div>
+          <button className={page === 'customers' ? 'active' : ''} onClick={() => navigateTo('customers')}>
+            🏢 Quản lý khách hàng
+          </button>
+          <button className={page === 'customer-360' ? 'active' : ''} onClick={() => navigateTo('customer-360')}>
+            🌐 Khách hàng 360
+          </button>
+          <button className={page === 'contacts' ? 'active' : ''} onClick={() => navigateTo('contacts')}>
+            📇 Người liên hệ
+          </button>
+          <button className={page === 'excel-import' ? 'active' : ''} onClick={() => navigateTo('excel-import')}>
+            📥 Nhập KH từ Excel
+          </button>
+          <button className={page === 'support-requests' ? 'active' : ''} onClick={() => navigateTo('support-requests')}>
+            🎫 Yêu cầu hỗ trợ
+          </button>
+          <button className={page === 'periodic-care' ? 'active' : ''} onClick={() => navigateTo('periodic-care')}>
+            📅 Chăm sóc định kỳ
+          </button>
+
           {/* PHÂN HỆ 2: TỔ CHỨC & NHÂN SỰ */}
           <div className="sidebar-section-title">Tổ chức & Nhân sự</div>
           <button className={page === 'accounts' ? 'active' : ''} onClick={() => navigateTo('accounts')}>
             👥 Quản lý tài khoản
           </button>
-          {user.role === 'admin' && (
-            <button className={page === 'import-users' ? 'active' : ''} onClick={() => navigateTo('import-users')}>
-              📥 Nhập nhân viên từ Excel
-            </button>
-          )}
           <button className={page === 'org' ? 'active' : ''} onClick={() => navigateTo('org')}>
             🏢 Cơ cấu tổ chức
           </button>
@@ -273,6 +318,9 @@ export default function App() {
           <div className="sidebar-section-title">Giám sát & Nhật ký</div>
           <button className={page === 'system-logs' ? 'active' : ''} onClick={() => navigateTo('system-logs')}>
             📜 Nhật ký hệ thống
+          </button>
+          <button className={page === 'test-suite' ? 'active' : ''} onClick={() => navigateTo('test-suite')}>
+            🧪 Trung tâm kiểm thử
           </button>
 
           {/* PHÂN HỆ 5: CÁ NHÂN */}
@@ -335,25 +383,7 @@ export default function App() {
             style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', overflow: 'hidden' }}
             title="Xem hồ sơ cá nhân"
           >
-            <div style={{
-              width: '32px',
-              height: '32px',
-              borderRadius: '50%',
-              backgroundColor: '#6366f1',
-              color: '#fff',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontWeight: 'bold',
-              overflow: 'hidden',
-              flexShrink: 0
-            }}>
-              {user.avatar_url ? (
-                <img src={user.avatar_url} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
-              ) : (
-                user.name?.[0]?.toUpperCase() ?? 'U'
-              )}
-            </div>
+            <UserAvatar url={user.avatar_url} name={user.name} size={32} />
             <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               <div style={{ fontWeight: 600, fontSize: '13px' }}>{user.name}</div>
               <div style={{ fontSize: '11px', color: '#94a3b8' }}>
@@ -382,13 +412,7 @@ export default function App() {
           </div>
           <div className="topbar-right">
             <div className="topbar-user" onClick={() => navigateTo('profile')} title="Xem hồ sơ cá nhân">
-              <div className="topbar-avatar">
-                {user.avatar_url ? (
-                  <img src={user.avatar_url} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
-                ) : (
-                  user.name?.[0]?.toUpperCase() ?? 'U'
-                )}
-              </div>
+              <UserAvatar url={user.avatar_url} name={user.name} size={32} />
               <div className="topbar-user-info">
                 <span className="topbar-name">{user.name}</span>
                 <span className="topbar-role">
@@ -409,15 +433,22 @@ export default function App() {
         </header>
 
         <main className="content">
+          {page === 'customers' && <CustomerManagementPage />}
           {page === 'data' && <DataPage />}
+          {page === 'customer-360' && <Customer360Page />}
+          {page === 'contacts' && <ContactsPage />}
+          {page === 'excel-import' && <ExcelImportPage />}
+          {page === 'support-requests' && <SupportRequestPage />}
+          {page === 'periodic-care' && <PeriodicCarePage />}
           {page === 'products' && <ProductsPage />}
           {page === 'sales-process' && <SalesProcessPage />}
-          {page === 'accounts' && <AccountPage />}
-          {page === 'import-users' && <UserImportPage />}
+          {page === 'accounts' && <AccountPage initialTab="list" />}
+          {page === 'import-users' && <AccountPage initialTab="import" />}
           {page === 'org' && <OrgPage />}
           {page === 'categories' && <CategoriesPage />}
           {page === 'custom-fields' && <CustomFieldsPage />}
           {page === 'system-logs' && <SystemLogsPage />}
+          {page === 'test-suite' && <TestSuitePage />}
           {page === 'profile' && <ProfilePage onLogout={handleLogout} />}
           {page === 'error' && (
             <ErrorPage

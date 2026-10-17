@@ -178,31 +178,27 @@ export default function SalesProcessPage() {
     .sort((a, b) => a.order - b.order);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+    <section>
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+      <div className="page-title">
         <div>
-          <h2 style={{ margin: '0 0 6px', fontSize: '22px', fontWeight: 800, color: '#0f172a' }}>
-            Quy trình & Thiết lập Bán hàng
-          </h2>
-          <p style={{ margin: 0, color: '#64748b', fontSize: '13px' }}>
-            Cấu hình phễu bán hàng (Pipeline), tỷ lệ chốt deal, lý do thắng/thua và đối thủ cạnh tranh.
-          </p>
+          <h2>Quy trình & Thiết lập Bán hàng</h2>
+          <p>Cấu hình phễu bán hàng (Pipeline), tỷ lệ chốt deal, lý do thắng/thua và đối thủ cạnh tranh.</p>
         </div>
 
-        <div>
+        <div className="page-title-actions">
           {activeTab === 'pipeline' && (
-            <button className="primary" onClick={() => handleOpenStageModal()}>
+            <button className="btn-primary-action" onClick={() => handleOpenStageModal()}>
               + Thêm Giai Đoạn
             </button>
           )}
           {activeTab === 'reasons' && (
-            <button className="primary" onClick={() => setIsReasonModalOpen(true)}>
+            <button className="btn-primary-action" onClick={() => setIsReasonModalOpen(true)}>
               + Thêm Lý Do
             </button>
           )}
           {activeTab === 'competitors' && (
-            <button className="primary" onClick={() => setIsCompetitorModalOpen(true)}>
+            <button className="btn-primary-action" onClick={() => setIsCompetitorModalOpen(true)}>
               + Thêm Đối Thủ
             </button>
           )}
@@ -210,7 +206,7 @@ export default function SalesProcessPage() {
       </div>
 
       {/* Tabs */}
-      <div className="tabs" style={{ background: '#f1f5f9', padding: '4px', borderRadius: '10px', width: 'fit-content' }}>
+      <div className="tabs">
         <button
           className={activeTab === 'pipeline' ? 'selected' : ''}
           onClick={() => setActiveTab('pipeline')}
@@ -570,6 +566,6 @@ export default function SalesProcessPage() {
           </div>
         </div>
       )}
-    </div>
+    </section>
   );
 }

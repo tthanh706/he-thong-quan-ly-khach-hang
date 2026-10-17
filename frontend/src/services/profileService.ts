@@ -18,4 +18,9 @@ export const profileService = {
       body: formData,
     });
   },
+
+  deleteAvatar: () =>
+    api<{ success: boolean; data: User; message: string }>('/v1/profile/avatar', {
+      method: 'DELETE',
+    }),
 };

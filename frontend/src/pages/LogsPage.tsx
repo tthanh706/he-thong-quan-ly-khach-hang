@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { api } from '../services/api';
 import type { HandoverLog } from '../types';
 
-export function LogsPage() {
+export function LogsPage({ hideHeader = false }: { hideHeader?: boolean } = {}) {
   const [logs, setLogs] = useState<HandoverLog[]>([]);
 
   useEffect(() => {
@@ -11,12 +11,14 @@ export function LogsPage() {
 
   return (
     <section>
-      <div className="page-title">
-        <div>
-          <h2>Lịch sử bàn giao</h2>
-          <p>Nhật ký từng khách hàng và cơ hội được chuyển giao khi khóa tài khoản.</p>
+      {!hideHeader && (
+        <div className="page-title">
+          <div>
+            <h2>Lịch sử bàn giao</h2>
+            <p>Nhật ký từng khách hàng và cơ hội được chuyển giao khi khóa tài khoản.</p>
+          </div>
         </div>
-      </div>
+      )}
       <div className="card table-wrap">
         <table>
           <thead>

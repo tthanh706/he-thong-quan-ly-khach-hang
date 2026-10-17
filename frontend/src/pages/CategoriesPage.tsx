@@ -111,28 +111,25 @@ export default function CategoriesPage() {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+    <section>
+      <div className="page-title">
         <div>
-          <h2 style={{ margin: '0 0 6px', fontSize: '22px', fontWeight: 800, color: '#0f172a' }}>
-            Quản lý Danh mục dùng chung
-          </h2>
-          <p style={{ margin: 0, color: '#64748b', fontSize: '13px' }}>
-            Cấu hình dữ liệu danh mục phân loại chuẩn hóa hệ thống (Nguồn khách hàng, Ngành nghề, Loại hình doanh nghiệp).
-          </p>
+          <h2>Quản lý Danh mục dùng chung</h2>
+          <p>Cấu hình dữ liệu danh mục phân loại chuẩn hóa hệ thống (Nguồn khách hàng, Ngành nghề, Loại hình doanh nghiệp).</p>
         </div>
-        <button className="primary" onClick={() => handleOpenModal()}>
-          + Thêm danh mục mới
-        </button>
+        <div className="page-title-actions">
+          <button className="btn-primary-action" onClick={() => handleOpenModal()}>
+            + Thêm danh mục mới
+          </button>
+        </div>
       </div>
 
-      <div className="tabs" style={{ background: '#f1f5f9', padding: '4px', borderRadius: '10px', width: 'fit-content' }}>
+      <div className="tabs">
         {CATEGORY_TABS.map((tab) => (
           <button
             key={tab.key}
             className={selectedType === tab.key ? 'selected' : ''}
             onClick={() => setSelectedType(tab.key)}
-            style={{ cursor: 'pointer', fontWeight: 600 }}
           >
             {tab.icon} {tab.label}
           </button>
@@ -256,6 +253,6 @@ export default function CategoriesPage() {
           </div>
         </div>
       )}
-    </div>
+    </section>
   );
 }

@@ -11,7 +11,7 @@ class AccountHandoverService
 {
     public function __construct(private SessionService $sessionService) {}
 
-    public function lockAndHandover(User $source, User $target, User $performedBy): array
+    public function lockAndHandover(User $source, User $target, User $performedBy, ?string $reason = null): array
     {
         if ($source->isLocked()) {
             throw ValidationException::withMessages(['account' => 'Tài khoản đã bị khóa.']);
@@ -29,7 +29,7 @@ class AccountHandoverService
             ]);
         }
 
-        return DB::transaction(function () use ($source, $target, $performedBy): array {
+        return DB::transaction(function () use ($source, $target, $performedBy, $reason): array {
             $now = now();
             $customerIds = $source->customers()->pluck('id');
             $opportunityIds = $source->opportunities()->pluck('id');
@@ -49,7 +49,10 @@ class AccountHandoverService
                 HandoverLog::insert($logs);
             }
 
-            $source->update(['locked_at' => $now]);
+            $source->update([
+                'locked_at' => $now,
+                'lock_reason' => $reason,
+            ]);
             $revokedSessions = $this->sessionService->revokeAllForUser($source);
 
             return [
@@ -58,6 +61,7 @@ class AccountHandoverService
                 'target_user_id' => $target->id,
                 'revoked_sessions' => $revokedSessions,
                 'locked_at' => $now,
+                'lock_reason' => $reason,
             ];
         });
     }

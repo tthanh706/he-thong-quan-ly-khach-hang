@@ -39,6 +39,9 @@ export async function apiRequest<T>(
   return data;
 }
 
+export const apiClient = apiRequest;
+
+
 export async function apiDownload(
   endpoint: string,
   fileName: string,

@@ -4,9 +4,14 @@ type Props = {
   title: string;
   children: ReactNode;
   onClose: () => void;
+  open?: boolean;
+  isOpen?: boolean;
 };
 
-export function Modal({ title, children, onClose }: Props) {
+export function Modal({ title, children, onClose, open, isOpen }: Props) {
+  if (open === false || isOpen === false) {
+    return null;
+  }
   return (
     <div className="modal-backdrop" role="presentation" onMouseDown={onClose}>
       <div className="modal" onMouseDown={(event) => event.stopPropagation()}>

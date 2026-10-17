@@ -105,6 +105,35 @@
   overflow: hidden;
   border: 3px solid #7545d9;
   flex-shrink: 0;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(117, 69, 217, 0.15);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.avatar-wrapper:hover {
+  transform: scale(1.03);
+  box-shadow: 0 6px 18px rgba(117, 69, 217, 0.25);
+}
+
+.avatar-hover-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(30, 27, 57, 0.65);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 600;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.avatar-wrapper:hover .avatar-hover-overlay {
+  opacity: 1;
 }
 
 .avatar-image {
@@ -113,8 +142,17 @@
   object-fit: cover;
 }
 
+.avatar-btn-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 .avatar-upload-btn {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   padding: 8px 18px;
   background: #f8fafc;
   border: 1px solid #d9deea;
@@ -130,6 +168,32 @@
   background: #eef2f6;
   border-color: #7545d9;
   color: #7545d9;
+}
+
+.avatar-delete-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: #fff1f2;
+  border: 1px solid #ffe4e6;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: #e11d48;
+  transition: all 0.2s;
+}
+
+.avatar-delete-btn:hover:not(:disabled) {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #be123c;
+}
+
+.avatar-delete-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .avatar-upload-input {

@@ -202,41 +202,35 @@ export default function ProductsPage() {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+    <section>
+      <div className="page-title">
         <div>
-          <h2 style={{ margin: '0 0 6px', fontSize: '22px', fontWeight: 800, color: '#0f172a' }}>
-            Quản lý Sản phẩm & Bảng giá
-          </h2>
-          <p style={{ margin: 0, color: '#64748b', fontSize: '13px' }}>
-            Quản lý danh mục hàng hóa, dịch vụ và bảng giá chính sách bán hàng đa kênh.
-          </p>
+          <h2>Quản lý Sản phẩm & Bảng giá</h2>
+          <p>Quản lý danh mục hàng hóa, dịch vụ và bảng giá chính sách bán hàng đa kênh.</p>
         </div>
-        <div style={{ display: 'flex', gap: '8px' }}>
+        <div className="page-title-actions">
           {activeTab === 'products' ? (
-            <button className="primary" onClick={() => handleOpenProductModal()}>
+            <button className="btn-primary-action" onClick={() => handleOpenProductModal()}>
               + Thêm sản phẩm / dịch vụ
             </button>
           ) : (
-            <button className="primary" onClick={() => setShowPriceListModal(true)}>
+            <button className="btn-primary-action" onClick={() => setShowPriceListModal(true)}>
               + Tạo bảng giá mới
             </button>
           )}
         </div>
       </div>
 
-      <div className="tabs" style={{ background: '#f1f5f9', padding: '4px', borderRadius: '10px', width: 'fit-content' }}>
+      <div className="tabs">
         <button
           className={activeTab === 'products' ? 'selected' : ''}
           onClick={() => setActiveTab('products')}
-          style={{ cursor: 'pointer', fontWeight: 600 }}
         >
           📦 Danh mục Sản phẩm & Dịch vụ
         </button>
         <button
           className={activeTab === 'price-lists' ? 'selected' : ''}
           onClick={() => setActiveTab('price-lists')}
-          style={{ cursor: 'pointer', fontWeight: 600 }}
         >
           💲 Quản lý Bảng giá
         </button>
@@ -647,6 +641,6 @@ export default function ProductsPage() {
           </div>
         </div>
       )}
-    </div>
+    </section>
   );
 }

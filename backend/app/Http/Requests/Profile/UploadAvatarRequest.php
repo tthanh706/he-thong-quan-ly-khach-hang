@@ -27,7 +27,7 @@ class UploadAvatarRequest extends FormRequest
                 'required',
                 'file',
                 'image',
-                'mimes:jpg,jpeg,png,webp',
+                'mimes:jpg,jpeg,png,webp,gif',
                 'max:'.self::MAX_FILE_SIZE_KB,
                 'dimensions:min_width='.self::MIN_DIMENSION.',min_height='.self::MIN_DIMENSION
                     .',max_width='.self::MAX_DIMENSION.',max_height='.self::MAX_DIMENSION,
@@ -44,7 +44,7 @@ class UploadAvatarRequest extends FormRequest
             'avatar.required' => 'Vui lòng chọn ảnh đại diện.',
             'avatar.file' => 'Tải ảnh lên không thành công, vui lòng thử lại.',
             'avatar.image' => 'File tải lên phải là hình ảnh.',
-            'avatar.mimes' => 'Chỉ hỗ trợ ảnh định dạng JPG, PNG hoặc WEBP.',
+            'avatar.mimes' => 'Chỉ hỗ trợ ảnh định dạng JPG, PNG, WEBP hoặc GIF.',
             'avatar.max' => 'Dung lượng ảnh không được vượt quá 2MB.',
             'avatar.dimensions' => 'Kích thước ảnh phải từ '.self::MIN_DIMENSION.'x'.self::MIN_DIMENSION
                 .' đến '.self::MAX_DIMENSION.'x'.self::MAX_DIMENSION.' pixel.',
