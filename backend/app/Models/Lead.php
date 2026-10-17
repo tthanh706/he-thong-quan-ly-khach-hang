@@ -14,6 +14,11 @@ class Lead extends Model
         'name',
         'email',
         'phone',
+        'company',
+        'interest_demand',
+        'source',
+        'web_form_id',
+        'ip_address',
         'assigned_to',
         'team_leader_id',
         'status',
@@ -64,6 +69,14 @@ class Lead extends Model
     {
         return $this->hasOne(
             LeadSlaAlert::class
+        );
+    }
+
+    public function webForm(): BelongsTo
+    {
+        return $this->belongsTo(
+            WebForm::class,
+            'web_form_id'
         );
     }
 }
