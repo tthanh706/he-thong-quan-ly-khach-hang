@@ -29,6 +29,8 @@ import CalendarPage from './pages/CalendarPage';
 import ContractRenewalPage from './pages/ContractRenewalPage';
 import TeamPerformancePage from './pages/TeamPerformancePage';
 import OpportunityExportPage from './pages/OpportunityExportPage';
+import WebFormPage from './pages/WebFormPage';
+import OpportunityManagementPage from './pages/OpportunityManagementPage';
 import { UserAvatar } from './components/common/UserAvatar';
 import './styles.css';
 
@@ -48,6 +50,8 @@ type Page =
   | 'contract-renewal'
   | 'team-performance'
   | 'opportunity-export'
+  | 'web-forms'
+  | 'sales-opportunities'
   | 'accounts'
   | 'import-users'
   | 'org'
@@ -59,6 +63,8 @@ type Page =
   | 'error';
 
 const PAGE_TITLES: Record<Page, string> = {
+  'sales-opportunities': '📈 Quản lý cơ hội & Lịch sử thay đổi (S5-01 & S6-01)',
+  'web-forms': '🌐 Biểu mẫu nhúng & Thu thập Lead (S4-01)',
   customers: '🏢 Quản lý khách hàng',
   data: '📁 Dữ liệu sở hữu',
   'customer-360': '🌐 Khách hàng 360 & Tập đoàn',
@@ -285,6 +291,12 @@ export default function App() {
         <nav>
           {/* PHÂN HỆ 1: KINH DOANH & BÁN HÀNG */}
           <div className="sidebar-section-title">Kinh doanh & Bán hàng</div>
+          <button className={page === 'sales-opportunities' ? 'active' : ''} onClick={() => navigateTo('sales-opportunities')}>
+            📈 Quản lý cơ hội (S5 & S6)
+          </button>
+          <button className={page === 'web-forms' ? 'active' : ''} onClick={() => navigateTo('web-forms')}>
+            🌐 Biểu mẫu nhúng (S4-01)
+          </button>
           <button className={page === 'data' ? 'active' : ''} onClick={() => navigateTo('data')}>
             📁 Dữ liệu sở hữu
           </button>
@@ -493,6 +505,8 @@ export default function App() {
           {page === 'contract-renewal' && <ContractRenewalPage />}
           {page === 'team-performance' && <TeamPerformancePage />}
           {page === 'opportunity-export' && <OpportunityExportPage />}
+          {page === 'sales-opportunities' && <OpportunityManagementPage />}
+          {page === 'web-forms' && <WebFormPage />}
           {page === 'accounts' && <AccountPage initialTab="list" />}
           {page === 'import-users' && <AccountPage initialTab="import" />}
           {page === 'org' && <OrgPage />}

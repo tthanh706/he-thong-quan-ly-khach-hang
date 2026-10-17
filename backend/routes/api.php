@@ -25,6 +25,8 @@ use App\Http\Controllers\Api\V1\CalendarController;
 use App\Http\Controllers\Api\V1\ContractRenewalController;
 use App\Http\Controllers\Api\V1\TeamPerformanceController;
 use App\Http\Controllers\Api\V1\OpportunityExportController;
+use App\Http\Controllers\Api\V1\WebFormController;
+use App\Http\Controllers\Api\V1\SalesOpportunityController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\HandoverLogController;
@@ -36,6 +38,12 @@ use Illuminate\Support\Facades\Route;
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+
+// S4-01 Public Web Form endpoints (No authentication required, rate-limited + honeypot protected)
+Route::prefix('v1/public')->group(function (): void {
+    Route::get('/web-forms/{token}', [WebFormController::class, 'getPublicForm']);
+    Route::post('/web-forms/{token}/submit', [WebFormController::class, 'submitPublicForm']);
+});
 
 Route::middleware('session.auth')->group(function (): void {
     Route::post('/logout', [AuthController::class, 'logout']);
@@ -273,5 +281,30 @@ Route::middleware('session.auth')->group(function (): void {
         Route::get('/opportunity-export', [OpportunityExportController::class, 'index']);
         Route::get('/opportunity-export/filters', [OpportunityExportController::class, 'filters']);
         Route::get('/opportunity-export/export', [OpportunityExportController::class, 'export']);
+
+        /*
+        |--------------------------------------------------------------------------
+        | S4-01 - Web Forms Management & Lead Capture
+        |--------------------------------------------------------------------------
+        */
+        Route::get('/web-forms', [WebFormController::class, 'index']);
+        Route::post('/web-forms', [WebFormController::class, 'store']);
+        Route::get('/web-forms/{id}', [WebFormController::class, 'show'])->whereNumber('id');
+        Route::put('/web-forms/{id}', [WebFormController::class, 'update'])->whereNumber('id');
+        Route::delete('/web-forms/{id}', [WebFormController::class, 'destroy'])->whereNumber('id');
+        Route::get('/web-forms/{id}/embed-code', [WebFormController::class, 'getEmbedCode'])->whereNumber('id');
+
+        /*
+        |--------------------------------------------------------------------------
+        | S5-01 & S6-01 - Sales Opportunity Management & Change Audit History
+        |--------------------------------------------------------------------------
+        */
+        Route::get('/sales-opportunities', [SalesOpportunityController::class, 'index']);
+        Route::post('/sales-opportunities', [SalesOpportunityController::class, 'store']);
+        Route::get('/sales-opportunities/stages', [SalesOpportunityController::class, 'getStages']);
+        Route::get('/sales-opportunities/options', [SalesOpportunityController::class, 'getFormOptions']);
+        Route::get('/sales-opportunities/{id}', [SalesOpportunityController::class, 'show'])->whereNumber('id');
+        Route::put('/sales-opportunities/{id}', [SalesOpportunityController::class, 'update'])->whereNumber('id');
+        Route::get('/sales-opportunities/{id}/histories', [SalesOpportunityController::class, 'histories'])->whereNumber('id');
     });
 });

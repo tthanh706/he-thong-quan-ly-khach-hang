@@ -31,6 +31,11 @@ class Opportunity extends Model
         'stagnation_flagged_at',
         'overdue_close_flagged_at',
         'business_group_id',
+        'contact_id',
+        'source',
+        'win_probability',
+        'win_probability_customized',
+        'probability_note',
         'email',
         'phone',
         'notes',
@@ -43,6 +48,8 @@ class Opportunity extends Model
             'amount' => 'decimal:2',
             'value' => 'decimal:2',
             'cost_price' => 'decimal:2',
+            'win_probability' => 'integer',
+            'win_probability_customized' => 'boolean',
             'expected_close_date' => 'date',
             'last_activity_at' => 'datetime',
             'stagnation_flagged_at' => 'datetime',
@@ -70,6 +77,16 @@ class Opportunity extends Model
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class, 'customer_id');
+    }
+
+    public function contact(): BelongsTo
+    {
+        return $this->belongsTo(Contact::class, 'contact_id');
+    }
+
+    public function histories(): HasMany
+    {
+        return $this->hasMany(OpportunityHistory::class, 'opportunity_id')->orderBy('created_at', 'desc');
     }
 
     public function sourceContract(): BelongsTo
