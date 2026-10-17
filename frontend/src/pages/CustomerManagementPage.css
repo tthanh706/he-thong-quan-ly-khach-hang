@@ -18,16 +18,18 @@
   align-items: flex-start;
   flex-wrap: wrap;
   gap: 16px;
-  background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%);
-  padding: 24px 28px;
-  border-radius: 16px;
-  color: #ffffff;
-  box-shadow: 0 10px 25px -5px rgba(49, 46, 129, 0.25);
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  color: #0f172a;
+  box-shadow: none;
+  margin-bottom: 4px;
 }
 
 .cmp-header-left h1 {
   font-size: 24px;
   font-weight: 700;
+  color: #0f172a;
   margin: 0 0 6px 0;
   letter-spacing: -0.02em;
   display: flex;
@@ -36,9 +38,9 @@
 }
 
 .cmp-header-left p {
-  margin: 0 0 12px 0;
+  margin: 0 0 10px 0;
   font-size: 14px;
-  color: #c7d2fe;
+  color: #64748b;
 }
 
 .cmp-scope-badge {
@@ -46,13 +48,12 @@
   align-items: center;
   gap: 6px;
   padding: 4px 12px;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
   border-radius: 9999px;
   font-size: 12px;
   font-weight: 500;
-  color: #e0e7ff;
+  color: #1d4ed8;
 }
 
 .cmp-header-actions {

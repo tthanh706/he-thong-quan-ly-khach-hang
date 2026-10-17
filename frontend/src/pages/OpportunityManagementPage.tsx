@@ -269,7 +269,7 @@ export const OpportunityManagementPage: React.FC = () => {
         <div className="opp-title-group">
           <h1>
             <TrendingUp className="text-blue-600" size={26} />
-            Quản Lý Cơ Hội Bán Hàng & Lịch Sử Thay Đổi (S5-01 & S6-01)
+            Quản Lý Cơ Hội Bán Hàng & Lịch Sử Thay Đổi
           </h1>
           <p>
             Khai báo và theo dõi các thương vụ bán hàng theo giai đoạn và xác suất thắng; tự động ghi nhận mọi thay đổi (giai đoạn, giá trị, ngày chốt, người sở hữu) để phục vụ giám sát minh bạch.
@@ -277,7 +277,7 @@ export const OpportunityManagementPage: React.FC = () => {
         </div>
         <button className="btn-primary" onClick={handleOpenCreateModal}>
           <Plus size={18} />
-          Tạo cơ hội bán hàng (S5-01)
+          Tạo cơ hội bán hàng
         </button>
       </div>
 
@@ -322,7 +322,7 @@ export const OpportunityManagementPage: React.FC = () => {
             <History size={24} />
           </div>
           <div className="stat-content">
-            <span className="stat-label">Audit Log (S6-01)</span>
+            <span className="stat-label">Nhật ký thay đổi</span>
             <span className="stat-val">Tự động ghi nhận</span>
           </div>
         </div>
@@ -401,7 +401,7 @@ export const OpportunityManagementPage: React.FC = () => {
                 <th>Xác suất thắng</th>
                 <th>Ngày dự kiến chốt</th>
                 <th>Người sở hữu</th>
-                <th>Lịch sử (S6-01)</th>
+                <th>Lịch sử thay đổi</th>
                 <th style={{ textAlign: 'right' }}>Thao tác</th>
               </tr>
             </thead>
@@ -534,7 +534,7 @@ export const OpportunityManagementPage: React.FC = () => {
         <div className="modal-overlay" onClick={() => setIsCreateModalOpen(false)}>
           <div className="modal-dialog large" onClick={(e) => e.stopPropagation()}>
             <div className="modal-head">
-              <h3>Tạo mới cơ hội bán hàng (User Story S5-01)</h3>
+              <h3>Tạo mới cơ hội bán hàng</h3>
               <button className="modal-close-btn" onClick={() => setIsCreateModalOpen(false)}>
                 &times;
               </button>
@@ -761,7 +761,7 @@ export const OpportunityManagementPage: React.FC = () => {
                           })
                         }
                       />
-                      <div className="form-help">Bắt buộc kèm ghi chú khi sửa tay theo S5-01.</div>
+                      <div className="form-help">Vui lòng nhập ghi chú giải thích khi sửa tay xác suất.</div>
                     </div>
                   </div>
                 </div>
@@ -822,7 +822,7 @@ export const OpportunityManagementPage: React.FC = () => {
           <div className="modal-dialog large" onClick={(e) => e.stopPropagation()}>
             <div className="modal-head">
               <h3>
-                Chỉnh sửa cơ hội bán hàng & Ghi nhật ký (S6-01): <span>{editingOpp.name}</span>
+                Chỉnh sửa cơ hội bán hàng & Ghi nhật ký: <span>{editingOpp.name}</span>
               </h3>
               <button className="modal-close-btn" onClick={() => setIsEditModalOpen(false)}>
                 &times;
@@ -892,7 +892,7 @@ export const OpportunityManagementPage: React.FC = () => {
                 <div className="form-group-row">
                   <div className="form-group">
                     <label>
-                      Giai đoạn bán hàng <span style={{ color: '#ef4444' }}>* (Theo dõi S6-01)</span>
+                      Giai đoạn bán hàng <span style={{ color: '#ef4444' }}>*</span>
                     </label>
                     <select
                       value={editForm.stage}
@@ -916,7 +916,7 @@ export const OpportunityManagementPage: React.FC = () => {
 
                   <div className="form-group">
                     <label>
-                      Giá trị dự kiến (VNĐ) <span style={{ color: '#ef4444' }}>* (Theo dõi S6-01)</span>
+                      Giá trị dự kiến (VNĐ) <span style={{ color: '#ef4444' }}>*</span>
                     </label>
                     <input
                       type="number"
@@ -930,7 +930,7 @@ export const OpportunityManagementPage: React.FC = () => {
                 <div className="form-group-row">
                   <div className="form-group">
                     <label>
-                      Ngày dự kiến chốt <span style={{ color: '#ef4444' }}>* (Theo dõi S6-01)</span>
+                      Ngày dự kiến chốt <span style={{ color: '#ef4444' }}>*</span>
                     </label>
                     <input
                       type="date"
@@ -943,7 +943,7 @@ export const OpportunityManagementPage: React.FC = () => {
 
                   <div className="form-group">
                     <label>
-                      Người sở hữu / Phụ trách <span style={{ color: '#ef4444' }}>* (Theo dõi S6-01)</span>
+                      Người sở hữu / Phụ trách <span style={{ color: '#ef4444' }}>*</span>
                     </label>
                     <select
                       value={editForm.owner_user_id || ''}
@@ -992,7 +992,7 @@ export const OpportunityManagementPage: React.FC = () => {
 
                 <div className="form-group">
                   <label style={{ fontWeight: 700, color: '#b45309' }}>
-                    Lý do thay đổi (Hiển thị trong lịch sử S6-01)
+                    Lý do thay đổi (Ghi nhận vào lịch sử)
                   </label>
                   <input
                     type="text"

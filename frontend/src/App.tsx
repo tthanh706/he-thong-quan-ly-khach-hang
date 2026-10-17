@@ -63,8 +63,8 @@ type Page =
   | 'error';
 
 const PAGE_TITLES: Record<Page, string> = {
-  'sales-opportunities': '📈 Quản lý cơ hội & Lịch sử thay đổi (S5-01 & S6-01)',
-  'web-forms': '🌐 Biểu mẫu nhúng & Thu thập Lead (S4-01)',
+  'sales-opportunities': '📈 Quản lý cơ hội & Lịch sử thay đổi',
+  'web-forms': '🌐 Biểu mẫu nhúng & Thu thập Lead',
   customers: '🏢 Quản lý khách hàng',
   data: '📁 Dữ liệu sở hữu',
   'customer-360': '🌐 Khách hàng 360 & Tập đoàn',
@@ -75,7 +75,7 @@ const PAGE_TITLES: Record<Page, string> = {
   'test-suite': '🧪 Trung tâm kiểm thử hệ thống',
   products: '📦 Quản lý Sản phẩm & Bảng giá',
   'sales-process': '📈 Quy trình & Thiết lập Bán hàng',
-  'lead-assignment': '🎯 Tiếp nhận & Phân bổ Lead (SLA)',
+  'lead-assignment': '🎯 Tiếp nhận & Phân bổ Lead',
   'opportunity-stagnation': '⚡ Cảnh báo cơ hội đình trệ',
   'team-calendar': '📅 Lịch làm việc nhóm',
   'contract-renewal': '📑 Hiệu lực & Gia hạn hợp đồng',
@@ -292,10 +292,10 @@ export default function App() {
           {/* PHÂN HỆ 1: KINH DOANH & BÁN HÀNG */}
           <div className="sidebar-section-title">Kinh doanh & Bán hàng</div>
           <button className={page === 'sales-opportunities' ? 'active' : ''} onClick={() => navigateTo('sales-opportunities')}>
-            📈 Quản lý cơ hội (S5 & S6)
+            📈 Quản lý cơ hội
           </button>
           <button className={page === 'web-forms' ? 'active' : ''} onClick={() => navigateTo('web-forms')}>
-            🌐 Biểu mẫu nhúng (S4-01)
+            🌐 Biểu mẫu nhúng
           </button>
           <button className={page === 'data' ? 'active' : ''} onClick={() => navigateTo('data')}>
             📁 Dữ liệu sở hữu
@@ -328,8 +328,8 @@ export default function App() {
             📅 Chăm sóc định kỳ
           </button>
 
-          {/* PHÂN HỆ: TIẾN TRÌNH & NĂNG SUẤT (S4 - S8) */}
-          <div className="sidebar-section-title">Tiến trình & Năng suất (S4 - S8)</div>
+          {/* PHÂN HỆ: TIẾN TRÌNH & NĂNG SUẤT */}
+          <div className="sidebar-section-title">Tiến trình & Năng suất</div>
           <button className={page === 'lead-assignment' ? 'active' : ''} onClick={() => navigateTo('lead-assignment')}>
             🎯 Phân bổ & SLA Lead
           </button>

@@ -503,7 +503,7 @@ export default function CustomerManagementPage() {
       <div className="cmp-header">
         <div className="cmp-header-left">
           <h1>
-            <Building2 className="w-7 h-7 text-blue-400" />
+            <Building2 className="w-7 h-7 text-blue-600" />
             Quản lý khách hàng
           </h1>
           <p>
@@ -613,12 +613,12 @@ export default function CustomerManagementPage() {
         </div>
       </div>
 
-      {/* 3. Advanced Search & Filter Card (SCRUM-111) */}
+      {/* 3. Advanced Search & Filter Card */}
       <div className="cmp-filter-card">
         <div className="cmp-filter-top">
           <div className="cmp-filter-title">
             <Filter size={18} className="text-blue-600" />
-            <span>Tìm kiếm & Bộ lọc nâng cao (SCRUM-111)</span>
+            <span>Tìm kiếm & Bộ lọc nâng cao</span>
           </div>
 
           {/* Saved Filters Presets */}
