@@ -22,6 +22,7 @@ class PriceListResource extends JsonResource
             'effective_to' => $this->effective_to,
             'note' => $this->note,
             'item_count' => $this->whenCounted('items'),
+            'items_count' => $this->whenCounted('items'),
             'items' => PriceListItemResource::collection($this->whenLoaded('items')),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

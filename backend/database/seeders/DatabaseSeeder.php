@@ -171,7 +171,7 @@ class DatabaseSeeder extends Seeder
         if (Opportunity::count() === 0) {
             Opportunity::insert([
                 ['title' => 'Triển khai CRM cho FPT Software', 'amount' => 1200000000, 'status' => 'open', 'owner_id' => $salesA->id, 'created_at' => now(), 'updated_at' => now()],
-                ['title' => 'Nâng cấp hạ tầng Cloud cho FPT Telecom', 'amount' => 850000000, 'status' => 'qualified', 'owner_id' => $salesA->id, 'created_at' => now(), 'updated_at' => now()],
+                ['title' => 'Nâng cấp hạ tầng Cloud cho FPT Telecom', 'amount' => 850000000, 'status' => 'open', 'owner_id' => $salesA->id, 'created_at' => now(), 'updated_at' => now()],
                 ['title' => 'Giải pháp Quản trị Khách hàng Vinhomes', 'amount' => 2400000000, 'status' => 'open', 'owner_id' => $salesB->id, 'created_at' => now(), 'updated_at' => now()],
             ]);
         }

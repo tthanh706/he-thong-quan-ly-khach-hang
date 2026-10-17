@@ -13,12 +13,20 @@ class CreatePriceListItemRequest extends FormRequest
         return $this->user()?->can('update', $this->route('price_list')) ?? true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('min_quantity') && ! $this->has('min_qty')) {
+            $this->merge(['min_qty' => $this->input('min_quantity')]);
+        }
+    }
+
     public function rules(): array
     {
         return [
             'product_id' => ['required', 'integer', 'exists:products,id'],
             'unit_price' => ['required', 'numeric', 'min:0'],
             'min_qty' => ['nullable', 'numeric', 'min:0.01'],
+            'min_quantity' => ['nullable', 'numeric', 'min:0.01'],
         ];
     }
 

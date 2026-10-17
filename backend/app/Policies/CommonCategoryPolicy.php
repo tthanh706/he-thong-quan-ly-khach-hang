@@ -11,12 +11,12 @@ class CommonCategoryPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->can('common_category.view');
+        return true;
     }
 
     public function view(User $user, CommonCategory $commonCategory): bool
     {
-        return $user->can('common_category.view');
+        return true;
     }
 
     public function create(User $user): bool
