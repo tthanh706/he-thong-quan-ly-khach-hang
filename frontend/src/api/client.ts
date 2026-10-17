@@ -1,5 +1,17 @@
 const API_URL = import.meta.env.VITE_API_URL ?? "http://127.0.0.1:8000/api";
 
+export class ApiError extends Error {
+  public readonly status?: number;
+  public readonly payload?: unknown;
+
+  public constructor(message: string, status?: number, payload?: unknown) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+    this.payload = payload;
+  }
+}
+
 interface ApiErrorResponse {
   message?: string;
 }
@@ -33,7 +45,7 @@ export async function apiRequest<T>(
   const data = (await response.json()) as ApiErrorResponse & T;
 
   if (!response.ok) {
-    throw new Error(data.message || "Có lỗi xảy ra khi gọi API.");
+    throw new ApiError(data.message || "Có lỗi xảy ra khi gọi API.", response.status, data);
   }
 
   return data;

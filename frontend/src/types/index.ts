@@ -386,3 +386,43 @@ export interface ParentCompany {
   tier: string;
   subsidiaries: Subsidiary[];
 }
+
+export interface CurrentUser {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+  can_view_opportunity_financials?: boolean;
+}
+
+export interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+  message?: string;
+}
+
+export type {
+  Contract,
+  ContractAlert,
+  ContractStatus,
+  ExpiryAlert,
+  ExpirySetting,
+  RenewalOpportunity,
+} from './contractRenewal';
+
+export type {
+  TeamMember,
+  PerformanceMember,
+  PerformanceSummary,
+  PerformanceReport,
+} from './teamPerformance';
+
+export type {
+  OpportunityExportData,
+  OpportunityFilterData,
+  OpportunityFilters,
+  OpportunityRow,
+  FilterOptionOwner,
+} from './opportunityExport';
+
+

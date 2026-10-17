@@ -19,6 +19,12 @@ use App\Http\Controllers\Api\V1\SupportRequestController;
 use App\Http\Controllers\Api\V1\ContactController;
 use App\Http\Controllers\Api\V1\CompanyHierarchyController;
 use App\Http\Controllers\Api\V1\UserImportController;
+use App\Http\Controllers\Api\V1\LeadAssignmentController;
+use App\Http\Controllers\Api\V1\OpportunityStagnationController;
+use App\Http\Controllers\Api\V1\CalendarController;
+use App\Http\Controllers\Api\V1\ContractRenewalController;
+use App\Http\Controllers\Api\V1\TeamPerformanceController;
+use App\Http\Controllers\Api\V1\OpportunityExportController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\HandoverLogController;
@@ -196,5 +202,76 @@ Route::middleware('session.auth')->group(function (): void {
         Route::patch('/customers/{customer}/parent', [\App\Http\Controllers\Api\V1\CustomerHierarchyController::class, 'updateParent']);
         Route::get('/customers/{customer}/hierarchy', [\App\Http\Controllers\Api\V1\CustomerHierarchyController::class, 'hierarchy']);
         Route::get('/customers/{customer}/group-contract-value', [\App\Http\Controllers\Api\V1\CustomerHierarchyController::class, 'groupContractValue']);
+
+        /*
+        |--------------------------------------------------------------------------
+        | S4-07 - Lead & SLA
+        |--------------------------------------------------------------------------
+        */
+        Route::get('/leads', [LeadAssignmentController::class, 'index']);
+        Route::get('/leads/sla-alerts', [LeadAssignmentController::class, 'slaAlerts']);
+        Route::post('/leads/check-sla', [LeadAssignmentController::class, 'checkSla']);
+        Route::get('/leads/{lead}', [LeadAssignmentController::class, 'show']);
+        Route::post('/leads/{lead}/assign', [LeadAssignmentController::class, 'assign']);
+        Route::post('/leads/{lead}/accept', [LeadAssignmentController::class, 'accept']);
+        Route::post('/leads/{lead}/reject', [LeadAssignmentController::class, 'reject']);
+        Route::post('/leads/{lead}/contact', [LeadAssignmentController::class, 'contact']);
+        Route::get('/leads/{lead}/history', [LeadAssignmentController::class, 'history']);
+
+        /*
+        |--------------------------------------------------------------------------
+        | S5-07 - Opportunity Stagnation
+        |--------------------------------------------------------------------------
+        */
+        Route::get('/opportunities', [OpportunityStagnationController::class, 'index']);
+        Route::get('/opportunities/problem-list', [OpportunityStagnationController::class, 'problems']);
+        Route::get('/opportunities/stagnation-alerts', [OpportunityStagnationController::class, 'alerts']);
+        Route::post('/opportunities/check-stagnation', [OpportunityStagnationController::class, 'check']);
+        Route::get('/opportunity-stage-configs', [OpportunityStagnationController::class, 'configs']);
+        Route::patch('/opportunity-stage-configs/{config}', [OpportunityStagnationController::class, 'updateConfig']);
+        Route::get('/opportunities/{opportunity}', [OpportunityStagnationController::class, 'show'])->whereNumber('opportunity');
+        Route::post('/opportunities/{opportunity}/activities', [OpportunityStagnationController::class, 'addActivity'])->whereNumber('opportunity');
+
+        /*
+        |--------------------------------------------------------------------------
+        | S6-07 - Team Calendar
+        |--------------------------------------------------------------------------
+        */
+        Route::get('/calendar/my', [CalendarController::class, 'myCalendar']);
+        Route::get('/calendar/team', [CalendarController::class, 'teamCalendar']);
+        Route::get('/calendar/users', [CalendarController::class, 'users']);
+        Route::post('/calendar/meetings', [CalendarController::class, 'createMeeting']);
+        Route::post('/calendar/tasks', [CalendarController::class, 'createTask']);
+
+        /*
+        |--------------------------------------------------------------------------
+        | S7-07 - Contract Renewal
+        |--------------------------------------------------------------------------
+        */
+        Route::get('/contracts', [ContractRenewalController::class, 'index']);
+        Route::get('/contracts/expiry-alerts', [ContractRenewalController::class, 'alerts']);
+        Route::post('/contracts/check-expiry', [ContractRenewalController::class, 'check']);
+        Route::get('/contracts/expiry-setting', [ContractRenewalController::class, 'setting']);
+        Route::patch('/contracts/expiry-setting', [ContractRenewalController::class, 'updateSetting']);
+        Route::get('/contracts/{contract}', [ContractRenewalController::class, 'show'])->whereNumber('contract');
+        Route::post('/contracts/{contract}/renewal-opportunity', [ContractRenewalController::class, 'createRenewal'])->whereNumber('contract');
+
+        /*
+        |--------------------------------------------------------------------------
+        | S8-07 - Team Performance
+        |--------------------------------------------------------------------------
+        */
+        Route::get('/team-performance', [TeamPerformanceController::class, 'index']);
+        Route::get('/team-performance/members', [TeamPerformanceController::class, 'members']);
+        Route::get('/team-performance/export', [TeamPerformanceController::class, 'export']);
+
+        /*
+        |--------------------------------------------------------------------------
+        | S8-10 - Opportunity Export
+        |--------------------------------------------------------------------------
+        */
+        Route::get('/opportunity-export', [OpportunityExportController::class, 'index']);
+        Route::get('/opportunity-export/filters', [OpportunityExportController::class, 'filters']);
+        Route::get('/opportunity-export/export', [OpportunityExportController::class, 'export']);
     });
 });

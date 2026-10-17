@@ -7,7 +7,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class UserSession extends Model
 {
-    protected $fillable = ['user_id', 'token', 'last_activity', 'expires_at', 'revoked'];
+    protected $fillable = [
+        'user_id',
+        'token',
+        'last_activity',
+        'expires_at',
+        'revoked',
+    ];
 
     protected function casts(): array
     {
