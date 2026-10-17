@@ -23,6 +23,12 @@ import { PeriodicCarePage } from './pages/PeriodicCarePage';
 import { SupportRequestPage } from './pages/SupportRequestPage';
 import TestSuitePage from './pages/TestSuitePage';
 import CustomerManagementPage from './pages/CustomerManagementPage';
+import { LeadAssignmentPage } from './pages/LeadAssignmentPage';
+import OpportunityStagnationPage from './pages/OpportunityStagnationPage';
+import CalendarPage from './pages/CalendarPage';
+import ContractRenewalPage from './pages/ContractRenewalPage';
+import TeamPerformancePage from './pages/TeamPerformancePage';
+import OpportunityExportPage from './pages/OpportunityExportPage';
 import { UserAvatar } from './components/common/UserAvatar';
 import './styles.css';
 
@@ -36,6 +42,12 @@ type Page =
   | 'periodic-care'
   | 'products'
   | 'sales-process'
+  | 'lead-assignment'
+  | 'opportunity-stagnation'
+  | 'team-calendar'
+  | 'contract-renewal'
+  | 'team-performance'
+  | 'opportunity-export'
   | 'accounts'
   | 'import-users'
   | 'org'
@@ -57,6 +69,12 @@ const PAGE_TITLES: Record<Page, string> = {
   'test-suite': '🧪 Trung tâm kiểm thử hệ thống',
   products: '📦 Quản lý Sản phẩm & Bảng giá',
   'sales-process': '📈 Quy trình & Thiết lập Bán hàng',
+  'lead-assignment': '🎯 Tiếp nhận & Phân bổ Lead (SLA)',
+  'opportunity-stagnation': '⚡ Cảnh báo cơ hội đình trệ',
+  'team-calendar': '📅 Lịch làm việc nhóm',
+  'contract-renewal': '📑 Hiệu lực & Gia hạn hợp đồng',
+  'team-performance': '📊 Báo cáo năng suất nhóm',
+  'opportunity-export': '📤 Danh sách & Xuất Excel cơ hội',
   accounts: '👥 Quản lý Nhân sự & Tài khoản',
   'import-users': '📥 Nhập Nhân viên từ Excel',
   org: '🏢 Cơ cấu Tổ chức Doanh nghiệp',
@@ -98,6 +116,12 @@ function parseLocation(): { page: Page; errorStatus: number | null } {
     'periodic-care',
     'products',
     'sales-process',
+    'lead-assignment',
+    'opportunity-stagnation',
+    'team-calendar',
+    'contract-renewal',
+    'team-performance',
+    'opportunity-export',
     'accounts',
     'import-users',
     'org',
@@ -292,6 +316,27 @@ export default function App() {
             📅 Chăm sóc định kỳ
           </button>
 
+          {/* PHÂN HỆ: TIẾN TRÌNH & NĂNG SUẤT (S4 - S8) */}
+          <div className="sidebar-section-title">Tiến trình & Năng suất (S4 - S8)</div>
+          <button className={page === 'lead-assignment' ? 'active' : ''} onClick={() => navigateTo('lead-assignment')}>
+            🎯 Phân bổ & SLA Lead
+          </button>
+          <button className={page === 'opportunity-stagnation' ? 'active' : ''} onClick={() => navigateTo('opportunity-stagnation')}>
+            ⚡ Cơ hội đình trệ
+          </button>
+          <button className={page === 'team-calendar' ? 'active' : ''} onClick={() => navigateTo('team-calendar')}>
+            📅 Lịch làm việc nhóm
+          </button>
+          <button className={page === 'contract-renewal' ? 'active' : ''} onClick={() => navigateTo('contract-renewal')}>
+            📑 Gia hạn hợp đồng
+          </button>
+          <button className={page === 'team-performance' ? 'active' : ''} onClick={() => navigateTo('team-performance')}>
+            📊 Năng suất nhóm
+          </button>
+          <button className={page === 'opportunity-export' ? 'active' : ''} onClick={() => navigateTo('opportunity-export')}>
+            📤 Xuất cơ hội Excel
+          </button>
+
           {/* PHÂN HỆ 2: TỔ CHỨC & NHÂN SỰ */}
           <div className="sidebar-section-title">Tổ chức & Nhân sự</div>
           <button className={page === 'accounts' ? 'active' : ''} onClick={() => navigateTo('accounts')}>
@@ -442,6 +487,12 @@ export default function App() {
           {page === 'periodic-care' && <PeriodicCarePage />}
           {page === 'products' && <ProductsPage />}
           {page === 'sales-process' && <SalesProcessPage />}
+          {page === 'lead-assignment' && <LeadAssignmentPage />}
+          {page === 'opportunity-stagnation' && <OpportunityStagnationPage />}
+          {page === 'team-calendar' && <CalendarPage />}
+          {page === 'contract-renewal' && <ContractRenewalPage />}
+          {page === 'team-performance' && <TeamPerformancePage />}
+          {page === 'opportunity-export' && <OpportunityExportPage />}
           {page === 'accounts' && <AccountPage initialTab="list" />}
           {page === 'import-users' && <AccountPage initialTab="import" />}
           {page === 'org' && <OrgPage />}

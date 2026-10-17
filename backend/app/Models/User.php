@@ -31,6 +31,7 @@ class User extends Authenticatable
         'status',
         'sales_team_id',
         'business_group',
+        'can_view_opportunity_financials',
     ];
 
     protected $hidden = ['password', 'remember_token', 'avatar_path'];
@@ -47,7 +48,33 @@ class User extends Authenticatable
             'locked_at' => 'datetime',
             'locked_until' => 'datetime',
             'password' => 'hashed',
+            'can_view_opportunity_financials' => 'boolean',
         ];
+    }
+
+    public function leads(): HasMany
+    {
+        return $this->hasMany(Lead::class, 'owner_user_id');
+    }
+
+    public function assignedLeads(): HasMany
+    {
+        return $this->hasMany(Lead::class, 'assigned_to_user_id');
+    }
+
+    public function calendarItems(): HasMany
+    {
+        return $this->hasMany(CalendarItem::class, 'user_id');
+    }
+
+    public function contracts(): HasMany
+    {
+        return $this->hasMany(Contract::class, 'owner_user_id');
+    }
+
+    public function salesActivities(): HasMany
+    {
+        return $this->hasMany(SalesActivity::class, 'user_id');
     }
 
     public function customers(): HasMany

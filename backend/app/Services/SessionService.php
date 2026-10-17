@@ -9,7 +9,8 @@ use Illuminate\Support\Str;
 
 class SessionService
 {
-    private int $sessionMinutes = 30;
+    // Phiên hết hạn sau 7 ngày không hoạt động
+    private int $sessionMinutes = 10080;
 
     public function create(User $user): UserSession
     {
@@ -24,13 +25,19 @@ class SessionService
 
     public function validate(string $token): ?UserSession
     {
-        $session = UserSession::with('user')->where('token', $token)->first();
+        $session = UserSession::where('token', $token)->first();
 
-        if (!$session || $session->revoked || Carbon::now()->greaterThan($session->expires_at)) {
+        if (!$session) {
             return null;
         }
 
-        if (!$session->user || $session->user->isLocked()) {
+        // Phiên đã bị đăng xuất
+        if ($session->revoked) {
+            return null;
+        }
+
+        // Phiên đã hết hạn
+        if (Carbon::now()->greaterThan($session->expires_at)) {
             return null;
         }
 
@@ -39,21 +46,16 @@ class SessionService
 
     public function refresh(UserSession $session): void
     {
-        $session->update([
-            'last_activity' => Carbon::now(),
-            'expires_at' => Carbon::now()->addMinutes($this->sessionMinutes),
-        ]);
+        // Có hoạt động thì gia hạn thêm 30 phút
+        $session->last_activity = Carbon::now();
+        $session->expires_at = Carbon::now()->addMinutes($this->sessionMinutes);
+        $session->save();
     }
 
     public function revoke(UserSession $session): void
     {
-        $session->update(['revoked' => true]);
-    }
-
-    public function revokeAllForUser(User $user): int
-    {
-        return UserSession::where('user_id', $user->id)
-            ->where('revoked', false)
-            ->update(['revoked' => true]);
+        // Đăng xuất thì vô hiệu phiên ngay
+        $session->revoked = true;
+        $session->save();
     }
 }
