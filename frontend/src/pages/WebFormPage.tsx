@@ -228,7 +228,7 @@ export const WebFormPage: React.FC = () => {
         <div className="webform-title-group">
           <h1>
             <Globe className="text-blue-600" size={26} />
-            Biểu Mẫu Nhúng Website & Thu Thập Lead (S4-01)
+            Biểu Mẫu Nhúng Website & Thu Thập Lead
           </h1>
           <p>
             Tạo mã nhúng (iframe/HTML), dán vào bất kỳ website nào để thu thập Lead tự động vào hệ thống CRM với tính năng chống spam honeypot và rate limit theo IP.
