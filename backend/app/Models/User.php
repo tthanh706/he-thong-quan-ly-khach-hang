@@ -189,6 +189,15 @@ class User extends Authenticatable
             return true;
         }
 
+        // Mặc định mọi nhân viên đã đăng nhập được xem danh mục, sản phẩm, bảng giá
+        if (str_ends_with($permission, '.view')) {
+            return true;
+        }
+
+        if (strtolower((string)$this->role) === 'manager' && str_ends_with($permission, '.manage')) {
+            return true;
+        }
+
         return in_array($permission, (array) ($this->permissions ?? []), true);
     }
 

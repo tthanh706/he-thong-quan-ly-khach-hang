@@ -17,6 +17,7 @@ class PriceListItemResource extends JsonResource
             'product_id' => $this->product_id,
             'unit_price' => $this->unit_price,
             'min_qty' => $this->min_qty,
+            'min_quantity' => $this->min_qty,
             'product' => new ProductResource($this->whenLoaded('product')),
         ];
     }

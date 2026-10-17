@@ -15,6 +15,13 @@ class UpdateProductRequest extends FormRequest
         return $this->user()?->can('update', $this->route('product')) ?? false;
     }
 
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('unit') && empty($this->input('unit'))) {
+            $this->merge(['unit' => 'Cái']);
+        }
+    }
+
     public function rules(): array
     {
         $productId = $this->route('product')?->id;
@@ -28,7 +35,7 @@ class UpdateProductRequest extends FormRequest
             ],
             'name' => ['required', 'string', 'max:255'],
             'type' => ['required', Rule::enum(ProductTypeEnum::class)],
-            'unit' => ['required', 'string', 'max:32'],
+            'unit' => ['nullable', 'string', 'max:32'],
             'description' => ['nullable', 'string', 'max:2000'],
             'list_price' => ['required', 'numeric', 'min:0'],
             'currency' => ['nullable', 'string', 'max:8'],
