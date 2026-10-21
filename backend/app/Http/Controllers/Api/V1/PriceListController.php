@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\PriceList\CreatePriceListItemRequest;
-use App\Http\Requests\PriceList\CreatePriceListRequest;
-use App\Http\Requests\PriceList\UpdatePriceListRequest;
+use App\Http\Requests\PriceList\UpsertPriceListItemRequest;
+use App\Http\Requests\PriceList\UpsertPriceListRequest;
 use App\Http\Resources\PriceListItemResource;
 use App\Http\Resources\PriceListResource;
 use App\Models\PriceList;
@@ -32,7 +31,7 @@ class PriceListController extends Controller
         ]);
     }
 
-    public function store(CreatePriceListRequest $request): JsonResponse
+    public function store(UpsertPriceListRequest $request): JsonResponse
     {
         $this->authorize('create', PriceList::class);
         $list = $this->priceListService->create($request->validated());
@@ -56,7 +55,7 @@ class PriceListController extends Controller
         ]);
     }
 
-    public function update(UpdatePriceListRequest $request, PriceList $priceList): JsonResponse
+    public function update(UpsertPriceListRequest $request, PriceList $priceList): JsonResponse
     {
         $this->authorize('update', $priceList);
         $list = $this->priceListService->update($priceList, $request->validated());
@@ -81,7 +80,7 @@ class PriceListController extends Controller
         ]);
     }
 
-    public function upsertItem(CreatePriceListItemRequest $request, PriceList $priceList): JsonResponse
+    public function upsertItem(UpsertPriceListItemRequest $request, PriceList $priceList): JsonResponse
     {
         $this->authorize('update', $priceList);
         $item = $this->priceListService->upsertItem($priceList, $request->validated());

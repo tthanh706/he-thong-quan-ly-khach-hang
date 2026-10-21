@@ -11,12 +11,12 @@ class PriceListPolicy
 {
     public function viewAny(User $user): bool
     {
-        return true;
+        return $user->can('price_list.view');
     }
 
     public function view(User $user, PriceList $priceList): bool
     {
-        return true;
+        return $user->can('price_list.view');
     }
 
     public function create(User $user): bool

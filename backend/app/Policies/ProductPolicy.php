@@ -11,12 +11,12 @@ class ProductPolicy
 {
     public function viewAny(User $user): bool
     {
-        return true;
+        return $user->can('product.view');
     }
 
     public function view(User $user, Product $product): bool
     {
-        return true;
+        return $user->can('product.view');
     }
 
     public function create(User $user): bool
