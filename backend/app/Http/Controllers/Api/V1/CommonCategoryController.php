@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\CommonCategory\CreateCommonCategoryRequest;
-use App\Http\Requests\CommonCategory\UpdateCommonCategoryRequest;
+use App\Http\Requests\CommonCategory\UpsertCommonCategoryRequest;
 use App\Http\Resources\CommonCategoryResource;
 use App\Models\CommonCategory;
 use App\Services\CommonCategoryService;
@@ -29,7 +28,7 @@ class CommonCategoryController extends Controller
         ]);
     }
 
-    public function store(CreateCommonCategoryRequest $request): JsonResponse
+    public function store(UpsertCommonCategoryRequest $request): JsonResponse
     {
         $this->authorize('create', CommonCategory::class);
         $item = $this->commonCategoryService->create($request->validated());
@@ -52,7 +51,7 @@ class CommonCategoryController extends Controller
         ]);
     }
 
-    public function update(UpdateCommonCategoryRequest $request, CommonCategory $commonCategory): JsonResponse
+    public function update(UpsertCommonCategoryRequest $request, CommonCategory $commonCategory): JsonResponse
     {
         $this->authorize('update', $commonCategory);
         $item = $this->commonCategoryService->update($commonCategory, $request->validated());
