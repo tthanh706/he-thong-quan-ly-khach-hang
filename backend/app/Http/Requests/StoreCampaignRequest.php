@@ -14,13 +14,16 @@ class StoreCampaignRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'        => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
-            'status'      => ['nullable', 'in:draft,active,paused,completed'],
-            'starts_at'   => ['nullable', 'date'],
-            'ends_at'     => ['nullable', 'date', 'after_or_equal:starts_at'],
-            'budget'      => ['nullable', 'numeric', 'min:0'],
-            'customer_id' => ['nullable', 'integer', 'exists:customers,id'],
+            'name'           => ['required', 'string', 'max:255'],
+            'description'    => ['nullable', 'string'],
+            'channel'        => ['nullable', 'string', 'max:100'],
+            'status'         => ['nullable', 'in:draft,active,paused,completed'],
+            'starts_at'      => ['nullable', 'date'],
+            'ends_at'        => ['nullable', 'date', 'after_or_equal:starts_at'],
+            'budget'         => ['nullable', 'numeric', 'min:0'],
+            'target_leads'   => ['nullable', 'integer', 'min:0'],
+            'target_revenue' => ['nullable', 'numeric', 'min:0'],
+            'customer_id'    => ['nullable', 'integer', 'exists:customers,id'],
         ];
     }
 

@@ -15,12 +15,15 @@ export default function Campaigns() {
   const [filters, setFilters] = useState<CampaignFilters>({ per_page: 15, page: 1 });
   const [createOpen, setCreateOpen] = useState(false);
 
-  const { data, isLoading } = useCampaigns(filters);
+  const { data, isLoading, error } = useCampaigns(filters);
   const createMutation = useCreateCampaign();
   const deleteMutation = useDeleteCampaign();
   const statusMutation = useChangeCampaignStatus();
 
-  const meta = data?.data;
+  const campaignList: any[] = Array.isArray(data?.data?.data)
+    ? data.data.data
+    : (Array.isArray(data?.data) ? data.data : (Array.isArray(data) ? data : []));
+  const meta = data?.data?.current_page ? data.data : (data?.current_page ? data : null);
 
   const handleCreate = async (payload: CampaignPayload) => {
     await createMutation.mutateAsync(payload);
@@ -76,24 +79,47 @@ export default function Campaigns() {
               <thead>
                 <tr>
                   <th>Tên chiến dịch</th>
+                  <th>Kênh</th>
                   <th>Trạng thái</th>
                   <th>Ngân sách</th>
-                  <th>Ngày bắt đầu</th>
-                  <th>Ngày kết thúc</th>
+                  <th>Số Lead</th>
+                  <th>Số Cơ hội</th>
+                  <th>Doanh thu đã chốt</th>
+                  <th>Thời gian chạy</th>
                   <th></th>
                 </tr>
               </thead>
               <tbody>
-                {meta?.data?.map((c: any) => (
+                {campaignList.map((c: any) => (
                   <tr key={c.id}>
                     <td>
                       <p className="cell-name">{c.name}</p>
                       <p className="cell-sub">{c.description?.slice(0, 60) ?? '—'}</p>
                     </td>
+                    <td>
+                      <span className="badge" style={{ backgroundColor: '#f1f5f9', color: '#334155', fontWeight: 500 }}>
+                        {c.channel || 'Website'}
+                      </span>
+                    </td>
                     <td><Badge label={c.status} variant={c.status} /></td>
                     <td>{c.budget ? Number(c.budget).toLocaleString('vi') + ' đ' : '—'}</td>
-                    <td>{c.starts_at ? new Date(c.starts_at).toLocaleDateString('vi') : '—'}</td>
-                    <td>{c.ends_at   ? new Date(c.ends_at).toLocaleDateString('vi')   : '—'}</td>
+                    <td>
+                      <span style={{ fontWeight: 600, color: '#2563eb' }}>{c.lead_count ?? 0}</span>
+                      {c.target_leads ? <span style={{ fontSize: '11px', color: '#64748b' }}> / {c.target_leads}</span> : ''}
+                    </td>
+                    <td>
+                      <span style={{ fontWeight: 600, color: '#7c3aed' }}>{c.opportunity_count ?? 0}</span>
+                    </td>
+                    <td>
+                      <span style={{ fontWeight: 600, color: '#16a34a' }}>
+                        {c.won_value ? Number(c.won_value).toLocaleString('vi') + ' đ' : '0 đ'}
+                      </span>
+                    </td>
+                    <td style={{ fontSize: '12px' }}>
+                      {c.starts_at ? new Date(c.starts_at).toLocaleDateString('vi') : '—'}
+                      {' → '}
+                      {c.ends_at ? new Date(c.ends_at).toLocaleDateString('vi') : '—'}
+                    </td>
                     <td>
                       <div className="row-actions">
                         {(c.status === 'active' || c.status === 'paused') && (
@@ -121,8 +147,8 @@ export default function Campaigns() {
                     </td>
                   </tr>
                 ))}
-                {meta?.data?.length === 0 && (
-                  <tr><td colSpan={6} className="empty-cell">Không có dữ liệu</td></tr>
+                {campaignList.length === 0 && (
+                  <tr><td colSpan={9} className="empty-cell">Chưa có chiến dịch marketing nào</td></tr>
                 )}
               </tbody>
             </table>

@@ -22,14 +22,17 @@ export async function api<T>(path: string, options: RequestInit = {}): Promise<T
     });
   } catch (netErr: any) {
     if (netErr.name !== 'AbortError') {
-      window.dispatchEvent(
-        new CustomEvent('app:http-error', {
-          detail: {
-            statusCode: 500,
-            message: 'Không thể kết nối đến máy chủ máy chủ backend (127.0.0.1:8000).',
-          },
-        })
-      );
+      const isAuthEndpoint = path.includes('/logout') || path.includes('/login') || path.includes('/me');
+      if (!isAuthEndpoint) {
+        window.dispatchEvent(
+          new CustomEvent('app:http-error', {
+            detail: {
+              statusCode: 500,
+              message: 'Không thể kết nối đến máy chủ backend (127.0.0.1:8000). Vui lòng đảm bảo backend đang hoạt động.',
+            },
+          })
+        );
+      }
     }
     throw netErr;
   }
@@ -105,14 +108,14 @@ export const campaignsApi = {
     if (filters.search) params.set('search', filters.search);
     if (filters.status) params.set('status', filters.status);
     const qs = params.toString();
-    return api<any>(`/campaigns${qs ? `?${qs}` : ''}`);
+    return api<any>(`/v1/campaigns${qs ? `?${qs}` : ''}`);
   },
-  get: (id: number) => api<any>(`/campaigns/${id}`),
-  create: (payload: any) => api<any>('/campaigns', { method: 'POST', body: JSON.stringify(payload) }),
-  update: (id: number, payload: any) => api<any>(`/campaigns/${id}`, { method: 'PUT', body: JSON.stringify(payload) }),
-  delete: (id: number) => api<any>(`/campaigns/${id}`, { method: 'DELETE' }),
-  remove: (id: number) => api<any>(`/campaigns/${id}`, { method: 'DELETE' }),
-  changeStatus: (id: number, status: string) => api<any>(`/campaigns/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }),
+  get: (id: number) => api<any>(`/v1/campaigns/${id}`),
+  create: (payload: any) => api<any>('/v1/campaigns', { method: 'POST', body: JSON.stringify(payload) }),
+  update: (id: number, payload: any) => api<any>(`/v1/campaigns/${id}`, { method: 'PUT', body: JSON.stringify(payload) }),
+  delete: (id: number) => api<any>(`/v1/campaigns/${id}`, { method: 'DELETE' }),
+  remove: (id: number) => api<any>(`/v1/campaigns/${id}`, { method: 'DELETE' }),
+  changeStatus: (id: number, status: string) => api<any>(`/v1/campaigns/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }),
 };
 
 export const changePasswordApi = (payload: any) =>

@@ -39,7 +39,7 @@ class ContractResource extends JsonResource
                 ] : null
             ),
 
-            'status' => $this->status->value,
+            'status' => is_object($this->status) ? $this->status->value : (string)$this->status,
             'contract_value' => $this->contract_value,
 
             'start_date' => $this->start_date?->format('Y-m-d'),
@@ -56,7 +56,7 @@ class ContractResource extends JsonResource
                 fn () => $this->renewalOpportunity ? [
                     'id' => $this->renewalOpportunity->id,
                     'name' => $this->renewalOpportunity->name,
-                    'status' => $this->renewalOpportunity->status->value,
+                    'status' => is_object($this->renewalOpportunity->status) ? $this->renewalOpportunity->status->value : (string)$this->renewalOpportunity->status,
                     'opportunity_type' => $this->renewalOpportunity->opportunity_type,
                 ] : null
             ),
@@ -66,7 +66,7 @@ class ContractResource extends JsonResource
                 fn () => $this->expiryAlerts->map(
                     fn ($alert) => [
                         'id' => $alert->id,
-                        'type' => $alert->type->value,
+                        'type' => is_object($alert->type) ? $alert->type->value : (string)$alert->type,
                         'message' => $alert->message,
                         'detected_at' => $alert->detected_at?->toDateTimeString(),
                     ]

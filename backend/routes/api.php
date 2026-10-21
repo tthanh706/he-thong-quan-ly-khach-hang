@@ -26,6 +26,8 @@ use App\Http\Controllers\Api\V1\ContractRenewalController;
 use App\Http\Controllers\Api\V1\TeamPerformanceController;
 use App\Http\Controllers\Api\V1\OpportunityExportController;
 use App\Http\Controllers\Api\V1\WebFormController;
+use App\Http\Controllers\Api\CampaignController;
+use App\Http\Controllers\Api\V1\ActivityTimelineController;
 use App\Http\Controllers\Api\V1\SalesOpportunityController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CustomerController;
@@ -71,6 +73,8 @@ Route::middleware('session.auth')->group(function (): void {
     Route::get('/customers/{id}', [ScopedResourceController::class, 'customer']);
     Route::get('/opportunities', [OpportunityController::class, 'index']);
     Route::get('/opportunities/{id}', [ScopedResourceController::class, 'opportunity']);
+    Route::get('/handover-logs', [HandoverLogController::class, 'index']);
+    Route::get('/v1/handover-logs', [HandoverLogController::class, 'index']);
 
     /*
     | Sprint 2 – API chuẩn /api/v1 (Convention mục 7)
@@ -213,18 +217,43 @@ Route::middleware('session.auth')->group(function (): void {
 
         /*
         |--------------------------------------------------------------------------
-        | S4-07 - Lead & SLA
+        | S4-01 -> S4-09: Lead Management, Import, Merge, Scoring & Conversion
         |--------------------------------------------------------------------------
         */
         Route::get('/leads', [LeadAssignmentController::class, 'index']);
+        Route::post('/leads', [LeadAssignmentController::class, 'storeManual']);
+        Route::get('/leads/import/template', [LeadAssignmentController::class, 'importTemplate']);
+        Route::post('/leads/import/preview', [LeadAssignmentController::class, 'importPreview']);
+        Route::post('/leads/import/confirm', [LeadAssignmentController::class, 'importConfirm']);
+        Route::get('/leads/check-duplicates', [LeadAssignmentController::class, 'checkDuplicates']);
+        Route::post('/leads/merge', [LeadAssignmentController::class, 'merge']);
         Route::get('/leads/sla-alerts', [LeadAssignmentController::class, 'slaAlerts']);
         Route::post('/leads/check-sla', [LeadAssignmentController::class, 'checkSla']);
-        Route::get('/leads/{lead}', [LeadAssignmentController::class, 'show']);
-        Route::post('/leads/{lead}/assign', [LeadAssignmentController::class, 'assign']);
-        Route::post('/leads/{lead}/accept', [LeadAssignmentController::class, 'accept']);
-        Route::post('/leads/{lead}/reject', [LeadAssignmentController::class, 'reject']);
-        Route::post('/leads/{lead}/contact', [LeadAssignmentController::class, 'contact']);
-        Route::get('/leads/{lead}/history', [LeadAssignmentController::class, 'history']);
+        Route::get('/leads/{lead}', [LeadAssignmentController::class, 'show'])->whereNumber('lead');
+        Route::post('/leads/{lead}/assign', [LeadAssignmentController::class, 'assign'])->whereNumber('lead');
+        Route::post('/leads/{lead}/accept', [LeadAssignmentController::class, 'accept'])->whereNumber('lead');
+        Route::post('/leads/{lead}/reject', [LeadAssignmentController::class, 'reject'])->whereNumber('lead');
+        Route::post('/leads/{lead}/contact', [LeadAssignmentController::class, 'contact'])->whereNumber('lead');
+        Route::post('/leads/{lead}/convert', [LeadAssignmentController::class, 'convert'])->whereNumber('lead');
+        Route::get('/leads/{lead}/history', [LeadAssignmentController::class, 'history'])->whereNumber('lead');
+
+        // S4-05: Lead Scoring Rules
+        Route::get('/lead-scoring-rules', [LeadAssignmentController::class, 'getScoringRules']);
+        Route::post('/lead-scoring-rules', [LeadAssignmentController::class, 'storeScoringRule']);
+        Route::delete('/lead-scoring-rules/{id}', [LeadAssignmentController::class, 'deleteScoringRule'])->whereNumber('id');
+
+        // S4-06: Lead Assignment Rules
+        Route::get('/lead-assignment-rules', [LeadAssignmentController::class, 'getAssignmentRules']);
+        Route::post('/lead-assignment-rules', [LeadAssignmentController::class, 'storeAssignmentRule']);
+        Route::delete('/lead-assignment-rules/{id}', [LeadAssignmentController::class, 'deleteAssignmentRule'])->whereNumber('id');
+
+        // S4-03: Marketing Campaigns
+        Route::get('/campaigns', [CampaignController::class, 'index']);
+        Route::post('/campaigns', [CampaignController::class, 'store']);
+        Route::get('/campaigns/{id}', [CampaignController::class, 'show'])->whereNumber('id');
+        Route::put('/campaigns/{id}', [CampaignController::class, 'update'])->whereNumber('id');
+        Route::patch('/campaigns/{id}/status', [CampaignController::class, 'changeStatus'])->whereNumber('id');
+        Route::delete('/campaigns/{id}', [CampaignController::class, 'destroy'])->whereNumber('id');
 
         /*
         |--------------------------------------------------------------------------
@@ -296,15 +325,69 @@ Route::middleware('session.auth')->group(function (): void {
 
         /*
         |--------------------------------------------------------------------------
-        | S5-01 & S6-01 - Sales Opportunity Management & Change Audit History
+        | S5-01 -> S5-08, S6-01 -> S6-04: Sales Opportunities, Pipeline Kanban, Products, Stage Gates, Forecast & Collaboration
         |--------------------------------------------------------------------------
         */
+        Route::get('/sales-opportunities/kanban', [SalesOpportunityController::class, 'kanban']);
+        Route::get('/sales-opportunities/forecast', [SalesOpportunityController::class, 'forecast']);
+        Route::post('/sales-opportunities/bulk-reassign', [SalesOpportunityController::class, 'bulkReassign']);
+        Route::get('/opportunity-stage-gates', [SalesOpportunityController::class, 'getStageGates']);
+        Route::patch('/opportunity-stage-gates/{id}', [SalesOpportunityController::class, 'updateStageGate'])->whereNumber('id');
+
         Route::get('/sales-opportunities', [SalesOpportunityController::class, 'index']);
         Route::post('/sales-opportunities', [SalesOpportunityController::class, 'store']);
         Route::get('/sales-opportunities/stages', [SalesOpportunityController::class, 'getStages']);
         Route::get('/sales-opportunities/options', [SalesOpportunityController::class, 'getFormOptions']);
         Route::get('/sales-opportunities/{id}', [SalesOpportunityController::class, 'show'])->whereNumber('id');
         Route::put('/sales-opportunities/{id}', [SalesOpportunityController::class, 'update'])->whereNumber('id');
+        Route::post('/sales-opportunities/{id}/stage', [SalesOpportunityController::class, 'changeStage'])->whereNumber('id');
+        Route::post('/sales-opportunities/{id}/close-won', [SalesOpportunityController::class, 'closeWon'])->whereNumber('id');
+        Route::post('/sales-opportunities/{id}/close-lost', [SalesOpportunityController::class, 'closeLost'])->whereNumber('id');
+        Route::post('/sales-opportunities/{id}/reopen', [SalesOpportunityController::class, 'reopen'])->whereNumber('id');
         Route::get('/sales-opportunities/{id}/histories', [SalesOpportunityController::class, 'histories'])->whereNumber('id');
+
+        // S5-03: Products on Opportunity
+        Route::get('/sales-opportunities/{id}/products', [SalesOpportunityController::class, 'getProducts'])->whereNumber('id');
+        Route::post('/sales-opportunities/{id}/products', [SalesOpportunityController::class, 'addProduct'])->whereNumber('id');
+        Route::delete('/sales-opportunities/{id}/products/{itemId}', [SalesOpportunityController::class, 'removeProduct'])->whereNumber('id')->whereNumber('itemId');
+
+        // S6-03: Team Collaborators
+        Route::get('/sales-opportunities/{id}/collaborators', [SalesOpportunityController::class, 'getCollaborators'])->whereNumber('id');
+        Route::post('/sales-opportunities/{id}/collaborators', [SalesOpportunityController::class, 'addCollaborator'])->whereNumber('id');
+        Route::delete('/sales-opportunities/{id}/collaborators/{collaboratorId}', [SalesOpportunityController::class, 'removeCollaborator'])->whereNumber('id')->whereNumber('collaboratorId');
+
+        // S6-04: Attachments (up to 20MB)
+        Route::get('/sales-opportunities/{id}/attachments', [SalesOpportunityController::class, 'getAttachments'])->whereNumber('id');
+        Route::post('/sales-opportunities/{id}/attachments', [SalesOpportunityController::class, 'uploadAttachment'])->whereNumber('id');
+        Route::delete('/sales-opportunities/{id}/attachments/{attachmentId}', [SalesOpportunityController::class, 'deleteAttachment'])->whereNumber('id')->whereNumber('attachmentId');
+        Route::get('/sales-opportunities/{id}/attachments/{attachmentId}/download', [SalesOpportunityController::class, 'downloadAttachment'])->whereNumber('id')->whereNumber('attachmentId');
+
+        /*
+        |--------------------------------------------------------------------------
+        | S6-05 -> S6-10: Activities, Tasks, Customer 360 Timeline, Reminders & Quick Call
+        |--------------------------------------------------------------------------
+        */
+        Route::get('/activities', [ActivityTimelineController::class, 'indexActivities']);
+        Route::post('/activities', [ActivityTimelineController::class, 'storeActivity']);
+        Route::get('/customers/{id}/timeline', [ActivityTimelineController::class, 'customerTimeline'])->whereNumber('id');
+
+        Route::get('/tasks', [ActivityTimelineController::class, 'indexTasks']);
+        Route::post('/tasks', [ActivityTimelineController::class, 'storeTask']);
+        Route::post('/tasks/{id}/complete', [ActivityTimelineController::class, 'completeTask'])->whereNumber('id');
+        Route::post('/tasks/{id}/postpone', [ActivityTimelineController::class, 'postponeTask'])->whereNumber('id');
+        Route::get('/tasks/reminders', [ActivityTimelineController::class, 'taskReminders']);
+        Route::post('/quick-call', [ActivityTimelineController::class, 'quickCallLog']);
+
+        // Route Aliases & Compatibility Endpoints
+        Route::get('/accounts', [AccountController::class, 'index']);
+        Route::get('/org/hierarchy', [CompanyHierarchyController::class, 'index']);
+        Route::get('/calendar/items', [CalendarController::class, 'teamCalendar']);
+        Route::get('/activity-timeline/overview', [ActivityTimelineController::class, 'indexActivities']);
+        Route::get('/contracts/expiring', [ContractRenewalController::class, 'alerts']);
+        Route::get('/lead-assignment/stats', [LeadAssignmentController::class, 'slaAlerts']);
+        Route::get('/opportunity-stagnation/problems', [OpportunityStagnationController::class, 'problems']);
+        Route::get('/opportunity-stagnation/configs', [OpportunityStagnationController::class, 'configs']);
+        Route::get('/team-performance/kpis', [TeamPerformanceController::class, 'index']);
+        Route::get('/team-performance/logs', [TeamPerformanceController::class, 'index']);
     });
 });

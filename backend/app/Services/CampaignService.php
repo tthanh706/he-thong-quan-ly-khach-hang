@@ -3,27 +3,36 @@
 namespace App\Services;
 
 use App\Models\Campaign;
+use App\Models\Lead;
+use App\Models\Opportunity;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 
 /**
- * CampaignService
+ * CampaignService (S4-03)
  *
- * Business logic cho chiến dịch marketing.
- * Ném exception chuẩn để Handler::render() bắt và hiển thị trang lỗi dùng chung.
+ * Business logic cho chiến dịch marketing: ngân sách, kênh, thời gian chạy,
+ * đo lường số lead, số cơ hội và giá trị hợp đồng đã chốt.
  */
 class CampaignService
 {
     /**
-     * Lấy danh sách chiến dịch có phân trang.
+     * Lấy danh sách chiến dịch có phân trang kèm thống kê kết quả thực tế (S4-03)
      */
     public function paginate(int $perPage = 15, array $filters = []): LengthAwarePaginator
     {
-        $query = Campaign::query()->with(['creator', 'customer']);
+        $query = Campaign::query()
+            ->with(['creator', 'customer'])
+            ->withCount(['leads as lead_count', 'opportunities as opportunity_count']);
 
         if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
+        }
+
+        if (! empty($filters['channel'])) {
+            $query->where('channel', $filters['channel']);
         }
 
         if (! empty($filters['created_by'])) {
@@ -34,25 +43,51 @@ class CampaignService
             $search = $filters['search'];
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%");
+                  ->orWhere('description', 'like', "%{$search}%")
+                  ->orWhere('channel', 'like', "%{$search}%");
             });
         }
 
-        return $query->latest()->paginate($perPage);
+        $paginator = $query->latest()->paginate($perPage);
+
+        // Tính tổng giá trị đã chốt thắng (won_value) cho từng campaign
+        $paginator->getCollection()->transform(function ($campaign) {
+            $wonValue = Opportunity::where('campaign_id', $campaign->id)
+                ->where(function ($q) {
+                    $q->where('closed_outcome', 'won')
+                      ->orWhere('stage', 'chot_thanh_cong');
+                })
+                ->sum(DB::raw('COALESCE(actual_won_value, value, amount, 0)'));
+
+            $campaign->won_value = (float) $wonValue;
+            return $campaign;
+        });
+
+        return $paginator;
     }
 
     /**
-     * Tìm chiến dịch theo ID.
-     *
-     * @throws ModelNotFoundException
+     * Tìm chiến dịch theo ID kèm thống kê
      */
     public function findOrFail(int $id): Campaign
     {
-        return Campaign::findOrFail($id);
+        $campaign = Campaign::with(['creator', 'customer'])
+            ->withCount(['leads as lead_count', 'opportunities as opportunity_count'])
+            ->findOrFail($id);
+
+        $wonValue = Opportunity::where('campaign_id', $campaign->id)
+            ->where(function ($q) {
+                $q->where('closed_outcome', 'won')
+                  ->orWhere('stage', 'chot_thanh_cong');
+            })
+            ->sum(\Illuminate\Support\Facades\DB::raw('COALESCE(actual_won_value, value, amount, 0)'));
+
+        $campaign->won_value = (float) $wonValue;
+        return $campaign;
     }
 
     /**
-     * Tạo chiến dịch mới.
+     * Tạo chiến dịch mới (S4-03)
      */
     public function create(array $data, int $createdBy): Campaign
     {
@@ -61,13 +96,10 @@ class CampaignService
 
     /**
      * Cập nhật chiến dịch.
-     *
-     * @throws ModelNotFoundException
-     * @throws AuthorizationException  Nếu không phải người tạo hoặc admin.
      */
     public function update(int $id, array $data, int $actingUserId): Campaign
     {
-        $campaign = $this->findOrFail($id);
+        $campaign = Campaign::findOrFail($id);
 
         if (
             $campaign->created_by !== $actingUserId
@@ -78,16 +110,11 @@ class CampaignService
 
         $campaign->update($data);
 
-        return $campaign->fresh();
+        return $this->findOrFail($id);
     }
 
     /**
      * Thay đổi trạng thái chiến dịch.
-     *
-     * @param  string $status  'draft' | 'active' | 'paused' | 'completed'
-     * @throws ModelNotFoundException
-     * @throws AuthorizationException
-     * @throws \InvalidArgumentException  Nếu trạng thái không hợp lệ.
      */
     public function changeStatus(int $id, string $status, int $actingUserId): Campaign
     {
@@ -102,13 +129,10 @@ class CampaignService
 
     /**
      * Xoá mềm chiến dịch.
-     *
-     * @throws ModelNotFoundException
-     * @throws AuthorizationException
      */
     public function delete(int $id, int $actingUserId): void
     {
-        $campaign = $this->findOrFail($id);
+        $campaign = Campaign::findOrFail($id);
 
         if (
             $campaign->created_by !== $actingUserId
@@ -119,10 +143,6 @@ class CampaignService
 
         $campaign->delete();
     }
-
-    // -------------------------------------------------------------------------
-    // Private helpers
-    // -------------------------------------------------------------------------
 
     private function actingUserIsAdmin(int $userId): bool
     {

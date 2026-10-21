@@ -118,7 +118,6 @@ export default function ContractRenewalPage({ user: propUser }: Props) {
     <div className="contract-renewal-page" style={{ padding: '24px' }}>
       <header className="page-heading" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <div>
-          <small style={{ color: '#2563eb', fontWeight: 600, fontSize: '13px' }}>S7-07 · CONTRACT RENEWAL</small>
           <h1 style={{ fontSize: '24px', fontWeight: 700, margin: '4px 0' }}>Hiệu lực & gia hạn hợp đồng</h1>
           <p style={{ color: '#64748b', margin: 0 }}>Theo dõi ngày hết hạn, cảnh báo sớm và tạo cơ hội gia hạn hợp đồng.</p>
         </div>
