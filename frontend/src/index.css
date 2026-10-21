@@ -1,0 +1,197 @@
+/* ─── S6-04 Opportunity Attachments Styles ─────────────────── */
+
+:root {
+  --color-primary: #4f46e5;
+  --color-primary-hover: #4338ca;
+  --color-danger: #dc2626;
+  --color-danger-hover: #b91c1c;
+  --color-warning: #f59e0b;
+  --color-warning-bg: #fffbeb;
+  --color-success: #10b981;
+  --color-success-bg: #ecfdf5;
+  --color-info: #3b82f6;
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-500: #6b7280;
+  --color-gray-700: #374151;
+  --color-gray-900: #111827;
+  --radius: 8px;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.07);
+  --shadow-lg: 0 10px 25px rgba(0,0,0,0.1);
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-sans);
+  background: var(--color-gray-50);
+  color: var(--color-gray-900);
+  line-height: 1.6;
+}
+
+.app { max-width: 1280px; margin: 0 auto; padding: 24px; }
+
+/* ─── Buttons ────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 10px 20px; border: none; border-radius: var(--radius);
+  font-size: 0.9rem; font-weight: 600; cursor: pointer;
+  transition: all 0.2s ease; text-decoration: none;
+}
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn--primary { background: var(--color-primary); color: #fff; }
+.btn--primary:hover:not(:disabled) { background: var(--color-primary-hover); }
+.btn--secondary { background: var(--color-gray-200); color: var(--color-gray-700); }
+.btn--secondary:hover:not(:disabled) { background: var(--color-gray-300); }
+.btn--danger { background: var(--color-danger); color: #fff; }
+.btn--danger:hover:not(:disabled) { background: var(--color-danger-hover); }
+.btn--outline { background: transparent; border: 1px solid var(--color-gray-300); color: var(--color-gray-700); }
+.btn--outline:hover:not(:disabled) { background: var(--color-gray-100); }
+.btn--danger-outline { background: transparent; border: 1px solid var(--color-danger); color: var(--color-danger); }
+.btn--danger-outline:hover:not(:disabled) { background: #fef2f2; }
+.btn--sm { padding: 6px 12px; font-size: 0.8rem; }
+
+/* ─── Alerts ─────────────────────────────────────────────────── */
+.alert {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px; border-radius: var(--radius); margin-bottom: 16px;
+  font-size: 0.9rem;
+}
+.alert--error { background: #fef2f2; color: var(--color-danger); border: 1px solid #fecaca; }
+.alert--success { background: var(--color-success-bg); color: #065f46; border: 1px solid #a7f3d0; }
+.alert__close { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: inherit; }
+
+/* ─── Attachment Panel ───────────────────────────────────────── */
+.attachment-panel__header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 20px;
+}
+.attachment-panel__header h2 { font-size: 1.5rem; font-weight: 700; color: var(--color-gray-900); }
+.attachment-panel__summary {
+  display: flex; align-items: center; gap: 8px;
+  color: var(--color-gray-500); font-size: 0.9rem;
+}
+.attachment-panel__separator { color: var(--color-gray-300); }
+
+/* ─── Upload Zone ────────────────────────────────────────────── */
+.upload-zone-wrapper { margin-bottom: 24px; }
+
+.upload-zone {
+  border: 2px dashed var(--color-gray-300);
+  border-radius: 12px;
+  padding: 40px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: #fff;
+}
+.upload-zone:hover {
+  border-color: var(--color-primary);
+  background: #f5f3ff;
+}
+.upload-zone--drag-over {
+  border-color: var(--color-primary);
+  background: #eef2ff;
+  box-shadow: 0 0 0 4px rgba(79,70,229,0.1);
+}
+.upload-zone__icon { font-size: 2.5rem; margin-bottom: 12px; }
+.upload-zone__text { font-size: 1rem; color: var(--color-gray-700); margin-bottom: 6px; }
+.upload-zone__browse { color: var(--color-primary); font-weight: 600; text-decoration: underline; }
+.upload-zone__hint { font-size: 0.8rem; color: var(--color-gray-500); }
+
+/* ─── Selected Files ─────────────────────────────────────────── */
+.upload-zone__selected {
+  margin-top: 16px; padding: 16px;
+  background: var(--color-gray-50); border-radius: var(--radius);
+  border: 1px solid var(--color-gray-200);
+}
+.upload-zone__selected h4 {
+  font-size: 0.9rem; font-weight: 600; margin-bottom: 10px; color: var(--color-gray-700);
+}
+.selected-files-list { list-style: none; padding: 0; margin-bottom: 12px; }
+.selected-file {
+  display: flex; align-items: center; gap: 12px;
+  padding: 8px 12px; border-radius: 6px;
+  background: #fff; margin-bottom: 4px;
+  border: 1px solid var(--color-gray-100);
+}
+.selected-file__name { flex: 1; font-size: 0.85rem; font-weight: 500; color: var(--color-gray-900); }
+.selected-file__size { font-size: 0.8rem; color: var(--color-gray-500); }
+.selected-file__remove {
+  background: none; border: none; font-size: 1.2rem;
+  cursor: pointer; color: var(--color-gray-500); line-height: 1;
+  padding: 2px 6px; border-radius: 4px;
+  transition: all 0.2s;
+}
+.selected-file__remove:hover { background: #fef2f2; color: var(--color-danger); }
+
+/* ─── Upload Progress ───────────────────────────────────────── */
+.upload-progress {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 12px;
+}
+.upload-progress__bar {
+  flex: 1; height: 8px; background: var(--color-gray-200);
+  border-radius: 4px; overflow: hidden;
+}
+.upload-progress__fill {
+  height: 100%; background: linear-gradient(90deg, var(--color-primary), #818cf8);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+.upload-progress__text { font-size: 0.8rem; font-weight: 600; color: var(--color-primary); min-width: 40px; }
+
+/* ─── Attachment Table ──────────────────────────────────────── */
+.attachment-table-wrapper { overflow-x: auto; }
+
+.attachment-table {
+  width: 100%; border-collapse: collapse; background: #fff;
+  border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm);
+}
+.attachment-table thead { background: var(--color-gray-50); }
+.attachment-table th {
+  padding: 12px 16px; text-align: left; font-size: 0.8rem;
+  font-weight: 600; color: var(--color-gray-500); text-transform: uppercase;
+  letter-spacing: 0.05em; border-bottom: 1px solid var(--color-gray-200);
+  user-select: none;
+}
+.attachment-table__th--sortable { cursor: pointer; transition: color 0.2s; }
+.attachment-table__th--sortable:hover { color: var(--color-primary); }
+.attachment-table__th--icon { width: 48px; }
+
+.attachment-table td {
+  padding: 12px 16px; border-bottom: 1px solid var(--color-gray-100);
+  font-size: 0.9rem;
+}
+.attachment-table__row:hover { background: var(--color-gray-50); }
+.attachment-table__icon { font-size: 1.3rem; text-align: center; }
+.attachment-table__name {
+  font-weight: 600; max-width: 260px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.attachment-table__size { color: var(--color-gray-500); white-space: nowrap; }
+.attachment-table__uploader { color: var(--color-gray-700); }
+.attachment-table__date { color: var(--color-gray-500); white-space: nowrap; font-size: 0.85rem; }
+.attachment-table__actions { display: flex; gap: 8px; }
+
+/* ─── Empty State ────────────────────────────────────────────── */
+.attachment-table__empty {
+  text-align: center; padding: 48px 24px;
+  background: #fff; border-radius: var(--radius); box-shadow: var(--shadow-sm);
+}
+.attachment-table__empty-icon { font-size: 3rem; margin-bottom: 12px; }
+.attachment-table__empty p { color: var(--color-gray-700); font-size: 1rem; margin-bottom: 4px; }
+.attachment-table__empty-hint { color: var(--color-gray-500); font-size: 0.85rem; }
+
+/* ─── Loading ────────────────────────────────────────────────── */
+.loading-spinner { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 40px; }
+.spinner {
+  width: 24px; height: 24px; border: 3px solid var(--color-gray-200);
+  border-top-color: var(--color-primary); border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
