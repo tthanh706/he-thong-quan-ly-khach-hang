@@ -24,12 +24,9 @@ class CustomerImportController extends Controller
     public function downloadTemplate(): BinaryFileResponse
     {
         $path = $this->importService->downloadTemplate();
-        $ext = pathinfo($path, PATHINFO_EXTENSION);
-        $filename = 'mau_import_khach_hang.' . $ext;
-        $contentType = $ext === 'csv' ? 'text/csv; charset=UTF-8' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 
-        return response()->download($path, $filename, [
-            'Content-Type' => $contentType,
+        return response()->download($path, 'mau_import_khach_hang.xlsx', [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         ])->deleteFileAfterSend(true);
     }
 

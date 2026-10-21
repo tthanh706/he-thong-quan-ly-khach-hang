@@ -8,57 +8,74 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class CustomerImportService
 {
-    public function __construct(
-        private readonly SpreadsheetReaderService $spreadsheetReader
-    ) {}
-
     /**
-     * Tải file mẫu CSV / Excel
+     * Tải file mẫu Excel
      */
     public function downloadTemplate(): string
     {
-        $tempPath = storage_path('app/temp/customer_import_template_' . Str::random(8) . '.csv');
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Khách hàng');
+
+        // Header
+        $headers = ['Mã KH', 'Tên khách hàng', 'Số điện thoại', 'Email', 'Mã số thuế', 'Địa chỉ'];
+        $sheet->fromArray($headers, null, 'A1');
+
+        // Style header
+        $sheet->getStyle('A1:F1')->getFont()->setBold(true);
+
+        // Sample data
+        $sheet->fromArray([
+            ['KH001', 'Nguyễn Văn A', '0901234567', 'a@gmail.com', '0123456789', 'Hà Nội'],
+            ['KH002', 'Công ty ABC', '0912345678', 'contact@abc.com', '9876543210', 'TP.HCM'],
+        ], null, 'A2');
+
+        foreach (range('A', 'F') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+
+        $tempPath = storage_path('app/temp/customer_import_template_' . Str::random(8) . '.xlsx');
         if (!is_dir(dirname($tempPath))) {
             mkdir(dirname($tempPath), 0755, true);
         }
 
-        $csvContent = "\xEF\xBB\xBF"
-            . "Mã KH,Tên khách hàng,Số điện thoại,Email,Mã số thuế,Địa chỉ\n"
-            . "KH001,Nguyễn Văn A,0901234567,a@gmail.com,0123456789,Hà Nội\n"
-            . "KH002,Công ty ABC,0912345678,contact@abc.com,9876543210,TP.HCM\n";
-
-        file_put_contents($tempPath, $csvContent);
+        $writer = new Xlsx($spreadsheet);
+        $writer->save($tempPath);
 
         return $tempPath;
     }
 
     /**
-     * Parse & validate file Excel / CSV → trả về preview
+     * Parse & validate file Excel → trả về preview
      */
     public function preview(UploadedFile $file, User $user): array
     {
-        // Đọc dữ liệu qua SpreadsheetReaderService hỗ trợ cả xlsx và csv
-        $rows = $this->spreadsheetReader->read($file);
+        $spreadsheet = IOFactory::load($file->getRealPath());
+        $sheet = $spreadsheet->getActiveSheet();
+        $rows = $sheet->toArray(null, true, true, true);
 
-        // Bỏ dòng tiêu đề (dòng 1)
-        $header = array_shift($rows) ?? [];
+        // Bỏ header
+        $header = array_shift($rows);
 
         $preview = [];
         $validCount = 0;
         $errorCount = 0;
 
         foreach ($rows as $index => $row) {
-            $rowNumber = is_numeric($index) ? $index : count($preview) + 2;
+            $rowNumber = $index + 2; // Excel row number
 
-            $code = trim((string) ($row[0] ?? $row['A'] ?? ''));
-            $name = trim((string) ($row[1] ?? $row['B'] ?? ''));
-            $phone = trim((string) ($row[2] ?? $row['C'] ?? ''));
-            $email = trim((string) ($row[3] ?? $row['D'] ?? ''));
-            $taxCode = trim((string) ($row[4] ?? $row['E'] ?? ''));
-            $address = trim((string) ($row[5] ?? $row['F'] ?? ''));
+            $code = trim((string) ($row['A'] ?? ''));
+            $name = trim((string) ($row['B'] ?? ''));
+            $phone = trim((string) ($row['C'] ?? ''));
+            $email = trim((string) ($row['D'] ?? ''));
+            $taxCode = trim((string) ($row['E'] ?? ''));
+            $address = trim((string) ($row['F'] ?? ''));
 
             // Bỏ dòng trống
             if ($code === '' && $name === '') {
@@ -106,7 +123,7 @@ class CustomerImportService
             ];
         }
 
-        // Lưu file tạm để confirm sau nếu cần
+        // Lưu file tạm để confirm sau
         $storedPath = $file->storeAs(
             'imports/' . $user->id,
             'preview_' . time() . '_' . $file->getClientOriginalName(),
@@ -135,6 +152,7 @@ class CustomerImportService
         DB::transaction(function () use ($rows, $user, &$success, &$failed, &$errors) {
             foreach ($rows as $index => $row) {
                 try {
+                    // Chỉ lưu dòng hợp lệ (frontend có thể gửi cả, backend re-validate)
                     if (empty($row['code']) || empty($row['name'])) {
                         $failed++;
                         $errors[] = [
