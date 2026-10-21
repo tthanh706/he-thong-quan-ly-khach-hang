@@ -1,0 +1,408 @@
+
+:root {
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #182033;
+  background: #f4f7fb;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background: #f4f7fb;
+}
+
+button, input, select { font: inherit; }
+
+button {
+  cursor: pointer;
+  border: 0;
+  border-radius: 10px;
+  padding: 11px 16px;
+  background: #285dd7;
+  color: #fff;
+  font-weight: 800;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: .65;
+}
+
+input, select {
+  width: 100%;
+  border: 1px solid #d8e0eb;
+  border-radius: 10px;
+  padding: 11px 12px;
+  background: #fff;
+  outline: none;
+}
+
+input:focus, select:focus {
+  border-color: #4e78e8;
+  box-shadow: 0 0 0 3px rgba(78,120,232,.12);
+}
+
+.login-page,
+.center-screen {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.login-card,
+.panel,
+.summary-card {
+  background: #fff;
+  border: 1px solid #e3e8f0;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(31,44,70,.05);
+}
+
+.login-card {
+  width: min(470px, 100%);
+  padding: 32px;
+}
+
+.brand-mark {
+  display: inline-flex;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: #e9f0ff;
+  color: #285dd7;
+  font-weight: 800;
+  margin-bottom: 18px;
+}
+
+.login-card h1 {
+  margin: 0 0 8px;
+  font-size: 28px;
+}
+
+.login-card p {
+  margin: 0 0 24px;
+  color: #6f788b;
+}
+
+.login-card label,
+.filters-grid label {
+  display: grid;
+  gap: 8px;
+  font-weight: 700;
+}
+
+.login-card label {
+  margin-bottom: 16px;
+}
+
+.demo-note {
+  margin-top: 16px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #7a8496;
+  background: #f7f9fc;
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: flex-start;
+  padding: 28px 36px;
+  background: #fff;
+  border-bottom: 1px solid #e7ebf2;
+}
+
+.topbar h1 {
+  margin: 4px 0 6px;
+  font-size: 28px;
+}
+
+.topbar p {
+  margin: 0;
+  color: #6f788b;
+}
+
+.eyebrow {
+  color: #285dd7;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .08em;
+}
+
+.user-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.user-box > div {
+  display: grid;
+  text-align: right;
+}
+
+.user-box small {
+  color: #7e8798;
+}
+
+.permission-badge {
+  display: inline-flex;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.permission-badge.allowed {
+  background: #e6f7ee;
+  color: #177349;
+}
+
+.permission-badge.restricted {
+  background: #fdecec;
+  color: #a93535;
+}
+
+.ghost-button,
+.secondary-button {
+  background: #eef3ff;
+  color: #2c58bf;
+}
+
+.excel-button {
+  background: #16734c;
+}
+
+.dashboard {
+  width: min(1500px, 100%);
+  margin: 0 auto;
+  padding: 28px 36px 48px;
+}
+
+.panel {
+  padding: 20px;
+  margin-bottom: 18px;
+}
+
+.section-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.section-heading h2 {
+  margin: 0 0 5px;
+}
+
+.section-heading p {
+  margin: 0;
+  color: #727c8f;
+}
+
+.filters-grid {
+  display: grid;
+  grid-template-columns:
+    minmax(220px, 1.4fr)
+    minmax(150px, .8fr)
+    minmax(150px, .8fr)
+    minmax(180px, 1fr);
+  gap: 12px;
+  align-items: end;
+}
+
+.search-field {
+  grid-column: span 2;
+}
+
+.filter-actions {
+  display: flex;
+  gap: 8px;
+  align-items: end;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0,1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.summary-card {
+  padding: 18px;
+  display: grid;
+  gap: 7px;
+}
+
+.summary-card span {
+  color: #707a8d;
+  font-size: 14px;
+}
+
+.summary-card strong {
+  font-size: 26px;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.opportunity-table {
+  width: 100%;
+  min-width: 1350px;
+  border-collapse: collapse;
+}
+
+.opportunity-table th,
+.opportunity-table td {
+  padding: 13px 12px;
+  border-bottom: 1px solid #edf0f5;
+  text-align: left;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.opportunity-table th {
+  background: #f8fafd;
+  color: #667084;
+  font-size: 13px;
+}
+
+.opportunity-table td strong,
+.opportunity-table td small {
+  display: block;
+}
+
+.opportunity-table td small {
+  color: #8a93a4;
+  margin-top: 4px;
+}
+
+.tag {
+  display: inline-flex;
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.tag-stage {
+  background: #eef3ff;
+  color: #355fc3;
+}
+
+.tag-status {
+  background: #edf7f0;
+  color: #277149;
+}
+
+.margin-positive {
+  color: #177349;
+  font-weight: 800;
+}
+
+.margin-warning {
+  color: #a96909;
+  font-weight: 800;
+}
+
+.privacy-note {
+  padding: 8px 11px;
+  border-radius: 10px;
+  background: #fff3e1;
+  color: #8a5a07;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.empty-state {
+  padding: 34px;
+  text-align: center;
+  color: #7f899c;
+}
+
+.error-box,
+.success-box {
+  padding: 12px 14px;
+  border-radius: 10px;
+  margin-bottom: 14px;
+}
+
+.error-box {
+  background: #fdecec;
+  border: 1px solid #f1caca;
+  color: #a93535;
+}
+
+.success-box {
+  background: #e8f7ef;
+  border: 1px solid #c8e8d7;
+  color: #176843;
+}
+
+@media (max-width: 1100px) {
+  .filters-grid {
+    grid-template-columns: repeat(2, minmax(0,1fr));
+  }
+
+  .search-field {
+    grid-column: span 2;
+  }
+
+  .summary-grid {
+    grid-template-columns: repeat(2, minmax(0,1fr));
+  }
+}
+
+@media (max-width: 800px) {
+  .topbar {
+    flex-direction: column;
+  }
+
+  .user-box {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .user-box > div {
+    text-align: left;
+  }
+
+  .section-heading {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 560px) {
+  .topbar,
+  .dashboard {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .login-card {
+    padding: 22px;
+  }
+
+  .filters-grid,
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .search-field {
+    grid-column: span 1;
+  }
+
+  .filter-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
