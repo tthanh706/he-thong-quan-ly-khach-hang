@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\ContactController;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\Api\V1\AuditLogController;
 use App\Http\Controllers\Api\V1\AvatarController;
@@ -28,6 +29,13 @@ Route::middleware('session.auth')->group(function (): void {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
     Route::post('/change-password', [AuthController::class, 'changePassword']);
+    Route::get('/v1/contacts', [ContactController::class, 'index']);
+    Route::post('/v1/contacts', [ContactController::class, 'store']);
+    Route::patch('/v1/contacts/{contact}/transfer', [ContactController::class, 'transfer']);
+    Route::get('/v1/contacts/{contact}/history', [ContactController::class, 'history']);
+    Route::get('/v1/contacts/{contact}', [ContactController::class, 'show']);
+    Route::patch('/v1/contacts/{contact}', [ContactController::class, 'update']);
+    Route::delete('/v1/contacts/{contact}', [ContactController::class, 'destroy']);
 
     Route::middleware('admin.role')->group(function (): void {
         Route::get('/accounts', [AccountController::class, 'index']);
