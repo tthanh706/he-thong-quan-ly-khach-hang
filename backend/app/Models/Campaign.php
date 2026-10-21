@@ -2,9 +2,12 @@
 
 namespace App\Models;
 
+use App\Enums\CampaignChannelEnum;
+use App\Enums\CampaignStatusEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Campaign extends Model
@@ -14,48 +17,56 @@ class Campaign extends Model
     protected $fillable = [
         'name',
         'description',
-        'status',       // 'draft' | 'active' | 'paused' | 'completed'
-        'starts_at',
-        'ends_at',
         'budget',
-        'created_by',   // FK -> users.id
-        'customer_id',  // FK -> customers.id (nullable nếu campaign toàn cục)
+        'start_date',
+        'end_date',
+        'channel',
+        'status',
+        'owner_id',
     ];
 
     protected $casts = [
-        'starts_at'  => 'datetime',
-        'ends_at'    => 'datetime',
-        'budget'     => 'decimal:2',
+        'budget' => 'decimal:2',
+        'start_date' => 'date',
+        'end_date' => 'date',
+        'channel' => CampaignChannelEnum::class,
+        'status' => CampaignStatusEnum::class,
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
         'deleted_at' => 'datetime',
     ];
 
-    // -------------------------------------------------------------------------
-    // Relations
-    // -------------------------------------------------------------------------
-
-    /** Người tạo chiến dịch */
-    public function creator(): BelongsTo
+    // Relationships
+    public function owner(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'created_by');
+        return $this->belongsTo(User::class, 'owner_id');
     }
 
-    /** Khách hàng gắn với chiến dịch (có thể null) */
-    public function customer(): BelongsTo
+    public function leads(): HasMany
     {
-        return $this->belongsTo(Customer::class, 'customer_id');
+        return $this->hasMany(Lead::class);
     }
 
-    // -------------------------------------------------------------------------
-    // Scopes
-    // -------------------------------------------------------------------------
+    public function opportunities(): HasMany
+    {
+        return $this->hasMany(Opportunity::class);
+    }
+
+    // Local Scopes
+    public function scopeDataScope($query, User $user)
+    {
+        // Data Scope: MY / TEAM / ALL (theo convention)
+        $scope = $user->data_scope ?? 'MY';
+
+        return match ($scope) {
+            'ALL' => $query,
+            'TEAM' => $query->whereIn('owner_id', $user->teamMemberIds()),
+            default => $query->where('owner_id', $user->id),
+        };
+    }
 
     public function scopeActive($query)
     {
-        return $query->where('status', 'active');
-    }
-
-    public function scopeByCreator($query, int $userId)
-    {
-        return $query->where('created_by', $userId);
+        return $query->where('status', CampaignStatusEnum::ACTIVE);
     }
 }
