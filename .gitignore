@@ -1,0 +1,12 @@
+Backend/.env
+Backend/vendor/
+Backend/storage/logs/*.log
+Frontend/node_modules/
+Frontend/dist/
+Frontend/.vite/
+Frontend/.env
+Frontend/.env.*
+!Frontend/.env.example
+*.log
+.DS_Store
+Thumbs.db
