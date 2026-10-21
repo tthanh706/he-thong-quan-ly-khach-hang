@@ -122,9 +122,6 @@ export default function OpportunityExportPage({ user: propUser }: OpportunityExp
     <div className="opportunity-export-page" style={{ padding: '24px' }}>
       <header className="page-heading" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <div>
-          <div className="eyebrow" style={{ color: '#2563eb', fontWeight: 600, fontSize: '13px' }}>
-            S8-10 · OPPORTUNITY EXPORT
-          </div>
           <h1 style={{ fontSize: '24px', fontWeight: 700, margin: '4px 0' }}>Danh sách cơ hội & xuất Excel</h1>
           <p style={{ color: '#64748b', margin: 0 }}>
             Lọc dữ liệu trước khi xuất báo cáo cơ hội kinh doanh theo mẫu quản lý.

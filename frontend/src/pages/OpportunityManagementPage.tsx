@@ -15,8 +15,17 @@ import {
   CheckCircle,
   AlertCircle,
   HelpCircle,
+  LayoutGrid,
+  List,
+  BarChart3,
+  Users,
+  Eye,
 } from 'lucide-react';
 import { salesOpportunityService } from '../services/salesOpportunityService';
+import { KanbanBoard } from '../components/opportunity/KanbanBoard';
+import { OpportunityDetailModal } from '../components/opportunity/OpportunityDetailModal';
+import { ForecastModal } from '../components/opportunity/ForecastModal';
+import { BulkReassignModal } from '../components/opportunity/BulkReassignModal';
 import type {
   SalesOpportunity,
   CreateOpportunityData,
@@ -35,6 +44,12 @@ export const OpportunityManagementPage: React.FC = () => {
   const [stageFilter, setStageFilter] = useState<string>('');
   const [customerFilter, setCustomerFilter] = useState<string>('');
   const [ownerFilter, setOwnerFilter] = useState<string>('');
+
+  // S5-02 & S5-06 & S5-08 & Detail Modal State
+  const [viewMode, setViewMode] = useState<'table' | 'kanban'>('kanban');
+  const [detailModalOpp, setDetailModalOpp] = useState<SalesOpportunity | null>(null);
+  const [isForecastOpen, setIsForecastOpen] = useState(false);
+  const [isBulkReassignOpen, setIsBulkReassignOpen] = useState(false);
 
   // Dropdown options
   const [customers, setCustomers] = useState<OpportunityCustomer[]>([]);
@@ -265,20 +280,82 @@ export const OpportunityManagementPage: React.FC = () => {
   return (
     <div className="opp-container">
       {/* Header */}
-      <div className="opp-header">
+      <div className="opp-header" style={{ flexWrap: 'wrap', gap: '14px' }}>
         <div className="opp-title-group">
           <h1>
             <TrendingUp className="text-blue-600" size={26} />
-            Quản Lý Cơ Hội Bán Hàng & Lịch Sử Thay Đổi
+            Quản Lý Cơ Hội Bán Hàng & Pipeline
           </h1>
           <p>
-            Khai báo và theo dõi các thương vụ bán hàng theo giai đoạn và xác suất thắng; tự động ghi nhận mọi thay đổi (giai đoạn, giá trị, ngày chốt, người sở hữu) để phục vụ giám sát minh bạch.
+            Pipeline Kanban, dòng sản phẩm & ACV, điều kiện chuyển giai đoạn, dự báo doanh số và điều chuyển quyền sở hữu.
           </p>
         </div>
-        <button className="btn-primary" onClick={handleOpenCreateModal}>
-          <Plus size={18} />
-          Tạo cơ hội bán hàng
-        </button>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+          {/* Chế độ xem: Kanban vs Table (S5-02) */}
+          <div style={{ display: 'flex', background: '#f1f5f9', padding: '3px', borderRadius: '8px', border: '1px solid #cbd5e1' }}>
+            <button
+              type="button"
+              onClick={() => setViewMode('kanban')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                padding: '6px 12px',
+                borderRadius: '6px',
+                border: 'none',
+                background: viewMode === 'kanban' ? '#fff' : 'transparent',
+                color: viewMode === 'kanban' ? '#2563eb' : '#64748b',
+                fontWeight: 600,
+                fontSize: '12px',
+                cursor: 'pointer',
+                boxShadow: viewMode === 'kanban' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+              }}
+            >
+              <LayoutGrid size={14} /> Pipeline Kanban
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode('table')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                padding: '6px 12px',
+                borderRadius: '6px',
+                border: 'none',
+                background: viewMode === 'table' ? '#fff' : 'transparent',
+                color: viewMode === 'table' ? '#2563eb' : '#64748b',
+                fontWeight: 600,
+                fontSize: '12px',
+                cursor: 'pointer',
+                boxShadow: viewMode === 'table' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+              }}
+            >
+              <List size={14} /> Danh sách bảng
+            </button>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setIsForecastOpen(true)}
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '8px', cursor: 'pointer', background: '#fff', border: '1px solid #cbd5e1', fontWeight: 600, fontSize: '13px' }}
+          >
+            <BarChart3 size={15} color="#2563eb" /> Dự báo (Forecast)
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setIsBulkReassignOpen(true)}
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '8px', cursor: 'pointer', background: '#fff', border: '1px solid #cbd5e1', fontWeight: 600, fontSize: '13px' }}
+          >
+            <Users size={15} color="#7c3aed" /> Điều chuyển hàng loạt
+          </button>
+
+          <button className="btn-primary" onClick={handleOpenCreateModal}>
+            <Plus size={18} />
+            Tạo cơ hội bán hàng
+          </button>
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -328,206 +405,223 @@ export const OpportunityManagementPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Filters Bar */}
-      <div className="opp-filters-bar">
-        <div className="opp-filter-inputs">
-          <input
-            type="text"
-            className="opp-search-input"
-            placeholder="Tìm theo tên cơ hội, khách hàng..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+      {/* S5-02: CHẾ ĐỘ XEM PIPELINE KANBAN HOẶC BẢNG DANH SÁCH */}
+      {viewMode === 'kanban' ? (
+        <KanbanBoard onSelectOpportunity={(opp) => setDetailModalOpp(opp)} />
+      ) : (
+        <>
+          {/* Filters Bar */}
+          <div className="opp-filters-bar">
+            <div className="opp-filter-inputs">
+              <input
+                type="text"
+                className="opp-search-input"
+                placeholder="Tìm theo tên cơ hội, khách hàng..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
 
-          <select
-            className="opp-select"
-            value={stageFilter}
-            onChange={(e) => setStageFilter(e.target.value)}
-          >
-            <option value="">Tất cả giai đoạn</option>
-            {stages.map((s) => (
-              <option key={s.key} value={s.key}>
-                {s.label} ({s.probability}%)
-              </option>
-            ))}
-          </select>
+              <select
+                className="opp-select"
+                value={stageFilter}
+                onChange={(e) => setStageFilter(e.target.value)}
+              >
+                <option value="">Tất cả giai đoạn</option>
+                {stages.map((s) => (
+                  <option key={s.key} value={s.key}>
+                    {s.label} ({s.probability}%)
+                  </option>
+                ))}
+              </select>
 
-          <select
-            className="opp-select"
-            value={customerFilter}
-            onChange={(e) => setCustomerFilter(e.target.value)}
-          >
-            <option value="">Tất cả khách hàng</option>
-            {customers.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name} ({c.code})
-              </option>
-            ))}
-          </select>
+              <select
+                className="opp-select"
+                value={customerFilter}
+                onChange={(e) => setCustomerFilter(e.target.value)}
+              >
+                <option value="">Tất cả khách hàng</option>
+                {customers.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name} ({c.code})
+                  </option>
+                ))}
+              </select>
 
-          <select
-            className="opp-select"
-            value={ownerFilter}
-            onChange={(e) => setOwnerFilter(e.target.value)}
-          >
-            <option value="">Tất cả nhân viên phụ trách</option>
-            {users.map((u) => (
-              <option key={u.id} value={u.id}>
-                {u.name}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      {/* Opportunities Table */}
-      <div className="opp-table-card">
-        {loading ? (
-          <div style={{ padding: '40px', textAlign: 'center', color: '#64748b' }}>
-            Đang tải dữ liệu cơ hội bán hàng...
+              <select
+                className="opp-select"
+                value={ownerFilter}
+                onChange={(e) => setOwnerFilter(e.target.value)}
+              >
+                <option value="">Tất cả nhân viên phụ trách</option>
+                {users.map((u) => (
+                  <option key={u.id} value={u.id}>
+                    {u.name}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
-        ) : opportunities.length === 0 ? (
-          <div style={{ padding: '48px', textAlign: 'center', color: '#64748b' }}>
-            Chưa có cơ hội bán hàng nào phù hợp với bộ lọc. Nhấp vào <strong>"Tạo cơ hội bán hàng"</strong> để thêm mới!
-          </div>
-        ) : (
-          <table className="opp-table">
-            <thead>
-              <tr>
-                <th>Tên cơ hội & Khách hàng</th>
-                <th>Người liên hệ chính</th>
-                <th>Giai đoạn</th>
-                <th>Giá trị dự kiến</th>
-                <th>Xác suất thắng</th>
-                <th>Ngày dự kiến chốt</th>
-                <th>Người sở hữu</th>
-                <th>Lịch sử thay đổi</th>
-                <th style={{ textAlign: 'right' }}>Thao tác</th>
-              </tr>
-            </thead>
-            <tbody>
-              {opportunities.map((opp) => {
-                const stageObj = stages.find((s) => s.key === opp.stage);
-                const stageLabel = stageObj?.label || opp.stage;
-                const stageColor = stageObj?.color || '#3b82f6';
 
-                return (
-                  <tr key={opp.id}>
-                    <td>
-                      <div style={{ fontWeight: 600, color: '#0f172a' }}>{opp.name}</div>
-                      <div style={{ fontSize: '13px', color: '#2563eb', marginTop: '2px' }}>
-                        🏢 {opp.customer?.name || 'Khách hàng chưa gán'}
-                      </div>
-                      <div style={{ fontSize: '11px', color: '#64748b' }}>
-                        Nguồn: {opp.source || 'Trực tiếp'}
-                      </div>
-                    </td>
-                    <td>
-                      {opp.contact ? (
-                        <div>
-                          <div style={{ fontWeight: 500, color: '#334155' }}>
-                            {opp.contact.name}
-                          </div>
-                          <div style={{ fontSize: '12px', color: '#64748b' }}>
-                            {opp.contact.phone || opp.contact.title || 'Liên hệ chính'}
-                          </div>
-                        </div>
-                      ) : (
-                        <span style={{ color: '#94a3b8', fontSize: '13px' }}>— Chưa gán —</span>
-                      )}
-                    </td>
-                    <td>
-                      <span
-                        className="stage-badge"
-                        style={{
-                          backgroundColor: `${stageColor}15`,
-                          color: stageColor,
-                          border: `1px solid ${stageColor}40`,
-                        }}
-                      >
-                        {stageLabel}
-                      </span>
-                    </td>
-                    <td>
-                      <div style={{ fontWeight: 700, color: '#0f172a' }}>
-                        {new Intl.NumberFormat('vi-VN').format(opp.value || opp.amount || 0)} đ
-                      </div>
-                    </td>
-                    <td>
-                      <div
-                        className={`prob-badge ${
-                          opp.win_probability_customized ? 'custom' : 'default'
-                        }`}
-                        title={
-                          opp.win_probability_customized
-                            ? `Xác suất đã sửa tay kèm ghi chú: ${opp.probability_note || ''}`
-                            : 'Xác suất lấy mặc định theo giai đoạn'
-                        }
-                      >
-                        {opp.win_probability}%
-                        {opp.win_probability_customized && (
-                          <span style={{ fontSize: '10px' }}>✏️ sửa tay</span>
-                        )}
-                      </div>
-                      {opp.probability_note && (
-                        <div
-                          style={{
-                            fontSize: '11px',
-                            color: '#b45309',
-                            maxWidth: '130px',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                          }}
-                          title={opp.probability_note}
-                        >
-                          {opp.probability_note}
-                        </div>
-                      )}
-                    </td>
-                    <td>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '13px', color: '#334155' }}>
-                        <Calendar size={13} color="#64748b" />
-                        {opp.expected_close_date
-                          ? new Date(opp.expected_close_date).toLocaleDateString('vi-VN')
-                          : '—'}
-                      </div>
-                    </td>
-                    <td>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '13px', color: '#334155' }}>
-                        <User size={13} color="#64748b" />
-                        {opp.owner?.name || 'Chưa gán'}
-                      </div>
-                    </td>
-                    <td>
-                      <button
-                        className="history-badge"
-                        onClick={() => handleViewHistory(opp)}
-                        title="Xem lịch sử thay đổi giai đoạn, giá trị, ngày chốt..."
-                      >
-                        <History size={13} />
-                        {opp.histories_count ? `${opp.histories_count} logs` : 'Lịch sử'}
-                      </button>
-                    </td>
-                    <td style={{ textAlign: 'right' }}>
-                      <div className="table-actions" style={{ justifyContent: 'flex-end' }}>
-                        <button
-                          className="btn-action-icon primary"
-                          onClick={() => handleOpenEditModal(opp)}
-                          title="Chỉnh sửa cơ hội (Ghi log tự động)"
-                        >
-                          <Edit size={14} />
-                          Sửa
-                        </button>
-                      </div>
-                    </td>
+          {/* Opportunities Table */}
+          <div className="opp-table-card">
+            {loading ? (
+              <div style={{ padding: '40px', textAlign: 'center', color: '#64748b' }}>
+                Đang tải dữ liệu cơ hội bán hàng...
+              </div>
+            ) : opportunities.length === 0 ? (
+              <div style={{ padding: '48px', textAlign: 'center', color: '#64748b' }}>
+                Chưa có cơ hội bán hàng nào phù hợp với bộ lọc. Nhấp vào <strong>"Tạo cơ hội bán hàng"</strong> để thêm mới!
+              </div>
+            ) : (
+              <table className="opp-table">
+                <thead>
+                  <tr>
+                    <th>Tên cơ hội & Khách hàng</th>
+                    <th>Người liên hệ chính</th>
+                    <th>Giai đoạn</th>
+                    <th>Giá trị dự kiến</th>
+                    <th>Xác suất thắng</th>
+                    <th>Ngày dự kiến chốt</th>
+                    <th>Người sở hữu</th>
+                    <th>Lịch sử thay đổi</th>
+                    <th style={{ textAlign: 'right' }}>Thao tác</th>
                   </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        )}
-      </div>
+                </thead>
+                <tbody>
+                  {opportunities.map((opp) => {
+                    const stageObj = stages.find((s) => s.key === opp.stage);
+                    const stageLabel = stageObj?.label || opp.stage;
+                    const stageColor = stageObj?.color || '#3b82f6';
+
+                    return (
+                      <tr key={opp.id}>
+                        <td>
+                          <div style={{ fontWeight: 600, color: '#0f172a' }}>{opp.name}</div>
+                          <div style={{ fontSize: '13px', color: '#2563eb', marginTop: '2px' }}>
+                            🏢 {opp.customer?.name || 'Khách hàng chưa gán'}
+                          </div>
+                          <div style={{ fontSize: '11px', color: '#64748b' }}>
+                            Nguồn: {opp.source || 'Trực tiếp'}
+                          </div>
+                        </td>
+                        <td>
+                          {opp.contact ? (
+                            <div>
+                              <div style={{ fontWeight: 500, color: '#334155' }}>
+                                {opp.contact.name}
+                              </div>
+                              <div style={{ fontSize: '12px', color: '#64748b' }}>
+                                {opp.contact.phone || opp.contact.title || 'Liên hệ chính'}
+                              </div>
+                            </div>
+                          ) : (
+                            <span style={{ color: '#94a3b8', fontSize: '13px' }}>— Chưa gán —</span>
+                          )}
+                        </td>
+                        <td>
+                          <span
+                            className="stage-badge"
+                            style={{
+                              backgroundColor: `${stageColor}15`,
+                              color: stageColor,
+                              border: `1px solid ${stageColor}40`,
+                            }}
+                          >
+                            {stageLabel}
+                          </span>
+                        </td>
+                        <td>
+                          <div style={{ fontWeight: 700, color: '#0f172a' }}>
+                            {new Intl.NumberFormat('vi-VN').format(opp.value || opp.amount || 0)} đ
+                          </div>
+                        </td>
+                        <td>
+                          <div
+                            className={`prob-badge ${
+                              opp.win_probability_customized ? 'custom' : 'default'
+                            }`}
+                            title={
+                              opp.win_probability_customized
+                                ? `Xác suất đã sửa tay kèm ghi chú: ${opp.probability_note || ''}`
+                                : 'Xác suất lấy mặc định theo giai đoạn'
+                            }
+                          >
+                            {opp.win_probability}%
+                            {opp.win_probability_customized && (
+                              <span style={{ fontSize: '10px' }}>✏️ sửa tay</span>
+                            )}
+                          </div>
+                          {opp.probability_note && (
+                            <div
+                              style={{
+                                fontSize: '11px',
+                                color: '#b45309',
+                                maxWidth: '130px',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap',
+                              }}
+                              title={opp.probability_note}
+                            >
+                              {opp.probability_note}
+                            </div>
+                          )}
+                        </td>
+                        <td>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '13px', color: '#334155' }}>
+                            <Calendar size={13} color="#64748b" />
+                            {opp.expected_close_date
+                              ? new Date(opp.expected_close_date).toLocaleDateString('vi-VN')
+                              : '—'}
+                          </div>
+                        </td>
+                        <td>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '13px', color: '#334155' }}>
+                            <User size={13} color="#64748b" />
+                            {opp.owner?.name || 'Chưa gán'}
+                          </div>
+                        </td>
+                        <td>
+                          <button
+                            className="history-badge"
+                            onClick={() => handleViewHistory(opp)}
+                            title="Xem lịch sử thay đổi giai đoạn, giá trị, ngày chốt..."
+                          >
+                            <History size={13} />
+                            {opp.histories_count ? `${opp.histories_count} logs` : 'Lịch sử'}
+                          </button>
+                        </td>
+                        <td style={{ textAlign: 'right' }}>
+                          <div className="table-actions" style={{ justifyContent: 'flex-end', gap: '6px' }}>
+                            <button
+                              type="button"
+                              className="btn-action-icon secondary"
+                              style={{ background: '#eff6ff', color: '#1d4ed8', border: '1px solid #bfdbfe', padding: '4px 8px', borderRadius: '4px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '3px', cursor: 'pointer' }}
+                              onClick={() => setDetailModalOpp(opp)}
+                              title="Chi tiết sản phẩm, đóng thắng/thua, cộng tác & tài liệu"
+                            >
+                              <Eye size={13} />
+                              Chi tiết
+                            </button>
+                            <button
+                              className="btn-action-icon primary"
+                              onClick={() => handleOpenEditModal(opp)}
+                              title="Chỉnh sửa cơ hội (Ghi log tự động)"
+                            >
+                              <Edit size={14} />
+                              Sửa
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </>
+      )}
 
       {/* MODAL 1: TẠO CƠ HỘI BÁN HÀNG MỚI (S5-01) */}
       {isCreateModalOpen && (
@@ -1142,8 +1236,38 @@ export const OpportunityManagementPage: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* S5-03, S5-05, S6-01, S6-03, S6-04: Chi tiết cơ hội đa chức năng */}
+      <OpportunityDetailModal
+        open={Boolean(detailModalOpp)}
+        opportunity={detailModalOpp}
+        onClose={() => setDetailModalOpp(null)}
+        onUpdated={() => {
+          setDetailModalOpp(null);
+          void fetchOpportunities();
+        }}
+      />
+
+      {/* S5-06: Dự báo doanh số theo xác suất thắng (Forecast) */}
+      <ForecastModal
+        open={isForecastOpen}
+        onClose={() => setIsForecastOpen(false)}
+      />
+
+      {/* S5-08: Điều chuyển cơ hội hàng loạt */}
+      <BulkReassignModal
+        open={isBulkReassignOpen}
+        onClose={() => setIsBulkReassignOpen(false)}
+        opportunities={opportunities}
+        users={users}
+        onSuccess={() => {
+          setIsBulkReassignOpen(false);
+          void fetchOpportunities();
+        }}
+      />
     </div>
   );
 };
 
 export default OpportunityManagementPage;
+

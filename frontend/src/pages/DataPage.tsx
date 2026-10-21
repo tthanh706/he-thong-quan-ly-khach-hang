@@ -9,8 +9,18 @@ export function DataPage() {
 
   useEffect(() => {
     void Promise.all([
-      api<{ data: Customer[] }>('/customers').then((r) => setCustomers(r.data)),
-      api<{ data: Opportunity[] }>('/opportunities').then((r) => setOpportunities(r.data)),
+      api<any>('/v1/customers')
+        .then((r) => {
+          const list = Array.isArray(r?.data) ? r.data : (Array.isArray(r?.data?.data) ? r.data.data : []);
+          setCustomers(list);
+        })
+        .catch(() => setCustomers([])),
+      api<any>('/v1/sales-opportunities')
+        .then((r) => {
+          const list = Array.isArray(r?.data) ? r.data : (Array.isArray(r?.data?.data) ? r.data.data : []);
+          setOpportunities(list);
+        })
+        .catch(() => setOpportunities([])),
     ]);
   }, []);
 

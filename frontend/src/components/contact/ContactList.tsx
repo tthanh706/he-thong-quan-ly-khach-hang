@@ -27,7 +27,7 @@ export const ContactList: React.FC<ContactListProps> = ({ contacts, onAdd, onEdi
       <div className="contacts-header">
         <div>
           <h2>Danh Bạ Người Liên Hệ</h2>
-          <p>Quản lý người liên hệ doanh nghiệp, chức danh và vai trò ra quyết định (US-02)</p>
+          <p>Quản lý người liên hệ doanh nghiệp, chức danh và vai trò ra quyết định</p>
         </div>
         <button 
           type="button"
@@ -125,7 +125,7 @@ export const ContactList: React.FC<ContactListProps> = ({ contacts, onAdd, onEdi
                             type="button"
                             onClick={() => onTransfer(c)} 
                             className="c360-btn-action"
-                            title="Chuyển công tác sang công ty khác (S3-02)"
+                            title="Chuyển công tác sang công ty khác"
                             style={{ color: '#0284c7' }}
                           >
                             <ArrowRightLeft size={14} />
@@ -136,7 +136,7 @@ export const ContactList: React.FC<ContactListProps> = ({ contacts, onAdd, onEdi
                             type="button"
                             onClick={() => onViewHistory(c)} 
                             className="c360-btn-action"
-                            title="Xem lịch sử luân chuyển công tác (S3-02)"
+                            title="Xem lịch sử luân chuyển công tác"
                             style={{ color: '#7c3aed' }}
                           >
                             <History size={14} />

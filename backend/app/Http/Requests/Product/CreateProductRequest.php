@@ -15,20 +15,13 @@ class CreateProductRequest extends FormRequest
         return $this->user()?->can('create', \App\Models\Product::class) ?? false;
     }
 
-    protected function prepareForValidation(): void
-    {
-        if (empty($this->input('unit'))) {
-            $this->merge(['unit' => 'Cái']);
-        }
-    }
-
     public function rules(): array
     {
         return [
             'sku' => ['required', 'string', 'max:64', Rule::unique('products', 'sku')->whereNull('deleted_at')],
             'name' => ['required', 'string', 'max:255'],
             'type' => ['required', Rule::enum(ProductTypeEnum::class)],
-            'unit' => ['nullable', 'string', 'max:32'],
+            'unit' => ['required', 'string', 'max:32'],
             'description' => ['nullable', 'string', 'max:2000'],
             'list_price' => ['required', 'numeric', 'min:0'],
             'currency' => ['nullable', 'string', 'max:8'],

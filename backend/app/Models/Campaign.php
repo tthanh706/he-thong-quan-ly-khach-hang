@@ -17,6 +17,7 @@ class Campaign extends Model
     protected $fillable = [
         'name',
         'description',
+
         'budget',
         'start_date',
         'end_date',
@@ -38,6 +39,30 @@ class Campaign extends Model
 
     // Relationships
     public function owner(): BelongsTo
+=======
+        'channel',
+        'status',       // 'draft' | 'active' | 'paused' | 'completed'
+        'starts_at',
+        'ends_at',
+        'budget',
+        'target_leads',
+        'target_revenue',
+        'created_by',   // FK -> users.id
+        'customer_id',  // FK -> customers.id (nullable)
+    ];
+
+    protected $casts = [
+        'starts_at'      => 'datetime',
+        'ends_at'        => 'datetime',
+        'budget'         => 'decimal:2',
+        'target_revenue' => 'decimal:2',
+        'target_leads'   => 'integer',
+        'deleted_at'     => 'datetime',
+    ];
+
+    /** Người tạo chiến dịch */
+    public function creator(): BelongsTo
+
     {
         return $this->belongsTo(User::class, 'owner_id');
     }
@@ -47,9 +72,22 @@ class Campaign extends Model
         return $this->hasMany(Lead::class);
     }
 
+
     public function opportunities(): HasMany
     {
         return $this->hasMany(Opportunity::class);
+
+    /** Danh sách lead thu được từ chiến dịch (S4-03) */
+    public function leads(): HasMany
+    {
+        return $this->hasMany(Lead::class, 'campaign_id');
+    }
+
+    /** Danh sách cơ hội bán hàng từ chiến dịch (S4-03) */
+    public function opportunities(): HasMany
+    {
+        return $this->hasMany(Opportunity::class, 'campaign_id');
+
     }
 
     // Local Scopes

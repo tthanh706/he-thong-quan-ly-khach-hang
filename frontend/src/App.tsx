@@ -21,7 +21,6 @@ import { ContactsPage } from './pages/ContactsPage';
 import { ExcelImportPage } from './pages/ExcelImportPage';
 import { PeriodicCarePage } from './pages/PeriodicCarePage';
 import { SupportRequestPage } from './pages/SupportRequestPage';
-import TestSuitePage from './pages/TestSuitePage';
 import CustomerManagementPage from './pages/CustomerManagementPage';
 import { LeadAssignmentPage } from './pages/LeadAssignmentPage';
 import OpportunityStagnationPage from './pages/OpportunityStagnationPage';
@@ -31,7 +30,11 @@ import TeamPerformancePage from './pages/TeamPerformancePage';
 import OpportunityExportPage from './pages/OpportunityExportPage';
 import WebFormPage from './pages/WebFormPage';
 import OpportunityManagementPage from './pages/OpportunityManagementPage';
+import Campaigns from './pages/Campaigns';
+import { QuickCallModal } from './components/common/QuickCallModal';
 import { UserAvatar } from './components/common/UserAvatar';
+import { ErrorBoundary } from './components/common/ErrorBoundary';
+import { PhoneCall } from 'lucide-react';
 import './styles.css';
 
 type Page =
@@ -52,19 +55,20 @@ type Page =
   | 'opportunity-export'
   | 'web-forms'
   | 'sales-opportunities'
+  | 'campaigns'
   | 'accounts'
   | 'import-users'
   | 'org'
   | 'categories'
   | 'custom-fields'
   | 'system-logs'
-  | 'test-suite'
   | 'profile'
   | 'error';
 
 const PAGE_TITLES: Record<Page, string> = {
   'sales-opportunities': '📈 Quản lý cơ hội & Lịch sử thay đổi',
   'web-forms': '🌐 Biểu mẫu nhúng & Thu thập Lead',
+  campaigns: '📢 Chiến dịch Tiếp thị (Marketing Campaigns)',
   customers: '🏢 Quản lý khách hàng',
   data: '📁 Dữ liệu sở hữu',
   'customer-360': '🌐 Khách hàng 360 & Tập đoàn',
@@ -72,7 +76,6 @@ const PAGE_TITLES: Record<Page, string> = {
   'excel-import': '📥 Nhập Khách hàng từ Excel',
   'support-requests': '🎫 Yêu cầu hỗ trợ sau bán',
   'periodic-care': '📅 Chăm sóc khách hàng định kỳ',
-  'test-suite': '🧪 Trung tâm kiểm thử hệ thống',
   products: '📦 Quản lý Sản phẩm & Bảng giá',
   'sales-process': '📈 Quy trình & Thiết lập Bán hàng',
   'lead-assignment': '🎯 Tiếp nhận & Phân bổ Lead',
@@ -113,6 +116,9 @@ function parseLocation(): { page: Page; errorStatus: number | null } {
   }
 
   const validPages: Page[] = [
+    'sales-opportunities',
+    'web-forms',
+    'campaigns',
     'customers',
     'data',
     'customer-360',
@@ -134,7 +140,6 @@ function parseLocation(): { page: Page; errorStatus: number | null } {
     'categories',
     'custom-fields',
     'system-logs',
-    'test-suite',
     'profile',
   ];
 
@@ -160,6 +165,7 @@ export default function App() {
   const initialLoc = parseLocation();
   const [page, setPage] = useState<Page>(initialLoc.page);
   const [errorStatus, setErrorStatus] = useState<number | null>(initialLoc.errorStatus);
+  const [quickCallOpen, setQuickCallOpen] = useState<boolean>(false);
 
   const navigateTo = (newPage: Page, statusCode: number | null = null) => {
     setPage(newPage);
@@ -183,10 +189,14 @@ export default function App() {
     };
 
     const handleHttpError = (e: Event) => {
-      const customEvent = e as CustomEvent<{ statusCode: number }>;
-      const code = customEvent.detail?.statusCode;
-      if (code && [401, 402, 403, 404, 500].includes(code)) {
-        showError(code);
+      const customEvent = e as CustomEvent<{ statusCode: number; message?: string }>;
+      const { statusCode, message } = customEvent.detail || {};
+      if (statusCode === 403) {
+        toast.error(message || 'Bạn không có quyền thực hiện thao tác này (403).');
+      } else if (statusCode === 500) {
+        toast.error(message || 'Lỗi hệ thống máy chủ (500). Vui lòng thử lại.');
+      } else if (statusCode === 404) {
+        console.warn('API 404:', message);
       }
     };
 
@@ -249,13 +259,13 @@ export default function App() {
         <ErrorPage
           statusCode={errorStatus ?? 404}
           onNavigate={(url) => {
-            if (url === '/login' || url === '/accounts' || url === '/dashboard') {
+            if (url === '/login' || url === '/accounts' || url === '/dashboard' || url === '/') {
               navigateTo('accounts');
               window.history.pushState(null, '', '/login');
             } else if (url === '__BACK__') {
               window.history.back();
             } else if (url === '__RELOAD__') {
-              window.location.reload();
+              window.location.href = '/';
             } else {
               window.location.href = url;
             }
@@ -294,6 +304,9 @@ export default function App() {
           <button className={page === 'sales-opportunities' ? 'active' : ''} onClick={() => navigateTo('sales-opportunities')}>
             📈 Quản lý cơ hội
           </button>
+          <button className={page === 'campaigns' ? 'active' : ''} onClick={() => navigateTo('campaigns')}>
+            📢 Chiến dịch Marketing
+          </button>
           <button className={page === 'web-forms' ? 'active' : ''} onClick={() => navigateTo('web-forms')}>
             🌐 Biểu mẫu nhúng
           </button>
@@ -317,9 +330,6 @@ export default function App() {
           </button>
           <button className={page === 'contacts' ? 'active' : ''} onClick={() => navigateTo('contacts')}>
             📇 Người liên hệ
-          </button>
-          <button className={page === 'excel-import' ? 'active' : ''} onClick={() => navigateTo('excel-import')}>
-            📥 Nhập KH từ Excel
           </button>
           <button className={page === 'support-requests' ? 'active' : ''} onClick={() => navigateTo('support-requests')}>
             🎫 Yêu cầu hỗ trợ
@@ -375,9 +385,6 @@ export default function App() {
           <div className="sidebar-section-title">Giám sát & Nhật ký</div>
           <button className={page === 'system-logs' ? 'active' : ''} onClick={() => navigateTo('system-logs')}>
             📜 Nhật ký hệ thống
-          </button>
-          <button className={page === 'test-suite' ? 'active' : ''} onClick={() => navigateTo('test-suite')}>
-            🧪 Trung tâm kiểm thử
           </button>
 
           {/* PHÂN HỆ 5: CÁ NHÂN */}
@@ -468,6 +475,30 @@ export default function App() {
             </span>
           </div>
           <div className="topbar-right">
+            {/* S6-10: Nút Ghi nhanh cuộc gọi 3 chạm cho Sales Rep */}
+            <button
+              type="button"
+              onClick={() => setQuickCallOpen(true)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '6px 14px',
+                borderRadius: '8px',
+                border: '1px solid #bfdbfe',
+                background: '#eff6ff',
+                color: '#1d4ed8',
+                fontWeight: 600,
+                fontSize: '13px',
+                cursor: 'pointer',
+                marginRight: '8px',
+              }}
+              title="Ghi nhanh kết quả cuộc gọi (Tối ưu 3 thao tác chạm trên điện thoại)"
+            >
+              <PhoneCall size={14} color="#2563eb" />
+              <span>Ghi nhanh cuộc gọi</span>
+            </button>
+
             <div className="topbar-user" onClick={() => navigateTo('profile')} title="Xem hồ sơ cá nhân">
               <UserAvatar url={user.avatar_url} name={user.name} size={32} />
               <div className="topbar-user-info">
@@ -490,51 +521,59 @@ export default function App() {
         </header>
 
         <main className="content">
-          {page === 'customers' && <CustomerManagementPage />}
-          {page === 'data' && <DataPage />}
-          {page === 'customer-360' && <Customer360Page />}
-          {page === 'contacts' && <ContactsPage />}
-          {page === 'excel-import' && <ExcelImportPage />}
-          {page === 'support-requests' && <SupportRequestPage />}
-          {page === 'periodic-care' && <PeriodicCarePage />}
-          {page === 'products' && <ProductsPage />}
-          {page === 'sales-process' && <SalesProcessPage />}
-          {page === 'lead-assignment' && <LeadAssignmentPage />}
-          {page === 'opportunity-stagnation' && <OpportunityStagnationPage />}
-          {page === 'team-calendar' && <CalendarPage />}
-          {page === 'contract-renewal' && <ContractRenewalPage />}
-          {page === 'team-performance' && <TeamPerformancePage />}
-          {page === 'opportunity-export' && <OpportunityExportPage />}
-          {page === 'sales-opportunities' && <OpportunityManagementPage />}
-          {page === 'web-forms' && <WebFormPage />}
-          {page === 'accounts' && <AccountPage initialTab="list" />}
-          {page === 'import-users' && <AccountPage initialTab="import" />}
-          {page === 'org' && <OrgPage />}
-          {page === 'categories' && <CategoriesPage />}
-          {page === 'custom-fields' && <CustomFieldsPage />}
-          {page === 'system-logs' && <SystemLogsPage />}
-          {page === 'test-suite' && <TestSuitePage />}
-          {page === 'profile' && <ProfilePage onLogout={handleLogout} />}
-          {page === 'error' && (
-            <ErrorPage
-              statusCode={errorStatus ?? 404}
-              onNavigate={(url) => {
-                if (url === '/login') {
-                  handleLogout();
-                } else if (url === '/accounts' || url === '/dashboard') {
-                  navigateTo('accounts');
-                } else if (url === '__BACK__') {
-                  navigateTo('accounts');
-                } else if (url === '__RELOAD__') {
-                  window.location.reload();
-                } else {
-                  navigateTo('accounts');
-                }
-              }}
-            />
-          )}
+          <ErrorBoundary fallbackKey={page}>
+            {page === 'customers' && <CustomerManagementPage />}
+            {page === 'data' && <DataPage />}
+            {page === 'customer-360' && <Customer360Page />}
+            {page === 'contacts' && <ContactsPage />}
+            {page === 'excel-import' && <ExcelImportPage />}
+            {page === 'support-requests' && <SupportRequestPage />}
+            {page === 'periodic-care' && <PeriodicCarePage />}
+            {page === 'products' && <ProductsPage />}
+            {page === 'sales-process' && <SalesProcessPage />}
+            {page === 'lead-assignment' && <LeadAssignmentPage />}
+            {page === 'opportunity-stagnation' && <OpportunityStagnationPage />}
+            {page === 'team-calendar' && <CalendarPage />}
+            {page === 'contract-renewal' && <ContractRenewalPage />}
+            {page === 'team-performance' && <TeamPerformancePage />}
+            {page === 'opportunity-export' && <OpportunityExportPage />}
+            {page === 'sales-opportunities' && <OpportunityManagementPage />}
+            {page === 'web-forms' && <WebFormPage />}
+            {page === 'campaigns' && <Campaigns />}
+            {page === 'accounts' && <AccountPage initialTab="list" />}
+            {page === 'import-users' && <AccountPage initialTab="import" />}
+            {page === 'org' && <OrgPage />}
+            {page === 'categories' && <CategoriesPage />}
+            {page === 'custom-fields' && <CustomFieldsPage />}
+            {page === 'system-logs' && <SystemLogsPage />}
+            {page === 'profile' && <ProfilePage onLogout={handleLogout} />}
+            {page === 'error' && (
+              <ErrorPage
+                statusCode={errorStatus ?? 404}
+                onNavigate={(url) => {
+                  if (url === '/login') {
+                    handleLogout();
+                  } else if (url === '/accounts' || url === '/dashboard') {
+                    navigateTo('accounts');
+                  } else if (url === '__BACK__') {
+                    navigateTo('accounts');
+                  } else if (url === '__RELOAD__') {
+                    window.location.reload();
+                  } else {
+                    navigateTo('accounts');
+                  }
+                }}
+              />
+            )}
+          </ErrorBoundary>
         </main>
       </div>
+
+      {/* S6-10: Modal ghi nhanh cuộc gọi 3 chạm */}
+      <QuickCallModal
+        open={quickCallOpen}
+        onClose={() => setQuickCallOpen(false)}
+      />
     </div>
   );
 }

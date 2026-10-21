@@ -28,11 +28,16 @@ import {
   UserCheck,
   Star,
   Check,
-  X
+  X,
+  History,
+  Clock,
+  TrendingUp,
+  User
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { api } from '../services/api';
 import { fetchCustomer360, Customer360Data } from '../api/crmApi';
+import { activityTimelineService } from '../services/activityTimelineService';
 import './Customer360Page.css';
 
 interface Subsidiary {
@@ -144,8 +149,13 @@ export const Customer360Page: React.FC = () => {
   const [selectedCustomerId, setSelectedCustomerId] = useState<string>('');
   const [data360, setData360] = useState<Customer360Data | null>(null);
   const [loading360, setLoading360] = useState(false);
-  const [subTab360, setSubTab360] = useState<'contacts' | 'contracts' | 'deals' | 'support' | 'care' | 'subsidiaries'>('contacts');
+  const [subTab360, setSubTab360] = useState<'contacts' | 'contracts' | 'deals' | 'support' | 'care' | 'subsidiaries' | 'timeline'>('contacts');
   const [viewMode, setViewMode] = useState<'dashboard' | 'table'>('dashboard');
+
+  // S6-08: Timeline State
+  const [timelineEvents, setTimelineEvents] = useState<any[]>([]);
+  const [timelineLoading, setTimelineLoading] = useState(false);
+  const [timelineFilterType, setTimelineFilterType] = useState<string>('');
 
   // Hierarchy Tab State
   const [companies, setCompanies] = useState<ParentCompany[]>(initialCompanies);
@@ -257,10 +267,30 @@ export const Customer360Page: React.FC = () => {
     }
   };
 
+  // S6-08: Tải dòng thời gian tương tác hợp nhất của khách hàng
+  const loadTimeline = async (id?: string, type?: string) => {
+    const custId = id || selectedCustomerId;
+    if (!custId) return;
+    setTimelineLoading(true);
+    try {
+      const res = await activityTimelineService.getCustomerTimeline(custId, {
+        type: type !== undefined ? (type || undefined) : (timelineFilterType || undefined),
+      });
+      if (res.success && res.data) {
+        setTimelineEvents(res.data.timeline || []);
+      }
+    } catch {
+      // ignore
+    } finally {
+      setTimelineLoading(false);
+    }
+  };
+
   // Switch selected customer
   const handleSelectCustomer = (id: string) => {
     setSelectedCustomerId(id);
     load360Data(id);
+    void loadTimeline(id);
     setViewMode('dashboard');
   };
 
@@ -702,6 +732,19 @@ export const Customer360Page: React.FC = () => {
                         <Layers size={15} />
                         <span>Mạng lưới trực thuộc ({data360?.company?.subsidiaries?.length || 0})</span>
                       </button>
+
+                      {/* S6-08: Dòng thời gian tương tác hợp nhất */}
+                      <button
+                        type="button"
+                        className={`c360-subtab-item ${subTab360 === 'timeline' ? 'active' : ''}`}
+                        onClick={() => {
+                          setSubTab360('timeline');
+                          if (timelineEvents.length === 0) void loadTimeline();
+                        }}
+                      >
+                        <History size={15} />
+                        <span>Dòng thời gian tương tác ({timelineEvents.length})</span>
+                      </button>
                     </div>
 
                     <div className="c360-subtab-body">
@@ -982,6 +1025,189 @@ export const Customer360Page: React.FC = () => {
                                   </div>
                                 </div>
                               ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Subtab 7 (S6-08): Dòng thời gian tương tác hợp nhất */}
+                      {subTab360 === 'timeline' && (
+                        <div>
+                          {/* Filter Bar */}
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', flexWrap: 'wrap', gap: '12px', background: '#f8fafc', padding: '12px 16px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                              <span style={{ fontSize: '13px', fontWeight: 600, color: '#475569' }}>Lọc loại tương tác:</span>
+                              <select
+                                style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', background: '#fff' }}
+                                value={timelineFilterType}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setTimelineFilterType(val);
+                                  void loadTimeline(selectedCustomerId, val);
+                                }}
+                              >
+                                <option value="">Tất cả tương tác ({timelineEvents.length})</option>
+                                <option value="call">📞 Cuộc gọi (Calls)</option>
+                                <option value="meeting">👥 Cuộc gặp trực tiếp (Meetings)</option>
+                                <option value="email">✉️ Thư điện tử (Emails)</option>
+                                <option value="note">📝 Ghi chú chăm sóc (Notes)</option>
+                                <option value="opportunity_stage">🚀 Thay đổi giai đoạn cơ hội</option>
+                                <option value="quote">💰 Báo giá đã phát hành</option>
+                                <option value="task">✅ Công việc hoàn thành / hoãn</option>
+                              </select>
+                            </div>
+                            <div style={{ fontSize: '12px', color: '#64748b' }}>
+                              💡 Tiếp nhận khách từ đồng nghiệp và nắm toàn bộ bối cảnh trong 5 phút
+                            </div>
+                          </div>
+
+                          {timelineLoading ? (
+                            <div style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>
+                              Đang tổng hợp dòng thời gian tương tác...
+                            </div>
+                          ) : timelineEvents.length === 0 ? (
+                            <div style={{ textAlign: 'center', padding: '40px', color: '#94a3b8' }}>
+                              Chưa có tương tác hoặc hoạt động nào được ghi nhận cho khách hàng này.
+                            </div>
+                          ) : (
+                            <div style={{ position: 'relative', paddingLeft: '32px' }}>
+                              {/* Vertical Line */}
+                              <div style={{ position: 'absolute', top: '12px', bottom: '12px', left: '15px', width: '2px', background: '#e2e8f0' }} />
+
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+                                {timelineEvents.map((evt: any) => {
+                                  let icon = <FileText size={14} />;
+                                  let iconBg = '#f1f5f9';
+                                  let iconColor = '#475569';
+                                  let typeLabel = 'Tương tác';
+
+                                  if (evt.event_type === 'call') {
+                                    icon = <Phone size={14} />;
+                                    iconBg = '#eff6ff';
+                                    iconColor = '#2563eb';
+                                    typeLabel = 'Cuộc gọi';
+                                  } else if (evt.event_type === 'meeting') {
+                                    icon = <Users size={14} />;
+                                    iconBg = '#f3e8ff';
+                                    iconColor = '#7c3aed';
+                                    typeLabel = 'Cuộc gặp';
+                                  } else if (evt.event_type === 'email') {
+                                    icon = <Mail size={14} />;
+                                    iconBg = '#ecfdf5';
+                                    iconColor = '#059669';
+                                    typeLabel = 'Email';
+                                  } else if (evt.event_type === 'note') {
+                                    icon = <FileText size={14} />;
+                                    iconBg = '#fef3c7';
+                                    iconColor = '#d97706';
+                                    typeLabel = 'Ghi chú';
+                                  } else if (evt.event_type === 'opportunity_stage') {
+                                    icon = <TrendingUp size={14} />;
+                                    iconBg = '#e0e7ff';
+                                    iconColor = '#4f46e5';
+                                    typeLabel = 'Chuyển giai đoạn';
+                                  } else if (evt.event_type === 'quote') {
+                                    icon = <DollarSign size={14} />;
+                                    iconBg = '#fee2e2';
+                                    iconColor = '#dc2626';
+                                    typeLabel = 'Báo giá';
+                                  } else if (evt.event_type === 'task') {
+                                    icon = <CheckCircle size={14} />;
+                                    iconBg = '#ccfbf1';
+                                    iconColor = '#0d9488';
+                                    typeLabel = 'Công việc';
+                                  }
+
+                                  return (
+                                    <div key={evt.id} style={{ position: 'relative' }}>
+                                      {/* Node Icon on Line */}
+                                      <div
+                                        style={{
+                                          position: 'absolute',
+                                          left: '-32px',
+                                          top: '4px',
+                                          width: '30px',
+                                          height: '30px',
+                                          borderRadius: '50%',
+                                          background: iconBg,
+                                          color: iconColor,
+                                          border: '2px solid #fff',
+                                          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                          zIndex: 2,
+                                        }}
+                                      >
+                                        {icon}
+                                      </div>
+
+                                      {/* Event Card */}
+                                      <div
+                                        style={{
+                                          background: '#ffffff',
+                                          border: '1px solid #e2e8f0',
+                                          borderRadius: '10px',
+                                          padding: '14px 18px',
+                                          boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
+                                        }}
+                                      >
+                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', marginBottom: '6px', flexWrap: 'wrap' }}>
+                                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                            <span
+                                              style={{
+                                                fontSize: '11px',
+                                                fontWeight: 700,
+                                                padding: '2px 8px',
+                                                borderRadius: '4px',
+                                                background: iconBg,
+                                                color: iconColor,
+                                                textTransform: 'uppercase',
+                                              }}
+                                            >
+                                              {typeLabel}
+                                            </span>
+                                            <span style={{ fontSize: '14px', fontWeight: 700, color: '#1e293b' }}>
+                                              {evt.title}
+                                            </span>
+                                          </div>
+                                          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: '#64748b' }}>
+                                            <Clock size={12} />
+                                            {evt.timestamp ? new Date(evt.timestamp).toLocaleString('vi-VN') : '—'}
+                                          </div>
+                                        </div>
+
+                                        {evt.description && (
+                                          <div style={{ fontSize: '13px', color: '#475569', lineHeight: '1.5', marginBottom: '8px' }}>
+                                            {evt.description}
+                                          </div>
+                                        )}
+
+                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '12px', color: '#64748b', borderTop: '1px solid #f1f5f9', paddingTop: '8px', marginTop: '6px' }}>
+                                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                            <User size={13} color="#94a3b8" />
+                                            <span>Thực hiện bởi: <strong>{evt.user?.name || 'Hệ thống'}</strong></span>
+                                          </div>
+
+                                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                            {evt.duration_minutes ? (
+                                              <span style={{ color: '#0369a1', fontWeight: 500 }}>
+                                                ⏱️ {evt.duration_minutes} phút
+                                              </span>
+                                            ) : null}
+
+                                            {evt.result && (
+                                              <span style={{ background: '#f8fafc', border: '1px solid #cbd5e1', padding: '1px 8px', borderRadius: '4px', fontWeight: 600, color: '#334155' }}>
+                                                {evt.result}
+                                              </span>
+                                            )}
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
                             </div>
                           )}
                         </div>

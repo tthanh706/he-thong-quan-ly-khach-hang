@@ -31,7 +31,7 @@ class ContractRenewalController extends Controller
             $contracts = $contracts
                 ->filter(
                     fn ($contract) =>
-                        $contract->status->value === $filters['status']
+                        (is_object($contract->status) ? $contract->status->value : (string)$contract->status) === $filters['status']
                 )
                 ->values();
         }

@@ -170,9 +170,114 @@ class DatabaseSeeder extends Seeder
 
         if (Opportunity::count() === 0) {
             Opportunity::insert([
-                ['title' => 'Triển khai CRM cho FPT Software', 'amount' => 1200000000, 'status' => 'open', 'owner_id' => $salesA->id, 'created_at' => now(), 'updated_at' => now()],
-                ['title' => 'Nâng cấp hạ tầng Cloud cho FPT Telecom', 'amount' => 850000000, 'status' => 'open', 'owner_id' => $salesA->id, 'created_at' => now(), 'updated_at' => now()],
-                ['title' => 'Giải pháp Quản trị Khách hàng Vinhomes', 'amount' => 2400000000, 'status' => 'open', 'owner_id' => $salesB->id, 'created_at' => now(), 'updated_at' => now()],
+                ['title' => 'Triển khai CRM cho FPT Software', 'name' => 'Triển khai CRM cho FPT Software', 'amount' => 1200000000, 'value' => 1200000000, 'stage' => 'bao_gia', 'win_probability' => 40, 'expected_close_date' => now()->addDays(20)->toDateString(), 'status' => 'open', 'owner_id' => $salesA->id, 'owner_user_id' => $salesA->id, 'created_at' => now(), 'updated_at' => now()],
+                ['title' => 'Nâng cấp hạ tầng Cloud cho FPT Telecom', 'name' => 'Nâng cấp hạ tầng Cloud cho FPT Telecom', 'amount' => 850000000, 'value' => 850000000, 'stage' => 'thuong_thao', 'win_probability' => 70, 'expected_close_date' => now()->addDays(15)->toDateString(), 'status' => 'open', 'owner_id' => $salesA->id, 'owner_user_id' => $salesA->id, 'created_at' => now(), 'updated_at' => now()],
+                ['title' => 'Giải pháp Quản trị Khách hàng Vinhomes', 'name' => 'Giải pháp Quản trị Khách hàng Vinhomes', 'amount' => 2400000000, 'value' => 2400000000, 'stage' => 'khao_sat', 'win_probability' => 10, 'expected_close_date' => now()->addDays(45)->toDateString(), 'status' => 'open', 'owner_id' => $salesB->id, 'owner_user_id' => $salesB->id, 'created_at' => now(), 'updated_at' => now()],
+            ]);
+        }
+
+        // Seed Campaigns (S4-03)
+        $campaign1 = \App\Models\Campaign::firstOrCreate(
+            ['name' => 'Chiến dịch Chuyển đổi số Doanh nghiệp 2026'],
+            [
+                'description' => 'Hội thảo và sự kiện xúc tiến giải pháp công nghệ số',
+                'channel' => 'Hội thảo & Sự kiện',
+                'status' => 'active',
+                'starts_at' => now()->startOfMonth(),
+                'ends_at' => now()->addMonths(2)->endOfMonth(),
+                'budget' => 120000000,
+                'target_leads' => 80,
+                'target_revenue' => 3000000000,
+                'created_by' => $admin->id,
+            ]
+        );
+
+        $campaign2 = \App\Models\Campaign::firstOrCreate(
+            ['name' => 'Quảng cáo Google Search Q4'],
+            [
+                'description' => 'Chiến dịch từ khóa tìm kiếm CRM và phần mềm quản trị',
+                'channel' => 'Google Ads',
+                'status' => 'active',
+                'starts_at' => now()->startOfMonth(),
+                'ends_at' => now()->endOfMonth(),
+                'budget' => 60000000,
+                'target_leads' => 150,
+                'target_revenue' => 1500000000,
+                'created_by' => $admin->id,
+            ]
+        );
+
+        // Seed Lead Scoring Rules (S4-05)
+        if (\App\Models\LeadScoringRule::count() === 0) {
+            \App\Models\LeadScoringRule::insert([
+                ['name' => 'Ngành Công nghệ thông tin', 'criteria_type' => 'industry', 'criteria_value' => 'Công nghệ thông tin', 'points' => 25, 'is_active' => true, 'created_by' => $admin->id, 'created_at' => now(), 'updated_at' => now()],
+                ['name' => 'Ngành Sản xuất & Chế biến', 'criteria_type' => 'industry', 'criteria_value' => 'Sản xuất', 'points' => 20, 'is_active' => true, 'created_by' => $admin->id, 'created_at' => now(), 'updated_at' => now()],
+                ['name' => 'Quy mô Trên 500 nhân sự', 'criteria_type' => 'company_size', 'criteria_value' => 'Trên 500 nhân sự', 'points' => 30, 'is_active' => true, 'created_by' => $admin->id, 'created_at' => now(), 'updated_at' => now()],
+                ['name' => 'Quy mô 100 - 500 nhân sự', 'criteria_type' => 'company_size', 'criteria_value' => '100 - 500 nhân sự', 'points' => 20, 'is_active' => true, 'created_by' => $admin->id, 'created_at' => now(), 'updated_at' => now()],
+                ['name' => 'Nguồn Hội thảo sự kiện', 'criteria_type' => 'source', 'criteria_value' => 'Hội thảo', 'points' => 20, 'is_active' => true, 'created_by' => $admin->id, 'created_at' => now(), 'updated_at' => now()],
+                ['name' => 'Nguồn Khách hàng giới thiệu', 'criteria_type' => 'source', 'criteria_value' => 'Giới thiệu', 'points' => 25, 'is_active' => true, 'created_by' => $admin->id, 'created_at' => now(), 'updated_at' => now()],
+                ['name' => 'Nhu cầu Triển khai CRM', 'criteria_type' => 'interest_demand', 'criteria_value' => 'CRM Enterprise', 'points' => 20, 'is_active' => true, 'created_by' => $admin->id, 'created_at' => now(), 'updated_at' => now()],
+            ]);
+        }
+
+        // Seed Lead Assignment Rules (S4-06)
+        if (\App\Models\LeadAssignmentRule::count() === 0) {
+            \App\Models\LeadAssignmentRule::insert([
+                ['name' => 'Phân bổ theo khu vực Miền Bắc', 'priority' => 1, 'condition_type' => 'region', 'condition_value' => 'Hà Nội', 'assign_to_user_id' => $salesA->id, 'assign_to_group_id' => $groupA->id, 'is_active' => true, 'created_at' => now(), 'updated_at' => now()],
+                ['name' => 'Phân bổ theo khu vực Miền Nam', 'priority' => 2, 'condition_type' => 'region', 'condition_value' => 'TP. Hồ Chí Minh', 'assign_to_user_id' => $salesB->id, 'assign_to_group_id' => $groupC->id, 'is_active' => true, 'created_at' => now(), 'updated_at' => now()],
+                ['name' => 'Phân bổ xoay vòng Round-Robin cho nhóm', 'priority' => 3, 'condition_type' => 'round_robin', 'condition_value' => null, 'assign_to_user_id' => null, 'assign_to_group_id' => $groupA->id, 'is_active' => true, 'created_at' => now(), 'updated_at' => now()],
+            ]);
+        }
+
+        // Seed Opportunity Stage Gates (S5-04)
+        if (\App\Models\OpportunityStageGate::count() === 0) {
+            \App\Models\OpportunityStageGate::insert([
+                ['stage_key' => 'khao_sat', 'stage_name' => 'Khảo sát nhu cầu', 'require_activity_count' => 1, 'require_product' => false, 'require_contact' => false, 'is_active' => true, 'created_at' => now(), 'updated_at' => now()],
+                ['stage_key' => 'bao_gia', 'stage_name' => 'Báo giá & Đề xuất', 'require_activity_count' => 0, 'require_product' => true, 'require_contact' => false, 'is_active' => true, 'created_at' => now(), 'updated_at' => now()],
+                ['stage_key' => 'thuong_thao', 'stage_name' => 'Đàm phán & Thương thảo', 'require_activity_count' => 1, 'require_product' => true, 'require_contact' => true, 'is_active' => true, 'created_at' => now(), 'updated_at' => now()],
+            ]);
+        }
+
+        // Seed Sample Leads if none exist
+        if (\App\Models\Lead::count() === 0) {
+            \App\Models\Lead::create([
+                'name' => 'Ngô Bảo Châu',
+                'email' => 'chau.nb@mathcorp.vn',
+                'phone' => '0912345678',
+                'company' => 'Viện Nghiên cứu Toán Tin Ứng dụng',
+                'industry' => 'Công nghệ thông tin',
+                'company_size' => '100 - 500 nhân sự',
+                'interest_demand' => 'CRM Enterprise & Tích hợp ERP',
+                'source' => 'Hội thảo',
+                'campaign_id' => $campaign1->id,
+                'status' => 'assigned',
+                'score' => 85,
+                'rating' => 'hot',
+                'assigned_to' => $salesA->id,
+                'team_leader_id' => $admin->id,
+                'assigned_at' => now()->subHours(2),
+                'sla_deadline' => now()->addHours(22),
+            ]);
+
+            \App\Models\Lead::create([
+                'name' => 'Vũ Thị Minh',
+                'email' => 'minh.vu@logisticstt.com',
+                'phone' => '0987654321',
+                'company' => 'Công ty Vận tải Toàn Cầu',
+                'industry' => 'Sản xuất',
+                'company_size' => '20 - 100 nhân sự',
+                'interest_demand' => 'Quản lý báo giá và hợp đồng',
+                'source' => 'Website',
+                'campaign_id' => $campaign2->id,
+                'status' => 'caring',
+                'score' => 55,
+                'rating' => 'warm',
+                'assigned_to' => $salesB->id,
+                'team_leader_id' => $admin->id,
+                'assigned_at' => now()->subDays(1),
+                'accepted_at' => now()->subHours(20),
+                'sla_deadline' => now()->subHours(1),
+                'sla_flagged_at' => now()->subHours(1),
             ]);
         }
     }

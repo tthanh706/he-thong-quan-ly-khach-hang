@@ -92,7 +92,6 @@ export default function TeamPerformancePage({ user: propUser }: Props) {
     <div className="team-performance-page" style={{ padding: '24px' }}>
       <header className="page-heading" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <div>
-          <small style={{ color: '#2563eb', fontWeight: 600, fontSize: '13px' }}>S8-07 · TEAM PERFORMANCE</small>
           <h1 style={{ fontSize: '24px', fontWeight: 700, margin: '4px 0' }}>Báo cáo hoạt động & năng suất nhóm</h1>
           <p style={{ color: '#64748b', margin: 0 }}>Theo dõi hoạt động bán hàng và tỷ lệ phản hồi lead trong thời hạn SLA.</p>
         </div>

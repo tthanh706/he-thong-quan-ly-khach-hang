@@ -40,6 +40,7 @@ export const CampaignForm: React.FC<CampaignFormProps> = ({
   } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
+
       name: initialData?.name ?? '',
       description: initialData?.description ?? '',
       budget: initialData?.budget ?? 0,
@@ -47,6 +48,17 @@ export const CampaignForm: React.FC<CampaignFormProps> = ({
       end_date: initialData?.end_date ?? '',
       channel: initialData?.channel ?? 'facebook',
       status: initialData?.status ?? 'draft',
+
+      name: defaultValues?.name ?? '',
+      description: defaultValues?.description ?? '',
+      channel: defaultValues?.channel ?? 'Website / Landing Page',
+      status: defaultValues?.status ?? 'draft',
+      starts_at: defaultValues?.starts_at?.slice(0, 10) ?? '',
+      ends_at: defaultValues?.ends_at?.slice(0, 10) ?? '',
+      budget: defaultValues?.budget ? Number(defaultValues.budget) : undefined,
+      target_leads: defaultValues?.target_leads ?? undefined,
+      target_revenue: defaultValues?.target_revenue ?? undefined,
+
     },
   });
 
@@ -63,6 +75,7 @@ export const CampaignForm: React.FC<CampaignFormProps> = ({
   };
 
   return (
+
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
       <div>
         <label className="block text-sm font-medium text-gray-700">Tên chiến dịch *</label>
@@ -107,6 +120,51 @@ export const CampaignForm: React.FC<CampaignFormProps> = ({
               </option>
             ))}
           </select>
+
+    <form className="form" onSubmit={handleSubmit(onSubmit)}>
+      <div className="form-group">
+        <label className="form-label">Tên chiến dịch *</label>
+        <input className={`form-input ${errors.name ? 'form-input--error' : ''}`}
+          placeholder="VD: Hội thảo Chuyển đổi số Q4"
+          {...register('name', { required: 'Tên không được để trống' })} />
+        {errors.name && <p className="form-error">{errors.name.message}</p>}
+      </div>
+      <div className="form-row">
+        <div className="form-group">
+          <label className="form-label">Kênh triển khai (Channel) *</label>
+          <select className="form-select" {...register('channel', { required: true })}>
+            <option value="Hội thảo / Sự kiện">Hội thảo / Sự kiện</option>
+            <option value="Google Ads / SEM">Google Ads / SEM</option>
+            <option value="Facebook / Social Ads">Facebook / Social Ads</option>
+            <option value="Website / Landing Page">Website / Landing Page</option>
+            <option value="Email Marketing">Email Marketing</option>
+            <option value="Đối tác / Giới thiệu">Đối tác / Giới thiệu</option>
+            <option value="Khác">Khác</option>
+          </select>
+        </div>
+        <div className="form-group">
+          <label className="form-label">Trạng thái</label>
+          <select className="form-select" {...register('status')}>
+            <option value="draft">Nháp</option>
+            <option value="active">Hoạt động</option>
+            <option value="paused">Tạm dừng</option>
+            <option value="completed">Hoàn thành</option>
+          </select>
+        </div>
+      </div>
+      <div className="form-group">
+        <label className="form-label">Mô tả mục tiêu</label>
+        <textarea rows={2} className="form-textarea" placeholder="Mục tiêu chiến dịch..." {...register('description')} />
+      </div>
+      <div className="form-row">
+        <div className="form-group">
+          <label className="form-label">Ngân sách dự kiến (VNĐ)</label>
+          <input type="number" className="form-input" placeholder="0" {...register('budget', { min: 0 })} />
+        </div>
+        <div className="form-group">
+          <label className="form-label">Mục tiêu số Lead</label>
+          <input type="number" className="form-input" placeholder="VD: 100" {...register('target_leads', { min: 0 })} />
+
         </div>
       </div>
 

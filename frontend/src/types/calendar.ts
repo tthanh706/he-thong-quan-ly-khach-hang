@@ -1,6 +1,6 @@
 export type CalendarView = 'day' | 'week' | 'month';
 export type CalendarItemType = 'meeting' | 'task';
-export type CalendarItemStatus = 'scheduled' | 'completed' | 'cancelled';
+export type CalendarItemStatus = 'scheduled' | 'completed' | 'postponed' | 'cancelled';
 
 export interface UserSummary {
   id: number;
@@ -14,6 +14,8 @@ export interface CalendarItem {
   title: string;
   item_type: CalendarItemType;
   status: CalendarItemStatus;
+  priority?: 'low' | 'medium' | 'high';
+  postpone_reason?: string | null;
   assigned_user_id: number | null;
   assigned_user: UserSummary | null;
   team_leader_id: number | null;
