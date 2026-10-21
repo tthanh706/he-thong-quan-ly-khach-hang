@@ -1,0 +1,195 @@
+/* ─── S5-04 Pipeline Stage Conditions Styles ─────────────────── */
+
+:root {
+  --color-primary: #4f46e5;
+  --color-primary-hover: #4338ca;
+  --color-danger: #dc2626;
+  --color-danger-hover: #b91c1c;
+  --color-warning: #f59e0b;
+  --color-warning-bg: #fffbeb;
+  --color-success: #10b981;
+  --color-success-bg: #ecfdf5;
+  --color-info: #3b82f6;
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-500: #6b7280;
+  --color-gray-700: #374151;
+  --color-gray-900: #111827;
+  --radius: 8px;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-lg: 0 10px 25px rgba(0,0,0,0.1);
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); background: var(--color-gray-50); color: var(--color-gray-900); line-height: 1.6; }
+.app { max-width: 1280px; margin: 0 auto; padding: 24px; }
+
+/* ─── Buttons ────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 10px 20px; border: none; border-radius: var(--radius);
+  font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.2s;
+}
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn--primary { background: var(--color-primary); color: #fff; }
+.btn--primary:hover:not(:disabled) { background: var(--color-primary-hover); }
+.btn--secondary { background: var(--color-gray-200); color: var(--color-gray-700); }
+.btn--danger { background: var(--color-danger); color: #fff; }
+.btn--danger:hover:not(:disabled) { background: var(--color-danger-hover); }
+.btn--warning { background: var(--color-warning); color: #fff; }
+.btn--sm { padding: 6px 12px; font-size: 0.8rem; }
+.btn--danger-outline { background: transparent; border: 1px solid var(--color-danger); color: var(--color-danger); }
+
+/* ─── Alerts ─────────────────────────────────────────────────── */
+.alert {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px; border-radius: var(--radius); margin-bottom: 16px; font-size: 0.9rem;
+}
+.alert--error { background: #fef2f2; color: var(--color-danger); border: 1px solid #fecaca; }
+.alert--warning { background: var(--color-warning-bg); color: #92400e; border: 1px solid #fcd34d; }
+.alert__close { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: inherit; }
+
+/* ─── Pipeline Manager ──────────────────────────────────────── */
+.pipeline-manager__header { margin-bottom: 24px; }
+.pipeline-manager__header h1 { font-size: 1.75rem; font-weight: 700; }
+.pipeline-manager__subtitle { color: var(--color-gray-500); margin-top: 4px; }
+
+/* ─── Pipeline Stages ────────────────────────────────────────── */
+.pipeline-stages { display: flex; align-items: center; gap: 0; flex-wrap: wrap; margin-bottom: 24px; }
+.pipeline-stage-wrapper { display: flex; align-items: center; position: relative; }
+.pipeline-stage {
+  display: flex; align-items: center; gap: 12px; padding: 16px 24px;
+  border: 2px solid var(--color-gray-200); border-radius: var(--radius);
+  cursor: pointer; background: #fff; transition: all 0.2s; min-width: 160px;
+}
+.pipeline-stage:hover:not(:disabled) { border-color: var(--color-primary); transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+.pipeline-stage:disabled { cursor: default; }
+.pipeline-stage--completed { background: var(--color-success-bg); border-color: var(--color-success); }
+.pipeline-stage--active { background: #eef2ff; border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(79,70,229,0.15); }
+.pipeline-stage--upcoming { opacity: 0.7; }
+.pipeline-stage__indicator {
+  width: 32px; height: 32px; border-radius: 50%; display: flex;
+  align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem;
+  background: var(--color-gray-100); color: var(--color-gray-700);
+}
+.pipeline-stage--completed .pipeline-stage__indicator { background: var(--color-success); color: #fff; }
+.pipeline-stage--active .pipeline-stage__indicator { background: var(--color-primary); color: #fff; }
+.pipeline-stage__name { font-weight: 600; font-size: 0.9rem; }
+.pipeline-stage__conditions-badge {
+  display: inline-block; font-size: 0.7rem; padding: 2px 8px; border-radius: 10px;
+  background: #fef3c7; color: #92400e;
+}
+.pipeline-stage__connector { padding: 0 8px; font-size: 1.2rem; color: var(--color-gray-300); }
+.pipeline-stage__config-btn {
+  position: absolute; top: -8px; right: -8px; width: 24px; height: 24px;
+  background: #fff; border: 1px solid var(--color-gray-300); border-radius: 50%;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 0.85rem; transition: all 0.2s;
+}
+.pipeline-stage__config-btn:hover { background: var(--color-gray-100); }
+
+/* ─── Modal ──────────────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5); display: flex; align-items: center;
+  justify-content: center; z-index: 1000; padding: 20px;
+}
+.modal {
+  background: #fff; border-radius: 12px; width: 100%; max-width: 560px;
+  max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-lg);
+}
+.modal--lg { max-width: 720px; }
+.modal__header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 24px; border-bottom: 1px solid var(--color-gray-200);
+}
+.modal__header h2 { font-size: 1.15rem; font-weight: 700; }
+.modal__close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--color-gray-500); }
+.modal__body { padding: 24px; }
+.modal__footer {
+  display: flex; justify-content: flex-end; gap: 12px;
+  padding: 16px 24px; border-top: 1px solid var(--color-gray-200);
+}
+
+/* ─── Condition Sections ─────────────────────────────────────── */
+.condition-section { margin-bottom: 20px; }
+.condition-section h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 8px; }
+.condition-section--passed h3 { color: #065f46; }
+.condition-section--failed h3 { color: var(--color-danger); }
+.condition-list { list-style: none; padding: 0; }
+.condition-item { display: flex; align-items: flex-start; gap: 10px; padding: 8px 12px; border-radius: 6px; margin-bottom: 4px; }
+.condition-item--passed { background: #f0fdf4; }
+.condition-item--failed { background: #fef2f2; }
+.condition-item__icon { font-size: 1rem; flex-shrink: 0; }
+.condition-item__type { color: var(--color-gray-500); font-size: 0.8rem; margin-left: 8px; }
+
+/* ─── Override Section ───────────────────────────────────────── */
+.override-section { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--color-gray-200); }
+.override-form__warning { color: #92400e; background: var(--color-warning-bg); padding: 10px 14px; border-radius: 6px; font-size: 0.85rem; margin-bottom: 12px; }
+.override-form__actions { display: flex; gap: 10px; margin-top: 12px; }
+
+/* ─── Config Panel ───────────────────────────────────────────── */
+.config-panel-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.4); display: flex; justify-content: flex-end; z-index: 1000;
+}
+.config-panel {
+  width: 480px; max-width: 100%; background: #fff; height: 100%;
+  overflow-y: auto; box-shadow: -4px 0 20px rgba(0,0,0,0.1);
+}
+.config-panel__header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 24px; border-bottom: 1px solid var(--color-gray-200);
+}
+.config-panel__header h2 { font-size: 1.1rem; font-weight: 700; }
+.config-panel__close { background: none; border: none; font-size: 1.5rem; cursor: pointer; }
+.config-panel__body { padding: 24px; }
+.config-panel__section { margin-bottom: 24px; }
+.config-panel__section h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 10px; }
+.config-panel__empty { color: var(--color-gray-500); font-size: 0.9rem; }
+
+/* ─── Condition Config List ──────────────────────────────────── */
+.condition-config-list { list-style: none; padding: 0; }
+.condition-config-item {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  padding: 12px; border: 1px solid var(--color-gray-200); border-radius: var(--radius);
+  margin-bottom: 8px;
+}
+.condition-config-item__info { flex: 1; }
+.condition-config-item__params { color: var(--color-gray-500); font-size: 0.8rem; margin-top: 4px; }
+.condition-config-item__error { color: var(--color-danger); font-size: 0.8rem; margin-top: 2px; font-style: italic; }
+
+/* ─── Badge ──────────────────────────────────────────────────── */
+.badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 600; }
+.badge--sm { font-size: 0.65rem; padding: 2px 6px; }
+.badge--active { background: #d1fae5; color: #065f46; }
+.badge--inactive { background: var(--color-gray-200); color: var(--color-gray-500); }
+
+/* ─── Add Condition Form ─────────────────────────────────────── */
+.add-condition-form { background: var(--color-gray-50); padding: 16px; border-radius: var(--radius); }
+.add-condition-form h3 { font-size: 0.95rem; margin-bottom: 12px; }
+.add-condition-form__actions { display: flex; gap: 10px; margin-top: 16px; }
+
+/* ─── Form Elements ──────────────────────────────────────────── */
+.form-label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--color-gray-700); margin: 10px 0 4px; }
+.form-label .required { color: var(--color-danger); }
+.form-input, .form-select, .form-textarea {
+  width: 100%; padding: 9px 12px; border: 1px solid var(--color-gray-300);
+  border-radius: 6px; font-family: var(--font-sans); font-size: 0.9rem; outline: none;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
+}
+.form-textarea { resize: vertical; }
+
+/* ─── Loading ────────────────────────────────────────────────── */
+.loading-spinner { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 40px; }
+.spinner {
+  width: 24px; height: 24px; border: 3px solid var(--color-gray-200);
+  border-top-color: var(--color-primary); border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
