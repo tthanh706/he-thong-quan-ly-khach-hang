@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>S5-03: Thêm Sản phẩm & Dịch vụ vào Cơ hội (Opportunity Products) | CRM Enterprise</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#f0f7ff',
+              100: '#e0effe',
+              200: '#b9dffe',
+              500: '#0284c7',
+              600: '#0369a1',
+              700: '#075985',
+              800: '#0c4a6e',
+              900: '#082f49',
+            },
+            accent: {
+              emerald: '#10b981',
+              violet: '#8b5cf6',
+              amber: '#f59e0b',
+              rose: '#f43f5e',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(226, 232, 240, 0.8);
+    }
+    .glass-card-dark {
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(51, 65, 85, 0.7);
+    }
+    .custom-scroll::-webkit-scrollbar {
+      height: 6px;
+      width: 6px;
+    }
+    .custom-scroll::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    @keyframes pulseGlow {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.05); opacity: 0.85; }
+    }
+    .pulse-glow {
+      animation: pulseGlow 2.5s infinite ease-in-out;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col bg-slate-50 text-slate-900 antialiased selection:bg-sky-500 selection:text-white">
+
+  <!-- Header -->
+  <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-4">
+        <div class="h-10 w-10 rounded-xl bg-gradient-to-tr from-sky-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-sky-500/20">
+          <i class="fa-solid fa-boxes-stacked text-lg"></i>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="text-xs font-bold tracking-wider uppercase text-sky-600 bg-sky-50 px-2 py-0.5 rounded border border-sky-200/60">S5-03 Module</span>
+            <span class="text-xs text-slate-400">•</span>
+            <span class="text-xs font-semibold text-slate-500">Cơ hội bán hàng #OPP-2026-089</span>
+          </div>
+          <h1 class="text-base sm:text-lg font-bold text-slate-900 truncate">Hợp đồng Triển khai CRM & Thiết bị IoT Smart Store</h1>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-3">
+        <a href="#code-viewer-modal" onclick="openDocModal()" class="inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors border border-slate-300/70">
+          <i class="fa-solid fa-file-code text-sky-600"></i>
+          <span>Xem Spec & Code</span>
+        </a>
+        <button onclick="openCatalogModal()" class="inline-flex items-center space-x-2 px-3.5 py-2 text-xs font-semibold text-white bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-700 hover:to-indigo-700 rounded-lg shadow-sm shadow-sky-500/30 transition-all hover:scale-[1.02] active:scale-[0.98]">
+          <i class="fa-solid fa-plus"></i>
+          <span>Thêm từ Danh mục</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Opportunity Context Bar -->
+  <section class="bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 text-white border-b border-slate-700">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center space-x-3">
+          <div class="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center border border-white/15">
+            <i class="fa-solid fa-building text-sky-400 text-xl"></i>
+          </div>
+          <div>
+            <div class="flex items-center space-x-2">
+              <span class="text-xs text-sky-300 font-semibold">Khách hàng Doanh nghiệp:</span>
+              <span class="font-bold text-sm tracking-wide">Tập đoàn Bán lẻ FPT Retail</span>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">VIP Enterprise</span>
+            </div>
+            <p class="text-xs text-slate-300 mt-0.5 flex items-center space-x-3">
+              <span><i class="fa-solid fa-user-tie text-slate-400 mr-1"></i> Phụ trách: <strong>Trần Quốc Dũng</strong> (Lead AE)</span>
+              <span>•</span>
+              <span><i class="fa-solid fa-flag-checkered text-slate-400 mr-1"></i> Giai đoạn: <span class="text-amber-300 font-semibold">Đàm phán & Báo giá (Negotiation)</span></span>
+              <span>•</span>
+              <span><i class="fa-solid fa-bullseye text-slate-400 mr-1"></i> Tỉ lệ thành công: <strong class="text-sky-300">85%</strong></span>
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <div class="text-right">
+            <span class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Cơ chế tính giá:</span>
+            <div class="flex items-center space-x-1.5 text-xs text-emerald-400 font-semibold">
+              <i class="fa-solid fa-circle-check"></i>
+              <span>Tự động tính từ dòng sản phẩm (is_amount_from_items)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Financial KPI Metrics Ribbon -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+    
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <!-- KPI 1: Total Opportunity Amount (TCV) -->
+      <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow">
+        <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-emerald-500/10 to-transparent rounded-bl-full pointer-events-none"></div>
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Tổng giá trị cơ hội (TCV)</span>
+          <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-sm">
+            <i class="fa-solid fa-coins"></i>
+          </div>
+        </div>
+        <div id="metric-total-amount" class="text-2xl sm:text-3xl font-extrabold text-emerald-700 tracking-tight font-mono">
+          0 ₫
+        </div>
+        <div class="mt-2 text-xs text-slate-500 flex items-center justify-between">
+          <span>Giá trị hợp đồng thực tế</span>
+          <span class="inline-flex items-center text-emerald-600 font-semibold bg-emerald-50 px-1.5 py-0.5 rounded">
+            Auto Synced
+          </span>
+        </div>
+      </div>
+
+      <!-- KPI 2: Annual Contract Value (ARR / ACV) -->
+      <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow">
+        <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-purple-500/10 to-transparent rounded-bl-full pointer-events-none"></div>
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center space-x-1.5">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Doanh thu quy năm (ARR/ACV)</span>
+            <span title="Thỏa mãn AC #3: Với dịch vụ thuê bao, khai báo số kỳ và giá trị hợp đồng theo năm" class="cursor-help text-purple-600">
+              <i class="fa-solid fa-circle-info text-xs"></i>
+            </span>
+          </div>
+          <div class="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center font-bold text-sm">
+            <i class="fa-solid fa-arrows-rotate"></i>
+          </div>
+        </div>
+        <div id="metric-arr-amount" class="text-2xl sm:text-3xl font-extrabold text-purple-700 tracking-tight font-mono">
+          0 ₫
+        </div>
+        <div class="mt-2 text-xs text-slate-500 flex items-center justify-between">
+          <span>Dịch vụ thuê bao định kỳ</span>
+          <span id="metric-sub-count" class="text-purple-600 font-semibold bg-purple-50 px-1.5 py-0.5 rounded text-[11px]">
+            0 gói dịch vụ
+          </span>
+        </div>
+      </div>
+
+      <!-- KPI 3: Subtotal & Total Discount -->
+      <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow">
+        <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-amber-500/10 to-transparent rounded-bl-full pointer-events-none"></div>
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Tổng chiết khấu đàm phán</span>
+          <div class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center font-bold text-sm">
+            <i class="fa-solid fa-tag"></i>
+          </div>
+        </div>
+        <div id="metric-discount-amount" class="text-2xl sm:text-3xl font-extrabold text-amber-700 tracking-tight font-mono">
+          0 ₫
+        </div>
+        <div class="mt-2 text-xs text-slate-500 flex items-center justify-between">
+          <span>Giá gốc trước giảm: <strong id="metric-subtotal" class="text-slate-700 font-mono">0 ₫</strong></span>
+          <span id="metric-avg-discount" class="text-amber-700 font-bold bg-amber-50 px-1.5 py-0.5 rounded text-[11px]">
+            -0%
+          </span>
+        </div>
+      </div>
+
+      <!-- KPI 4: One-Off Products Value -->
+      <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow">
+        <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-sky-500/10 to-transparent rounded-bl-full pointer-events-none"></div>
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Hàng hóa / Thu 1 lần</span>
+          <div class="w-8 h-8 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center font-bold text-sm">
+            <i class="fa-solid fa-cart-shopping"></i>
+          </div>
+        </div>
+        <div id="metric-oneoff-amount" class="text-2xl sm:text-3xl font-extrabold text-sky-700 tracking-tight font-mono">
+          0 ₫
+        </div>
+        <div class="mt-2 text-xs text-slate-500 flex items-center justify-between">
+          <span>Phần cứng & Phí Onboarding</span>
+          <span id="metric-item-count" class="text-sky-700 font-semibold bg-sky-50 px-1.5 py-0.5 rounded text-[11px]">
+            0 dòng
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Opportunity Products Main Editor Table -->
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+      <!-- Toolbar -->
+      <div class="px-6 py-4 border-b border-slate-200 flex flex-wrap items-center justify-between gap-4 bg-slate-50/50">
+        <div>
+          <h2 class="text-base font-bold text-slate-900 flex items-center space-x-2">
+            <span>Danh sách Sản phẩm & Dịch vụ trong Báo giá</span>
+            <span id="badge-total-items" class="px-2 py-0.5 text-xs font-semibold rounded-full bg-slate-200 text-slate-700">0</span>
+          </h2>
+          <p class="text-xs text-slate-500 mt-0.5">Giá trị cơ hội được tự động cập nhật tức thời khi thay đổi số lượng, đơn giá, chiết khấu hoặc số kỳ.</p>
+        </div>
+
+        <div class="flex items-center space-x-2">
+          <button type="button" onclick="openCatalogModal()" class="inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold text-sky-700 bg-sky-50 hover:bg-sky-100 rounded-lg border border-sky-200 transition-colors">
+            <i class="fa-solid fa-list-check"></i>
+            <span>Chọn từ Bảng giá</span>
+          </button>
+          <button type="button" onclick="addNewBlankItem()" class="inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 rounded-lg border border-slate-300 transition-colors shadow-sm">
+            <i class="fa-solid fa-plus text-slate-500"></i>
+            <span>+ Dòng trống</span>
+          </button>
+          <button type="button" onclick="saveOpportunityItems()" class="inline-flex items-center space-x-2 px-4 py-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg shadow-sm shadow-emerald-600/30 transition-all hover:scale-[1.02] active:scale-[0.98]">
+            <i class="fa-solid fa-floppy-disk"></i>
+            <span>Lưu & Chốt Giá trị Cơ hội</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Table Container -->
+      <div class="overflow-x-auto custom-scroll">
+        <table class="w-full text-left border-collapse text-xs">
+          <thead>
+            <tr class="bg-slate-100/80 text-slate-600 font-semibold border-b border-slate-200 uppercase tracking-wider text-[11px]">
+              <th class="py-3 px-3 w-10 text-center">#</th>
+              <th class="py-3 px-3 min-w-[280px]">Sản phẩm / Dịch vụ</th>
+              <th class="py-3 px-3 w-28 text-right">Số lượng</th>
+              <th class="py-3 px-3 w-36 text-right">Đơn giá niêm yết</th>
+              <th class="py-3 px-3 w-36 text-right">Đơn giá thực tế</th>
+              <th class="py-3 px-3 w-28 text-right">Chiết khấu (%)</th>
+              <th class="py-3 px-3 w-32 text-center">Số kỳ (Thuê bao)</th>
+              <th class="py-3 px-3 min-w-[140px] text-right">Thành tiền (TCV)</th>
+              <th class="py-3 px-3 min-w-[130px] text-right">Doanh thu/Năm (ACV)</th>
+              <th class="py-3 px-3 w-14 text-center">Xóa</th>
+            </tr>
+          </thead>
+          <tbody id="items-table-body" class="divide-y divide-slate-100 font-medium">
+            <!-- Rendered by JS -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Empty State -->
+      <div id="table-empty-state" class="hidden py-14 text-center">
+        <div class="w-16 h-16 rounded-full bg-sky-50 text-sky-500 flex items-center justify-center mx-auto mb-3 text-2xl border border-sky-100">
+          <i class="fa-solid fa-cart-arrow-down"></i>
+        </div>
+        <h3 class="text-sm font-bold text-slate-800">Chưa có sản phẩm hoặc dịch vụ nào trong cơ hội</h3>
+        <p class="text-xs text-slate-500 max-w-sm mx-auto mt-1 mb-4">
+          Hãy chọn các sản phẩm từ bảng giá hoặc thêm dòng dịch vụ để hệ thống tự động xác định chính xác giá trị hợp đồng.
+        </p>
+        <button onclick="openCatalogModal()" class="inline-flex items-center space-x-2 px-4 py-2 text-xs font-semibold text-white bg-sky-600 hover:bg-sky-700 rounded-lg shadow-sm">
+          <i class="fa-solid fa-book-open"></i>
+          <span>Mở Danh mục Sản phẩm</span>
+        </button>
+      </div>
+
+      <!-- Table Footer Summary -->
+      <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center space-x-4 text-xs text-slate-500">
+          <span class="flex items-center space-x-1.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
+            <span>Dịch vụ thuê bao (SaaS/Maintenance)</span>
+          </span>
+          <span class="flex items-center space-x-1.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-sky-500"></span>
+            <span>Sản phẩm phần cứng / Bán 1 lần</span>
+          </span>
+        </div>
+
+        <div class="flex items-center space-x-6 text-xs">
+          <div class="text-right">
+            <span class="text-slate-400 block text-[10px] uppercase font-bold">Tổng thanh toán dự kiến:</span>
+            <span id="footer-total-amount" class="text-base font-bold text-emerald-700 font-mono">0 ₫</span>
+          </div>
+          <div class="text-right border-l border-slate-200 pl-6">
+            <span class="text-slate-400 block text-[10px] uppercase font-bold">Doanh thu định kỳ ARR:</span>
+            <span id="footer-total-arr" class="text-base font-bold text-purple-700 font-mono">0 ₫</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Additional Sales Tools: Quote Preview & Contract Analysis -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Quote Breakdown Card -->
+      <div class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="text-sm font-bold text-slate-900 flex items-center space-x-2">
+            <i class="fa-solid fa-file-invoice-dollar text-sky-600"></i>
+            <span>Cơ cấu Doanh thu Hợp đồng</span>
+          </h3>
+          <span class="text-[11px] font-semibold text-slate-400">Analysis</span>
+        </div>
+
+        <!-- Progress bar for One-off vs Recurring -->
+        <div>
+          <div class="flex justify-between text-xs font-semibold mb-1">
+            <span class="text-sky-700" id="share-oneoff-text">Phần cứng / 1 lần: 0%</span>
+            <span class="text-purple-700" id="share-sub-text">Thuê bao định kỳ: 0%</span>
+          </div>
+          <div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden flex">
+            <div id="bar-oneoff" class="bg-sky-500 h-full transition-all duration-500" style="width: 50%;"></div>
+            <div id="bar-sub" class="bg-purple-500 h-full transition-all duration-500" style="width: 50%;"></div>
+          </div>
+        </div>
+
+        <div class="space-y-2 pt-2 border-t border-slate-100 text-xs">
+          <div class="flex justify-between py-1 text-slate-600">
+            <span>Tổng giá niêm yết (List Price):</span>
+            <span id="summary-list-price" class="font-mono font-semibold text-slate-800">0 ₫</span>
+          </div>
+          <div class="flex justify-between py-1 text-amber-700">
+            <span>Chiết khấu thương mại:</span>
+            <span id="summary-discount" class="font-mono font-semibold">-0 ₫</span>
+          </div>
+          <div class="flex justify-between py-1 text-slate-600">
+            <span>Giá trị hợp đồng thực (TCV):</span>
+            <span id="summary-tcv" class="font-mono font-semibold text-slate-900">0 ₫</span>
+          </div>
+          <div class="flex justify-between py-1.5 text-purple-700 font-bold bg-purple-50 px-2 rounded-lg">
+            <span>Giá trị hợp đồng quy năm (ARR):</span>
+            <span id="summary-arr" class="font-mono">0 ₫ / năm</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notes & Terms -->
+      <div class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm space-y-4">
+        <h3 class="text-sm font-bold text-slate-900 flex items-center space-x-2">
+          <i class="fa-solid fa-pen-ruler text-indigo-600"></i>
+          <span>Điều khoản & Ghi chú Báo giá</span>
+        </h3>
+        <textarea id="quote-notes" rows="4" class="w-full text-xs p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500 resize-none" placeholder="Nhập ghi chú điều khoản thanh toán, bảo hành thiết bị, thời gian triển khai demo...">• Đơn giá đã bao gồm chi phí cài đặt và đào tạo người dùng ban đầu.
+• Gói thuê bao CRM Enterprise thanh toán theo chu kỳ 12 tháng/lần.
+• Bảo hành thiết bị phần cứng tận nơi trong 24 tháng theo tiêu chuẩn chính hãng.</textarea>
+        <div class="flex justify-between items-center text-[11px] text-slate-400">
+          <span>Thời hạn hiệu lực báo giá: 30 ngày</span>
+          <button onclick="showToast('Đã lưu điều khoản báo giá!', 'info')" class="text-sky-600 hover:text-sky-700 font-semibold">Lưu ghi chú</button>
+        </div>
+      </div>
+
+      <!-- Quick Action / Export -->
+      <div class="bg-gradient-to-br from-slate-900 to-indigo-900 text-white rounded-2xl p-6 shadow-sm flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs uppercase tracking-wider font-bold text-sky-400">Hành động Bán hàng</span>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300">Sẵn sàng</span>
+          </div>
+          <h4 class="text-base font-bold">Xuất Báo giá & Trình duyệt</h4>
+          <p class="text-xs text-slate-300 mt-1">
+            Chuyển tiếp báo giá cho Giám đốc kinh doanh xét duyệt hoặc xuất file PDF gửi trực tiếp khách hàng.
+          </p>
+        </div>
+
+        <div class="space-y-2 mt-6">
+          <button onclick="simulatePdfExport()" class="w-full py-2.5 px-4 bg-sky-500 hover:bg-sky-600 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center space-x-2">
+            <i class="fa-solid fa-file-pdf"></i>
+            <span>Xuất Báo giá PDF (Bilingual)</span>
+          </button>
+          <button onclick="showToast('Đã gửi thông báo phê duyệt báo giá tới Sales Director!', 'success')" class="w-full py-2 px-4 bg-white/10 hover:bg-white/15 text-white font-semibold text-xs rounded-xl transition-all flex items-center justify-center space-x-2 border border-white/10">
+            <i class="fa-solid fa-paper-plane"></i>
+            <span>Gửi duyệt chiết khấu đặc biệt</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Product Catalog Modal / Drawer -->
+  <div id="catalog-modal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-3xl w-full max-h-[85vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      
+      <!-- Modal Header -->
+      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+        <div>
+          <h3 class="text-base font-bold text-slate-900 flex items-center space-x-2">
+            <i class="fa-solid fa-boxes-stacked text-sky-600"></i>
+            <span>Bảng giá & Danh mục Sản phẩm - Dịch vụ</span>
+          </h3>
+          <p class="text-xs text-slate-500 mt-0.5">Chọn sản phẩm để thêm ngay vào dòng cơ hội bán hàng</p>
+        </div>
+        <button onclick="closeCatalogModal()" class="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-200/60 flex items-center justify-center">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <!-- Search & Filter Tab Bar -->
+      <div class="p-4 border-b border-slate-100 flex flex-wrap gap-3 bg-white">
+        <div class="relative flex-1 min-w-[240px]">
+          <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+          <input type="text" id="catalog-search" oninput="filterCatalog()" placeholder="Tìm theo tên sản phẩm hoặc mã SKU (vd: HW, SAAS, SVC)..." class="w-full pl-9 pr-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500">
+        </div>
+
+        <div class="flex items-center space-x-1 bg-slate-100 p-1 rounded-xl text-xs font-semibold">
+          <button onclick="setCatalogFilter('all')" id="tab-all" class="px-3 py-1.5 rounded-lg bg-white text-sky-700 shadow-sm">Tất cả</button>
+          <button onclick="setCatalogFilter('product')" id="tab-product" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900">Sản phẩm</button>
+          <button onclick="setCatalogFilter('service')" id="tab-service" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900">Dịch vụ thuê bao</button>
+        </div>
+      </div>
+
+      <!-- Catalog List -->
+      <div id="catalog-items-container" class="p-4 overflow-y-auto space-y-2.5 max-h-[50vh] custom-scroll">
+        <!-- Rendered by JS -->
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="px-6 py-3 border-t border-slate-200 bg-slate-50 flex justify-between items-center text-xs">
+        <span class="text-slate-500" id="catalog-result-count">Hiển thị 6 sản phẩm</span>
+        <button onclick="closeCatalogModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 font-semibold text-slate-700 rounded-lg">Đóng</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Documentation & Code Spec Modal -->
+  <div id="doc-modal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-900 text-white">
+        <div>
+          <h3 class="text-sm font-bold flex items-center space-x-2">
+            <i class="fa-solid fa-code text-sky-400"></i>
+            <span>S5-03: Chi tiết Nghiệp vụ & Code Convention CRM</span>
+          </h3>
+          <p class="text-[11px] text-slate-400 mt-0.5">Laravel 11 (PHP 8.3) + React 18 (TypeScript) + MySQL</p>
+        </div>
+        <button onclick="closeDocModal()" class="w-8 h-8 rounded-lg text-slate-400 hover:text-white flex items-center justify-center">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <div class="p-6 overflow-y-auto space-y-4 text-xs text-slate-700 custom-scroll leading-relaxed">
+        <div class="p-3 bg-sky-50 border border-sky-200 rounded-xl">
+          <h4 class="font-bold text-sky-900 mb-1">🎯 3 Tiêu chí Nghiệm thu (Acceptance Criteria) cốt lõi:</h4>
+          <ul class="list-disc list-inside space-y-1 text-sky-800">
+            <li><strong>AC 1:</strong> Chọn sản phẩm từ danh mục, nhập số lượng và đơn giá, đơn giá mặc định lấy từ bảng giá niêm yết (List Price).</li>
+            <li><strong>AC 2:</strong> Giá trị cơ hội (Opportunity Amount) được tự động tính toán lại từ các dòng sản phẩm (`recalculateAmount`).</li>
+            <li><strong>AC 3:</strong> Với dịch vụ thuê bao, khai báo được số kỳ (`billing_cycles`) và giá trị hợp đồng theo năm (`annual_contract_value` / ARR).</li>
+          </ul>
+        </div>
+
+        <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-xl">
+          <h4 class="font-bold text-emerald-900 mb-1">📐 Công thức tính toán chuẩn:</h4>
+          <p class="font-mono text-emerald-800">
+            Line Total = Quantity × Unit Price × (1 - Discount% / 100) × (is_subscription ? billing_cycles : 1)
+          </p>
+          <p class="font-mono text-emerald-800 mt-1">
+            ARR (ACV) = Quantity × Unit Price × (1 - Discount% / 100) × (monthly ? 12 : (quarterly ? 4 : 1))
+          </p>
+        </div>
+
+        <div class="p-3 bg-slate-100 rounded-xl font-mono text-[11px] overflow-x-auto text-slate-800">
+          <strong>Database Schema:</strong><br>
+          • `products`: id, code, name, type (product|service), list_price, is_subscription, billing_period (monthly|quarterly|yearly), is_active<br>
+          • `opportunity_items`: id, opportunity_id, product_id, quantity, unit_price, discount_percent, billing_cycles, line_total, notes, sort_order<br>
+          • `opportunities`: amount, is_amount_from_items
+        </div>
+      </div>
+
+      <div class="px-6 py-3 border-t border-slate-200 bg-slate-50 flex justify-end">
+        <button onclick="closeDocModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 font-semibold text-white rounded-lg text-xs">Đã hiểu</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col space-y-2 pointer-events-none"></div>
+
+  <!-- Application Logic JavaScript -->
+  <script>
+    // 1. MASTER PRODUCT CATALOG (Mock Data according to DB schema)
+    const CATALOG = [
+      {
+        id: 1,
+        code: 'HW-GW01',
+        name: 'Thiết bị IoT Smart Gateway Pro V3',
+        description: 'Bộ điều khiển tập trung Smart Retail kết nối cảm biến camera AI',
+        type: 'product',
+        type_label: 'Sản phẩm',
+        list_price: 5200000,
+        is_subscription: false,
+        billing_period: null,
+        billing_period_label: null,
+        is_active: true,
+        unit: 'Bộ',
+      },
+      {
+        id: 2,
+        code: 'HW-CAM-AI',
+        name: 'Camera AI Đếm lượt khách & Heatmap',
+        description: 'Camera nhận diện khuôn mặt khách VIP và phân tích hành vi mua sắm',
+        type: 'product',
+        type_label: 'Sản phẩm',
+        list_price: 8500000,
+        is_subscription: false,
+        billing_period: null,
+        billing_period_label: null,
+        is_active: true,
+        unit: 'Chiếc',
+      },
+      {
+        id: 3,
+        code: 'SAAS-ENT-M',
+        name: 'Gói CRM Enterprise Cloud (Per User/Tháng)',
+        description: 'Phần mềm CRM đa kênh, Marketing Automation, Sales Pipeline và API Hub',
+        type: 'service',
+        type_label: 'Dịch vụ',
+        list_price: 1500000,
+        is_subscription: true,
+        billing_period: 'monthly',
+        billing_period_label: 'Hàng tháng',
+        is_active: true,
+        unit: 'User/Tháng',
+      },
+      {
+        id: 4,
+        code: 'SAAS-OMNI-Y',
+        name: 'Hệ thống Quản lý Bán lẻ Omni-channel (Theo Năm)',
+        description: 'Đồng bộ đơn hàng Shopee, Lazada, TikTok Shop, POS Offline',
+        type: 'service',
+        type_label: 'Dịch vụ',
+        list_price: 36000000,
+        is_subscription: true,
+        billing_period: 'yearly',
+        billing_period_label: 'Hàng năm',
+        is_active: true,
+        unit: 'Gói/Năm',
+      },
+      {
+        id: 5,
+        code: 'SVC-MAINT-Q',
+        name: 'Bảo trì Hệ thống & Hỗ trợ Kỹ thuật SLA 24/7 (Quý)',
+        description: 'Cam kết uptime 99.99%, hỗ trợ kỹ thuật tận nơi trong 2 giờ',
+        type: 'service',
+        type_label: 'Dịch vụ',
+        list_price: 12000000,
+        is_subscription: true,
+        billing_period: 'quarterly',
+        billing_period_label: 'Hàng quý',
+        is_active: true,
+        unit: 'Quý',
+      },
+      {
+        id: 6,
+        code: 'SVC-ONBOARD',
+        name: 'Dịch vụ Tư vấn Triển khai & Đào tạo Go-Live',
+        description: 'Xây dựng quy trình kinh doanh, migrate dữ liệu cũ và đào tạo 100 nhân sự',
+        type: 'service',
+        type_label: 'Dịch vụ',
+        list_price: 25000000,
+        is_subscription: false,
+        billing_period: null,
+        billing_period_label: null,
+        is_active: true,
+        unit: 'Gói',
+      }
+    ];
+
+    // 2. OPPORTUNITY ITEMS STATE
+    let opportunityItems = [
+      {
+        id: 101,
+        product_id: 1,
+        quantity: 4,
+        unit_price: 5200000,
+        discount_percent: 5,
+        billing_cycles: null,
+        notes: 'Lắp tại 4 showroom trung tâm TP.HCM',
+        sort_order: 1,
+      },
+      {
+        id: 102,
+        product_id: 3,
+        quantity: 15,
+        unit_price: 1500000,
+        discount_percent: 10,
+        billing_cycles: 24, // Hợp đồng 2 năm = 24 tháng
+        notes: '15 tài khoản Sales & CSKH, hợp đồng 24 tháng',
+        sort_order: 2,
+      },
+      {
+        id: 103,
+        product_id: 5,
+        quantity: 1,
+        unit_price: 12000000,
+        discount_percent: 0,
+        billing_cycles: 4, // 4 quý = 1 năm
+        notes: 'Gói bảo trì VIP 24/7 cho toàn hệ thống',
+        sort_order: 3,
+      },
+      {
+        id: 104,
+        product_id: 6,
+        quantity: 1,
+        unit_price: 25000000,
+        discount_percent: 15,
+        billing_cycles: null,
+        notes: 'Hỗ trợ onboarding trong 30 ngày',
+        sort_order: 4,
+      }
+    ];
+
+    let currentCatalogFilter = 'all';
+
+    // FORMATTERS
+    function formatVND(num) {
+      if (num === null || num === undefined || isNaN(num)) return '0 ₫';
+      return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(num);
+    }
+
+    // CALCULATIONS FOR A SINGLE ROW
+    function getProductById(id) {
+      return CATALOG.find(p => p.id === Number(id));
+    }
+
+    function calculateRowMetrics(item) {
+      const product = getProductById(item.product_id);
+      const qty = parseFloat(item.quantity) || 0;
+      const price = parseFloat(item.unit_price) || 0;
+      const discount = parseFloat(item.discount_percent) || 0;
+      const isSub = product?.is_subscription || false;
+      const cycles = isSub ? (parseInt(item.billing_cycles) || 1) : 1;
+
+      // Thành tiền gốc
+      const subtotal = qty * price * cycles;
+      // Số tiền giảm
+      const discountAmount = subtotal * (discount / 100);
+      // Thành tiền thực tế của dòng hợp đồng (TCV)
+      const lineTotal = subtotal - discountAmount;
+
+      // Doanh thu quy năm (ARR / ACV) cho dịch vụ thuê bao
+      let arr = null;
+      if (isSub && product) {
+        let annualMultiplier = 1;
+        if (product.billing_period === 'monthly') annualMultiplier = 12;
+        else if (product.billing_period === 'quarterly') annualMultiplier = 4;
+        else if (product.billing_period === 'yearly') annualMultiplier = 1;
+
+        const effectiveCyclePrice = qty * price * (1 - discount / 100);
+        arr = effectiveCyclePrice * annualMultiplier;
+      }
+
+      return {
+        subtotal,
+        discountAmount,
+        lineTotal,
+        arr,
+        isSub,
+      };
+    }
+
+    // RENDER TABLE
+    function renderTable() {
+      const tbody = document.getElementById('items-table-body');
+      const emptyState = document.getElementById('table-empty-state');
+      tbody.innerHTML = '';
+
+      if (opportunityItems.length === 0) {
+        emptyState.classList.remove('hidden');
+      } else {
+        emptyState.classList.add('hidden');
+      }
+
+      opportunityItems.forEach((item, index) => {
+        const product = getProductById(item.product_id);
+        const metrics = calculateRowMetrics(item);
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50/80 transition-colors group';
+
+        const isSub = product?.is_subscription ?? false;
+
+        tr.innerHTML = `
+          <td class="py-3 px-3 text-center text-slate-400 font-mono text-[11px]">
+            ${index + 1}
+          </td>
+          <td class="py-3 px-3">
+            <div class="flex items-start space-x-2.5">
+              <div class="mt-0.5 w-7 h-7 rounded-lg ${isSub ? 'bg-purple-100 text-purple-700' : 'bg-sky-100 text-sky-700'} flex items-center justify-center text-xs flex-shrink-0">
+                <i class="${isSub ? 'fa-solid fa-arrows-rotate' : 'fa-solid fa-box'}"></i>
+              </div>
+              <div class="min-w-0 flex-1">
+                <select onchange="handleProductSelect(${index}, this.value)" class="w-full text-xs font-bold text-slate-800 bg-transparent hover:bg-white focus:bg-white rounded border border-transparent hover:border-slate-300 focus:border-sky-500 py-0.5 px-1 focus:outline-none transition-colors">
+                  <option value="">-- Chọn sản phẩm/dịch vụ --</option>
+                  ${CATALOG.map(p => `
+                    <option value="${p.id}" ${p.id === item.product_id ? 'selected' : ''}>
+                      [${p.code}] ${p.name} (${formatVND(p.list_price)}${p.is_subscription ? ` / ${p.billing_period_label}` : ''})
+                    </option>
+                  `).join('')}
+                </select>
+                <div class="flex items-center space-x-2 mt-1 px-1">
+                  <span class="text-[10px] font-mono text-slate-400 font-medium">${product?.code || 'NO-SKU'}</span>
+                  ${isSub 
+                    ? `<span class="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-semibold bg-purple-100 text-purple-700">
+                        <i class="fa-solid fa-repeat mr-1 text-[8px]"></i> Thuê bao ${product.billing_period_label}
+                       </span>`
+                    : `<span class="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-semibold bg-sky-100 text-sky-700">
+                        Phần cứng / Gói
+                       </span>`
+                  }
+                  ${item.notes ? `<span title="${item.notes}" class="text-[10px] text-slate-400 cursor-help"><i class="fa-regular fa-comment-dots"></i></span>` : ''}
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="py-3 px-3 text-right">
+            <input type="number" step="1" min="1" value="${item.quantity}" oninput="updateItemField(${index}, 'quantity', this.value)" class="w-20 text-right py-1 px-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 text-xs font-mono font-semibold text-slate-800">
+          </td>
+          <td class="py-3 px-3 text-right text-slate-400 font-mono text-xs">
+            ${formatVND(product?.list_price || 0)}
+          </td>
+          <td class="py-3 px-3 text-right">
+            <input type="number" step="10000" min="0" value="${item.unit_price}" oninput="updateItemField(${index}, 'unit_price', this.value)" class="w-32 text-right py-1 px-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 text-xs font-mono font-bold text-slate-800">
+            ${product && item.unit_price !== product.list_price 
+              ? `<span class="block text-[10px] text-amber-600 font-medium">Lệch niêm yết</span>` 
+              : ''
+            }
+          </td>
+          <td class="py-3 px-3 text-right">
+            <div class="inline-flex items-center space-x-1">
+              <input type="number" min="0" max="100" step="1" value="${item.discount_percent}" oninput="updateItemField(${index}, 'discount_percent', this.value)" class="w-16 text-right py-1 px-1.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 text-xs font-mono font-semibold ${item.discount_percent > 0 ? 'text-amber-700 bg-amber-50/50' : 'text-slate-700'}">
+              <span class="text-xs text-slate-400">%</span>
+            </div>
+          </td>
+          <td class="py-3 px-3 text-center">
+            ${isSub 
+              ? `
+                <div class="inline-flex items-center space-x-1">
+                  <input type="number" min="1" max="120" value="${item.billing_cycles || 1}" oninput="updateItemField(${index}, 'billing_cycles', this.value)" class="w-16 text-center py-1 px-1 border border-purple-200 bg-purple-50/40 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 text-xs font-mono font-bold text-purple-800">
+                  <span class="text-[11px] text-purple-600 font-semibold">kỳ</span>
+                </div>
+              `
+              : `<span class="text-slate-300 font-mono">—</span>`
+            }
+          </td>
+          <td class="py-3 px-3 text-right font-mono font-bold text-slate-900 text-xs">
+            ${formatVND(metrics.lineTotal)}
+          </td>
+          <td class="py-3 px-3 text-right font-mono text-xs ${metrics.arr ? 'font-bold text-purple-700' : 'text-slate-300'}">
+            ${metrics.arr ? formatVND(metrics.arr) : '—'}
+          </td>
+          <td class="py-3 px-3 text-center">
+            <button type="button" onclick="removeItem(${index})" title="Xóa dòng" class="text-slate-400 hover:text-rose-600 p-1.5 rounded-lg hover:bg-rose-50 transition-colors">
+              <i class="fa-regular fa-trash-can"></i>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      updateOverallMetrics();
+    }
+
+    // UPDATE METRICS & CARDS
+    function updateOverallMetrics() {
+      let totalAmount = 0;
+      let totalSubtotal = 0;
+      let totalDiscount = 0;
+      let totalArr = 0;
+      let oneOffAmount = 0;
+      let subCount = 0;
+
+      opportunityItems.forEach(item => {
+        const m = calculateRowMetrics(item);
+        totalAmount += m.lineTotal;
+        totalSubtotal += m.subtotal;
+        totalDiscount += m.discountAmount;
+        if (m.isSub) {
+          totalArr += (m.arr || 0);
+          subCount++;
+        } else {
+          oneOffAmount += m.lineTotal;
+        }
+      });
+
+      const avgDiscount = totalSubtotal > 0 ? (totalDiscount / totalSubtotal) * 100 : 0;
+
+      // Update KPI Elements
+      document.getElementById('metric-total-amount').textContent = formatVND(totalAmount);
+      document.getElementById('metric-arr-amount').textContent = formatVND(totalArr);
+      document.getElementById('metric-discount-amount').textContent = formatVND(totalDiscount);
+      document.getElementById('metric-oneoff-amount').textContent = formatVND(oneOffAmount);
+
+      document.getElementById('metric-subtotal').textContent = formatVND(totalSubtotal);
+      document.getElementById('metric-avg-discount').textContent = `-${avgDiscount.toFixed(1)}%`;
+      document.getElementById('metric-sub-count').textContent = `${subCount} gói dịch vụ`;
+      document.getElementById('metric-item-count').textContent = `${opportunityItems.length} dòng`;
+      document.getElementById('badge-total-items').textContent = opportunityItems.length;
+
+      document.getElementById('footer-total-amount').textContent = formatVND(totalAmount);
+      document.getElementById('footer-total-arr').textContent = formatVND(totalArr);
+
+      // Summary Breakdown Card
+      document.getElementById('summary-list-price').textContent = formatVND(totalSubtotal);
+      document.getElementById('summary-discount').textContent = `-${formatVND(totalDiscount)}`;
+      document.getElementById('summary-tcv').textContent = formatVND(totalAmount);
+      document.getElementById('summary-arr').textContent = `${formatVND(totalArr)} / năm`;
+
+      // Progress bar distribution
+      const oneOffPercent = totalAmount > 0 ? Math.round((oneOffAmount / totalAmount) * 100) : 0;
+      const subPercent = 100 - oneOffPercent;
+      document.getElementById('bar-oneoff').style.width = `${oneOffPercent}%`;
+      document.getElementById('bar-sub').style.width = `${subPercent}%`;
+      document.getElementById('share-oneoff-text').textContent = `Hàng hóa/1 lần: ${oneOffPercent}% (${formatVND(oneOffAmount)})`;
+      document.getElementById('share-sub-text').textContent = `Thuê bao: ${subPercent}% (${formatVND(totalAmount - oneOffAmount)})`;
+    }
+
+    // ROW INTERACTION HANDLERS
+    function handleProductSelect(index, productId) {
+      if (!productId) return;
+      const product = getProductById(productId);
+      if (!product) return;
+
+      opportunityItems[index].product_id = product.id;
+      opportunityItems[index].unit_price = product.list_price;
+      if (product.is_subscription) {
+        opportunityItems[index].billing_cycles = opportunityItems[index].billing_cycles || 12;
+      } else {
+        opportunityItems[index].billing_cycles = null;
+      }
+      renderTable();
+      showToast(`Đã chọn: ${product.name}`, 'info');
+    }
+
+    function updateItemField(index, field, value) {
+      if (field === 'quantity') {
+        opportunityItems[index].quantity = Math.max(0.01, parseFloat(value) || 0);
+      } else if (field === 'unit_price') {
+        opportunityItems[index].unit_price = Math.max(0, parseFloat(value) || 0);
+      } else if (field === 'discount_percent') {
+        opportunityItems[index].discount_percent = Math.min(100, Math.max(0, parseFloat(value) || 0));
+      } else if (field === 'billing_cycles') {
+        opportunityItems[index].billing_cycles = Math.max(1, parseInt(value) || 1);
+      }
+      // Recompute without re-rendering active input to avoid focus loss
+      const item = opportunityItems[index];
+      const metrics = calculateRowMetrics(item);
+      const rows = document.getElementById('items-table-body').children;
+      if (rows[index]) {
+        rows[index].children[7].textContent = formatVND(metrics.lineTotal);
+        rows[index].children[8].textContent = metrics.arr ? formatVND(metrics.arr) : '—';
+      }
+      updateOverallMetrics();
+    }
+
+    function removeItem(index) {
+      const removed = opportunityItems.splice(index, 1);
+      renderTable();
+      showToast('Đã xóa dòng sản phẩm khỏi cơ hội', 'info');
+    }
+
+    function addNewBlankItem() {
+      opportunityItems.push({
+        id: Date.now(),
+        product_id: CATALOG[0].id,
+        quantity: 1,
+        unit_price: CATALOG[0].list_price,
+        discount_percent: 0,
+        billing_cycles: CATALOG[0].is_subscription ? 1 : null,
+        notes: '',
+        sort_order: opportunityItems.length + 1,
+      });
+      renderTable();
+      showToast('Đã thêm dòng sản phẩm mới', 'success');
+    }
+
+    function addProductFromCatalog(productId) {
+      const product = getProductById(productId);
+      if (!product) return;
+
+      opportunityItems.push({
+        id: Date.now(),
+        product_id: product.id,
+        quantity: 1,
+        unit_price: product.list_price,
+        discount_percent: 0,
+        billing_cycles: product.is_subscription ? 12 : null,
+        notes: '',
+        sort_order: opportunityItems.length + 1,
+      });
+
+      renderTable();
+      closeCatalogModal();
+      showToast(`Đã thêm "${product.name}" vào cơ hội`, 'success');
+    }
+
+    // CATALOG MODAL LOGIC
+    function openCatalogModal() {
+      document.getElementById('catalog-modal').classList.remove('hidden');
+      renderCatalogList();
+    }
+
+    function closeCatalogModal() {
+      document.getElementById('catalog-modal').classList.add('hidden');
+    }
+
+    function setCatalogFilter(type) {
+      currentCatalogFilter = type;
+      ['all', 'product', 'service'].forEach(t => {
+        const btn = document.getElementById(`tab-${t}`);
+        if (t === type) {
+          btn.className = 'px-3 py-1.5 rounded-lg bg-white text-sky-700 shadow-sm';
+        } else {
+          btn.className = 'px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900';
+        }
+      });
+      renderCatalogList();
+    }
+
+    function filterCatalog() {
+      renderCatalogList();
+    }
+
+    function renderCatalogList() {
+      const container = document.getElementById('catalog-items-container');
+      const search = (document.getElementById('catalog-search').value || '').toLowerCase().trim();
+      container.innerHTML = '';
+
+      const filtered = CATALOG.filter(p => {
+        const matchType = currentCatalogFilter === 'all' || p.type === currentCatalogFilter;
+        const matchSearch = p.name.toLowerCase().includes(search) || p.code.toLowerCase().includes(search) || p.description.toLowerCase().includes(search);
+        return matchType && matchSearch;
+      });
+
+      document.getElementById('catalog-result-count').textContent = `Hiển thị ${filtered.length} sản phẩm phù hợp`;
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-8 text-slate-400">
+            <i class="fa-solid fa-box-open text-3xl mb-2"></i>
+            <p class="text-xs">Không tìm thấy sản phẩm nào phù hợp từ khóa "${search}"</p>
+          </div>
+        `;
+        return;
+      }
+
+      filtered.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'p-3 rounded-xl border border-slate-200 hover:border-sky-500 hover:shadow-sm bg-white transition-all flex items-center justify-between gap-3 group';
+        card.innerHTML = `
+          <div class="flex items-start space-x-3">
+            <div class="w-10 h-10 rounded-xl ${p.is_subscription ? 'bg-purple-100 text-purple-700' : 'bg-sky-100 text-sky-700'} flex items-center justify-center text-sm font-bold flex-shrink-0">
+              <i class="${p.is_subscription ? 'fa-solid fa-arrows-rotate' : 'fa-solid fa-boxes-stacked'}"></i>
+            </div>
+            <div>
+              <div class="flex items-center space-x-2">
+                <span class="text-xs font-mono font-bold text-slate-500">[${p.code}]</span>
+                <h4 class="text-xs font-bold text-slate-900 group-hover:text-sky-600 transition-colors">${p.name}</h4>
+                ${p.is_subscription 
+                  ? `<span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-purple-100 text-purple-700">Thuê bao ${p.billing_period_label}</span>`
+                  : `<span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-sky-100 text-sky-700">Hàng hóa</span>`
+                }
+              </div>
+              <p class="text-[11px] text-slate-500 line-clamp-1 mt-0.5">${p.description}</p>
+            </div>
+          </div>
+
+          <div class="flex items-center space-x-3 flex-shrink-0">
+            <div class="text-right">
+              <span class="text-xs font-bold text-slate-900 font-mono">${formatVND(p.list_price)}</span>
+              <span class="block text-[10px] text-slate-400">Đơn vị: ${p.unit}</span>
+            </div>
+            <button onclick="addProductFromCatalog(${p.id})" class="px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white rounded-lg text-xs font-semibold flex items-center space-x-1 shadow-sm">
+              <i class="fa-solid fa-plus text-[10px]"></i>
+              <span>Chọn</span>
+            </button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // DOC MODAL
+    function openDocModal() {
+      document.getElementById('doc-modal').classList.remove('hidden');
+    }
+    function closeDocModal() {
+      document.getElementById('doc-modal').classList.add('hidden');
+    }
+
+    // TOAST NOTIFICATION
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `pointer-events-auto px-4 py-3 rounded-xl shadow-lg border text-xs font-semibold flex items-center space-x-2 transition-all transform translate-y-2 opacity-0 duration-200 ${
+        type === 'success' 
+          ? 'bg-slate-900 text-white border-slate-700' 
+          : type === 'info'
+          ? 'bg-sky-950 text-sky-100 border-sky-800'
+          : 'bg-rose-900 text-rose-100 border-rose-700'
+      }`;
+
+      const icon = type === 'success' ? 'fa-circle-check text-emerald-400' : 'fa-circle-info text-sky-400';
+      toast.innerHTML = `<i class="fa-solid ${icon}"></i><span>${message}</span>`;
+      container.appendChild(toast);
+
+      requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      });
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 250);
+      }, 3000);
+    }
+
+    function saveOpportunityItems() {
+      let totalAmount = 0;
+      opportunityItems.forEach(i => {
+        totalAmount += calculateRowMetrics(i).lineTotal;
+      });
+      showToast(`Đã đồng bộ ${opportunityItems.length} sản phẩm! Giá trị cơ hội cập nhật: ${formatVND(totalAmount)}`, 'success');
+    }
+
+    function simulatePdfExport() {
+      showToast('Đang khởi tạo bản in báo giá PDF chuẩn Enterprise...', 'info');
+      setTimeout(() => {
+        showToast('Xuất báo giá thành công! Đã gửi thông báo đến Email khách hàng.', 'success');
+      }, 1200);
+    }
+
+    // INITIAL RENDER
+    renderTable();
+  </script>
+</body>
+</html>
