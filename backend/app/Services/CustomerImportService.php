@@ -1,203 +1,56 @@
-<?php
+﻿<?php
 
 namespace App\Services;
 
 use App\Models\Customer;
-use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
-use PhpOffice\PhpSpreadsheet\IOFactory;
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class CustomerImportService
 {
-    /**
-     * Tải file mẫu Excel
-     */
-    public function downloadTemplate(): string
+    public function parsePreview(UploadedFile $file): array
     {
-        $spreadsheet = new Spreadsheet();
-        $sheet = $spreadsheet->getActiveSheet();
-        $sheet->setTitle('Khách hàng');
+        $rows = [];
+        $handle = fopen($file->getRealPath(), 'r');
+        $header = fgetcsv($handle);
 
-        // Header
-        $headers = ['Mã KH', 'Tên khách hàng', 'Số điện thoại', 'Email', 'Mã số thuế', 'Địa chỉ'];
-        $sheet->fromArray($headers, null, 'A1');
-
-        // Style header
-        $sheet->getStyle('A1:F1')->getFont()->setBold(true);
-
-        // Sample data
-        $sheet->fromArray([
-            ['KH001', 'Nguyễn Văn A', '0901234567', 'a@gmail.com', '0123456789', 'Hà Nội'],
-            ['KH002', 'Công ty ABC', '0912345678', 'contact@abc.com', '9876543210', 'TP.HCM'],
-        ], null, 'A2');
-
-        foreach (range('A', 'F') as $col) {
-            $sheet->getColumnDimension($col)->setAutoSize(true);
-        }
-
-        $tempPath = storage_path('app/temp/customer_import_template_' . Str::random(8) . '.xlsx');
-        if (!is_dir(dirname($tempPath))) {
-            mkdir(dirname($tempPath), 0755, true);
-        }
-
-        $writer = new Xlsx($spreadsheet);
-        $writer->save($tempPath);
-
-        return $tempPath;
-    }
-
-    /**
-     * Parse & validate file Excel → trả về preview
-     */
-    public function preview(UploadedFile $file, User $user): array
-    {
-        $spreadsheet = IOFactory::load($file->getRealPath());
-        $sheet = $spreadsheet->getActiveSheet();
-        $rows = $sheet->toArray(null, true, true, true);
-
-        // Bỏ header
-        $header = array_shift($rows);
-
-        $preview = [];
-        $validCount = 0;
-        $errorCount = 0;
-
-        foreach ($rows as $index => $row) {
-            $rowNumber = $index + 2; // Excel row number
-
-            $code = trim((string) ($row['A'] ?? ''));
-            $name = trim((string) ($row['B'] ?? ''));
-            $phone = trim((string) ($row['C'] ?? ''));
-            $email = trim((string) ($row['D'] ?? ''));
-            $taxCode = trim((string) ($row['E'] ?? ''));
-            $address = trim((string) ($row['F'] ?? ''));
-
-            // Bỏ dòng trống
-            if ($code === '' && $name === '') {
-                continue;
-            }
-
-            $errors = [];
-
-            if ($code === '') {
-                $errors[] = 'Mã KH bắt buộc';
-            } elseif (Customer::where('code', $code)->exists()) {
-                $errors[] = 'Mã KH đã tồn tại';
-            }
-
-            if ($name === '') {
-                $errors[] = 'Tên khách hàng bắt buộc';
-            }
-
-            if ($phone !== '' && !preg_match('/^(0|\+84)[0-9]{9,10}$/', $phone)) {
-                $errors[] = 'Sai định dạng SĐT';
-            }
-
-            if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                $errors[] = 'Email không hợp lệ';
-            }
-
-            $status = empty($errors) ? 'Hợp lệ' : 'Lỗi dữ liệu';
-
-            if ($status === 'Hợp lệ') {
-                $validCount++;
-            } else {
-                $errorCount++;
-            }
-
-            $preview[] = [
-                'row' => $rowNumber,
-                'code' => $code,
-                'name' => $name,
-                'phone' => $phone,
-                'email' => $email,
-                'tax_code' => $taxCode,
-                'address' => $address,
-                'status' => $status,
-                'errors' => $errors,
+        $index = 1;
+        while (($data = fgetcsv($handle)) !== false) {
+            $rows[] = [
+                'row_index' => $index++,
+                'name' => $data[0] ?? '',
+                'phone' => $data[1] ?? '',
+                'email' => $data[2] ?? '',
+                'address' => $data[3] ?? '',
+                'is_valid' => !empty($data[0]),
             ];
         }
-
-        // Lưu file tạm để confirm sau
-        $storedPath = $file->storeAs(
-            'imports/' . $user->id,
-            'preview_' . time() . '_' . $file->getClientOriginalName(),
-            'local'
-        );
+        fclose($handle);
 
         return [
-            'file_path' => $storedPath,
-            'file_name' => $file->getClientOriginalName(),
-            'total_rows' => count($preview),
-            'valid_count' => $validCount,
-            'error_count' => $errorCount,
-            'rows' => $preview,
+            'total_rows' => count($rows),
+            'valid_rows' => count(array_filter($rows, fn($r) => $r['is_valid'])),
+            'preview_data' => array_slice($rows, 0, 50),
         ];
     }
 
-    /**
-     * Xác nhận lưu các dòng hợp lệ vào DB
-     */
-    public function confirm(array $rows, User $user): array
+    public function confirmImport(array $rows, int $importedBy): int
     {
-        $success = 0;
-        $failed = 0;
-        $errors = [];
-
-        DB::transaction(function () use ($rows, $user, &$success, &$failed, &$errors) {
-            foreach ($rows as $index => $row) {
-                try {
-                    // Chỉ lưu dòng hợp lệ (frontend có thể gửi cả, backend re-validate)
-                    if (empty($row['code']) || empty($row['name'])) {
-                        $failed++;
-                        $errors[] = [
-                            'row' => $index + 1,
-                            'message' => 'Thiếu mã hoặc tên khách hàng',
-                        ];
-                        continue;
-                    }
-
-                    if (Customer::where('code', $row['code'])->exists()) {
-                        $failed++;
-                        $errors[] = [
-                            'row' => $index + 1,
-                            'message' => "Mã KH {$row['code']} đã tồn tại",
-                        ];
-                        continue;
-                    }
-
+        $count = 0;
+        DB::transaction(function () use ($rows, &$count) {
+            foreach ($rows as $item) {
+                if (!empty($item['name'])) {
                     Customer::create([
-                        'code' => $row['code'],
-                        'name' => $row['name'],
-                        'phone' => $row['phone'] ?? null,
-                        'email' => $row['email'] ?? null,
-                        'tax_code' => $row['tax_code'] ?? null,
-                        'address' => $row['address'] ?? null,
-                        'owner_id' => $user->id,
-                        'is_active' => true,
-                        'source' => 'EXCEL_IMPORT',
+                        'name' => $item['name'],
+                        'phone' => $item['phone'] ?? null,
+                        'email' => $item['email'] ?? null,
+                        'address' => $item['address'] ?? null,
                     ]);
-
-                    $success++;
-                } catch (\Throwable $e) {
-                    $failed++;
-                    $errors[] = [
-                        'row' => $index + 1,
-                        'message' => $e->getMessage(),
-                    ];
+                    $count++;
                 }
             }
         });
 
-        return [
-            'success_count' => $success,
-            'error_count' => $failed,
-            'errors' => $errors,
-        ];
+        return $count;
     }
 }
