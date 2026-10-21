@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\CustomerHierarchyController;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\Api\V1\AuditLogController;
 use App\Http\Controllers\Api\V1\AvatarController;
@@ -28,6 +29,7 @@ Route::middleware('session.auth')->group(function (): void {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
     Route::post('/change-password', [AuthController::class, 'changePassword']);
+
 
     Route::middleware('admin.role')->group(function (): void {
         Route::get('/accounts', [AccountController::class, 'index']);
@@ -85,4 +87,18 @@ Route::middleware('session.auth')->group(function (): void {
         // S2-07: Quản lý danh mục dùng chung
         Route::apiResource('common-categories', CommonCategoryController::class);
     });
+    Route::patch(
+        '/v1/customers/{customer}/parent',
+        [CustomerHierarchyController::class, 'updateParent']
+    );
+
+    Route::get(
+        '/v1/customers/{customer}/hierarchy',
+        [CustomerHierarchyController::class, 'hierarchy']
+    );
+
+    Route::get(
+        '/v1/customers/{customer}/group-contract-value',
+        [CustomerHierarchyController::class, 'groupContractValue']
+    );
 });
