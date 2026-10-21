@@ -1,95 +1,29 @@
-const API_URL = import.meta.env.VITE_API_URL ?? "http://127.0.0.1:8000/api";
+import axios from 'axios';
 
-export class ApiError extends Error {
-  public readonly status?: number;
-  public readonly payload?: unknown;
+export const apiClient = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL || '/api/v1',
+  headers: {
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
+  },
+});
 
-  public constructor(message: string, status?: number, payload?: unknown) {
-    super(message);
-    this.name = 'ApiError';
-    this.status = status;
-    this.payload = payload;
-  }
-}
-
-interface ApiErrorResponse {
-  message?: string;
-}
-
-function getHeaders(options: RequestInit): Headers {
-  const token = localStorage.getItem("session_token");
-  const headers = new Headers(options.headers);
-
-  headers.set("Accept", "application/json");
-
-  if (options.body && !(options.body instanceof FormData)) {
-    headers.set("Content-Type", "application/json");
-  }
-
+apiClient.interceptors.request.use((config) => {
+  const token = localStorage.getItem('access_token');
   if (token) {
-    headers.set("Authorization", `Bearer ${token}`);
+    config.headers.Authorization = `Bearer ${token}`;
   }
+  return config;
+});
 
-  return headers;
-}
-
-export async function apiRequest<T>(
-  endpoint: string,
-  options: RequestInit = {},
-): Promise<T> {
-  const response = await fetch(`${API_URL}${endpoint}`, {
-    ...options,
-    headers: getHeaders(options),
-  });
-
-  const data = (await response.json()) as ApiErrorResponse & T;
-
-  if (!response.ok) {
-    throw new ApiError(data.message || "Có lỗi xảy ra khi gọi API.", response.status, data);
-  }
-
-  return data;
-}
-
-export const apiClient = apiRequest;
-
-
-export async function apiDownload(
-  endpoint: string,
-  fileName: string,
-): Promise<void> {
-  const response = await fetch(`${API_URL}${endpoint}`, {
-    method: "GET",
-    headers: getHeaders({}),
-  });
-
-  if (!response.ok) {
-    let message = "Không thể tải file Excel.";
-
-    try {
-      const data = (await response.json()) as ApiErrorResponse;
-
-      if (data.message) {
-        message = data.message;
-      }
-    } catch {
-      // Response không phải JSON.
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('access_token');
     }
-
-    throw new Error(message);
+    return Promise.reject(error);
   }
+);
 
-  const blob = await response.blob();
-
-  const url = URL.createObjectURL(blob);
-  const anchor = document.createElement("a");
-
-  anchor.href = url;
-  anchor.download = fileName;
-
-  document.body.appendChild(anchor);
-  anchor.click();
-  anchor.remove();
-
-  URL.revokeObjectURL(url);
-}
+export default apiClient;
