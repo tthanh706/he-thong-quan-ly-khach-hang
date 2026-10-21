@@ -6,7 +6,6 @@ namespace App\Services;
 
 use App\Models\Product;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -17,11 +16,15 @@ class ProductService
         $query = Product::query();
 
         if (! empty($filters['q'])) {
-            $query->search((string) $filters['q']);
+            $q = $filters['q'];
+            $query->where(function ($builder) use ($q): void {
+                $builder->where('name', 'like', "%{$q}%")
+                    ->orWhere('sku', 'like', "%{$q}%");
+            });
         }
 
         if (! empty($filters['type']) && $filters['type'] !== 'ALL') {
-            $query->ofType($filters['type']);
+            $query->where('type', $filters['type']);
         }
 
         $sortBy = $filters['sort_by'] ?? 'updated_at';
@@ -29,16 +32,6 @@ class ProductService
 
         return $query->orderBy($sortBy, $sortOrder)
             ->paginate((int) ($filters['per_page'] ?? 10));
-    }
-
-    public function findById(int $id): ?Product
-    {
-        return Product::query()->find($id);
-    }
-
-    public function getActiveProducts(): Collection
-    {
-        return Product::query()->active()->orderBy('name')->get();
     }
 
     public function create(array $payload): Product
@@ -51,9 +44,7 @@ class ProductService
 
     public function update(Product $product, array $payload): Product
     {
-        if (isset($payload['sku'])) {
-            $payload['sku'] = Str::upper($payload['sku']);
-        }
+        $payload['sku'] = Str::upper($payload['sku']);
         $product->update($payload);
 
         return $product->refresh();
