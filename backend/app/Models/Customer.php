@@ -95,6 +95,11 @@ class Customer extends Model
         return $this->hasMany(Customer::class, 'parent_id');
     }
 
+    public function childCustomers(): HasMany
+    {
+        return $this->hasMany(Customer::class, 'parent_id');
+    }
+
     public function contacts(): HasMany
     {
         return $this->hasMany(Contact::class, 'customer_id');

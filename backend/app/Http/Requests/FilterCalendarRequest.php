@@ -12,11 +12,19 @@ class FilterCalendarRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'view' => $this->input('view', 'month'),
+            'date' => $this->input('date', date('Y-m-d')),
+        ]);
+    }
+
     public function rules(): array
     {
         return [
             'view' => [
-                'required',
+                'nullable',
                 Rule::in([
                     'day',
                     'week',
@@ -24,7 +32,7 @@ class FilterCalendarRequest extends FormRequest
                 ]),
             ],
             'date' => [
-                'required',
+                'nullable',
                 'date',
             ],
         ];

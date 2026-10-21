@@ -1,5 +1,15 @@
-export type LeadStatus = 'waiting_assignment' | 'assigned' | 'caring';
-export type LeadAction = 'assigned' | 'accepted' | 'rejected' | 'contacted' | 'sla_overdue';
+export type LeadStatus =
+  | 'new'
+  | 'waiting_assignment'
+  | 'assigned'
+  | 'caring'
+  | 'contacted'
+  | 'converted'
+  | 'merged'
+  | 'rejected'
+  | string;
+
+export type LeadAction = 'created' | 'assigned' | 'accepted' | 'rejected' | 'contacted' | 'sla_overdue' | 'converted' | 'merged' | string;
 
 export interface UserSummary {
   id: number;
@@ -13,10 +23,19 @@ export interface Lead {
   name: string;
   email: string | null;
   phone: string | null;
+  company?: string | null;
+  source: string;
+  interest?: string | null;
+  industry?: string | null;
+  company_size?: string | null;
+  score?: number;
+  rating?: 'hot' | 'warm' | 'cold' | string;
   assigned_to: number | null;
   assigned_user?: UserSummary | null;
   team_leader_id: number | null;
   team_leader?: UserSummary | null;
+  campaign_id?: number | null;
+  campaign?: { id: number; name: string } | null;
   status: LeadStatus;
   assigned_at: string | null;
   accepted_at: string | null;
@@ -25,8 +44,53 @@ export interface Lead {
   sla_flagged_at: string | null;
   is_sla_overdue: boolean;
   rejection_reason: string | null;
+  converted_at?: string | null;
+  converted_customer_id?: number | null;
+  convertedCustomer?: { id: number; name: string } | null;
+  is_merged?: boolean;
   created_at: string | null;
   updated_at: string | null;
+}
+
+export interface LeadScoringRule {
+  id: number;
+  criterion_type: 'industry' | 'company_size' | 'source' | 'interest';
+  criterion_value: string;
+  points: number;
+  is_active: boolean;
+  created_at?: string;
+}
+
+export interface LeadAssignmentRule {
+  id: number;
+  rule_name: string;
+  priority: number;
+  rule_type: 'region' | 'industry' | 'round_robin';
+  condition_field?: string | null;
+  condition_value?: string | null;
+  target_user_id?: number | null;
+  target_user?: UserSummary | null;
+  is_active: boolean;
+}
+
+export interface DuplicateLeadCheck {
+  lead_duplicates: Array<{
+    id: number;
+    name: string;
+    email: string | null;
+    phone: string | null;
+    company: string | null;
+    status: string;
+    created_at: string;
+  }>;
+  customer_duplicates: Array<{
+    id: number;
+    name: string;
+    email: string | null;
+    phone: string | null;
+    company: string | null;
+  }>;
+  has_duplicate: boolean;
 }
 
 export interface LeadHistory {

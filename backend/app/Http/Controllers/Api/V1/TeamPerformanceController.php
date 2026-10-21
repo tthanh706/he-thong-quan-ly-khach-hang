@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\TeamPerformanceFilterRequest;
 use App\Http\Resources\TeamPerformanceResource;
 use App\Services\TeamPerformanceService;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -14,6 +15,17 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class TeamPerformanceController extends Controller
 {
+    private function resolveTeamLeader($currentUser): ?User
+    {
+        if ($currentUser->role === 'team_leader') {
+            return $currentUser;
+        }
+        if (in_array($currentUser->role, ['admin', 'manager'])) {
+            return User::where('role', 'team_leader')->first() ?? $currentUser;
+        }
+        return null;
+    }
+
     public function index(
         TeamPerformanceFilterRequest $request,
         TeamPerformanceService $service
@@ -22,19 +34,20 @@ class TeamPerformanceController extends Controller
             'current_user'
         );
 
-        if ($currentUser->role !== 'team_leader') {
+        $teamLeader = $this->resolveTeamLeader($currentUser);
+        if (!$teamLeader) {
             return response()->json([
                 'success' => false,
                 'data' => null,
                 'message' =>
-                    'Chỉ trưởng nhóm kinh doanh được xem báo cáo nhóm.',
+                    'Chỉ trưởng nhóm hoặc quản trị viên được xem báo cáo nhóm.',
             ], 403);
         }
 
         $filters = $request->validated();
 
         $report = $service->getReport(
-            $currentUser,
+            $teamLeader,
             $filters['date_from'] ?? null,
             $filters['date_to'] ?? null,
             isset($filters['user_id'])
@@ -69,17 +82,18 @@ class TeamPerformanceController extends Controller
             'current_user'
         );
 
-        if ($currentUser->role !== 'team_leader') {
+        $teamLeader = $this->resolveTeamLeader($currentUser);
+        if (!$teamLeader) {
             return response()->json([
                 'success' => false,
                 'data' => null,
                 'message' =>
-                    'Chỉ trưởng nhóm được xem thành viên nhóm.',
+                    'Chỉ trưởng nhóm hoặc quản trị viên được xem thành viên nhóm.',
             ], 403);
         }
 
         $members = $service
-            ->getMembers($currentUser)
+            ->getMembers($teamLeader)
             ->map(function ($user): array {
                 return [
                     'id' => $user->id,
@@ -105,19 +119,20 @@ class TeamPerformanceController extends Controller
             'current_user'
         );
 
-        if ($currentUser->role !== 'team_leader') {
+        $teamLeader = $this->resolveTeamLeader($currentUser);
+        if (!$teamLeader) {
             return response()->json([
                 'success' => false,
                 'data' => null,
                 'message' =>
-                    'Chỉ trưởng nhóm được xuất báo cáo.',
+                    'Chỉ trưởng nhóm hoặc quản trị viên được xuất báo cáo.',
             ], 403);
         }
 
         $filters = $request->validated();
 
         $report = $service->getReport(
-            $currentUser,
+            $teamLeader,
             $filters['date_from'] ?? null,
             $filters['date_to'] ?? null,
             isset($filters['user_id'])

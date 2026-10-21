@@ -164,10 +164,16 @@ export interface Campaign {
   id: number;
   name: string;
   description?: string | null;
+  channel?: string | null;
   status?: CampaignStatus | string;
   starts_at?: string | null;
   ends_at?: string | null;
   budget?: string | number | null;
+  target_leads?: number | null;
+  target_revenue?: number | null;
+  lead_count?: number;
+  opportunity_count?: number;
+  won_value?: number;
   created_by?: number;
   customer_id?: number | null;
   created_at?: string;
@@ -179,10 +185,13 @@ export interface Campaign {
 export interface CampaignPayload {
   name: string;
   description?: string;
+  channel?: string;
   status?: CampaignStatus | string;
   starts_at?: string;
   ends_at?: string;
   budget?: number;
+  target_leads?: number;
+  target_revenue?: number;
   customer_id?: number;
 }
 

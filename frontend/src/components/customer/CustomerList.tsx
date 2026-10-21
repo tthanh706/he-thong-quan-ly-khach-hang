@@ -119,7 +119,7 @@ export const CustomerList: React.FC<CustomerListProps> = ({ companies, onAdd, on
                     <button 
                       onClick={() => onView360(c)} 
                       className="text-emerald-600 p-1 hover:bg-emerald-50 rounded font-medium text-xs inline-flex items-center gap-1"
-                      title="Xem toàn cảnh Khách hàng 360° (US-03)"
+                      title="Xem toàn cảnh Khách hàng 360°"
                     >
                       <span>🌐 360°</span>
                     </button>

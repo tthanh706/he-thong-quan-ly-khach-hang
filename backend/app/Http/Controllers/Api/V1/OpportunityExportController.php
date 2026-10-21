@@ -398,7 +398,10 @@ class OpportunityExportController extends Controller
             $role = $role->value;
         }
 
-        return (string) $role ===
-            'team_leader';
+        return in_array(
+            (string) $role,
+            ['team_leader', 'admin', 'manager'],
+            true
+        );
     }
 }

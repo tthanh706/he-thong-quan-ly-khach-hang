@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Campaign extends Model
@@ -14,24 +15,25 @@ class Campaign extends Model
     protected $fillable = [
         'name',
         'description',
+        'channel',
         'status',       // 'draft' | 'active' | 'paused' | 'completed'
         'starts_at',
         'ends_at',
         'budget',
+        'target_leads',
+        'target_revenue',
         'created_by',   // FK -> users.id
-        'customer_id',  // FK -> customers.id (nullable nếu campaign toàn cục)
+        'customer_id',  // FK -> customers.id (nullable)
     ];
 
     protected $casts = [
-        'starts_at'  => 'datetime',
-        'ends_at'    => 'datetime',
-        'budget'     => 'decimal:2',
-        'deleted_at' => 'datetime',
+        'starts_at'      => 'datetime',
+        'ends_at'        => 'datetime',
+        'budget'         => 'decimal:2',
+        'target_revenue' => 'decimal:2',
+        'target_leads'   => 'integer',
+        'deleted_at'     => 'datetime',
     ];
-
-    // -------------------------------------------------------------------------
-    // Relations
-    // -------------------------------------------------------------------------
 
     /** Người tạo chiến dịch */
     public function creator(): BelongsTo
@@ -45,9 +47,17 @@ class Campaign extends Model
         return $this->belongsTo(Customer::class, 'customer_id');
     }
 
-    // -------------------------------------------------------------------------
-    // Scopes
-    // -------------------------------------------------------------------------
+    /** Danh sách lead thu được từ chiến dịch (S4-03) */
+    public function leads(): HasMany
+    {
+        return $this->hasMany(Lead::class, 'campaign_id');
+    }
+
+    /** Danh sách cơ hội bán hàng từ chiến dịch (S4-03) */
+    public function opportunities(): HasMany
+    {
+        return $this->hasMany(Opportunity::class, 'campaign_id');
+    }
 
     public function scopeActive($query)
     {

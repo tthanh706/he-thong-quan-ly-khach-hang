@@ -119,7 +119,6 @@ export default function OpportunityStagnationPage({ user: propUser, onLogout }: 
     <div className="opportunity-stagnation-page" style={{ padding: '24px' }}>
       <header className="page-heading" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <div>
-          <p className="eyebrow" style={{ color: '#2563eb', fontWeight: 600, fontSize: '13px', margin: 0 }}>S5-07 · CRM ENTERPRISE</p>
           <h1 style={{ fontSize: '24px', fontWeight: 700, margin: '4px 0' }}>Cảnh báo cơ hội đình trệ</h1>
           <p style={{ color: '#64748b', margin: 0 }}>Phát hiện sớm cơ hội không có hoạt động hoặc đã quá ngày dự kiến chốt.</p>
         </div>

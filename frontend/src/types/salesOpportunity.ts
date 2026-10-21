@@ -115,3 +115,80 @@ export interface FormOptionsData {
   stages: StageConfig[];
   sources: string[];
 }
+
+export interface OpportunityProductItem {
+  id: number;
+  opportunity_id: number;
+  product_id?: number | null;
+  product_name: string;
+  quantity: number;
+  unit_price: number;
+  discount_percentage: number;
+  subtotal: number;
+  is_subscription: boolean;
+  subscription_billing_cycle?: string | null;
+  subscription_duration_months?: number | null;
+  annual_contract_value?: number | null;
+}
+
+export interface OpportunityCollaboratorItem {
+  id: number;
+  opportunity_id: number;
+  user_id: number;
+  user?: OpportunityOwner;
+  role_in_deal?: string;
+  created_at?: string;
+}
+
+export interface OpportunityAttachmentItem {
+  id: number;
+  opportunity_id: number;
+  file_name: string;
+  file_path: string;
+  file_size: number;
+  file_type?: string;
+  uploaded_by: number;
+  uploader?: OpportunityOwner;
+  created_at: string;
+}
+
+export interface StageGateItem {
+  id: number;
+  from_stage: string;
+  to_stage: string;
+  gate_name: string;
+  description?: string;
+  min_activities_required: number;
+  min_meetings_required: number;
+  requires_contact_person: boolean;
+  requires_product_selected: boolean;
+  is_active: boolean;
+}
+
+export interface KanbanColumn {
+  stage: string;
+  stage_name: string;
+  color: string;
+  probability: number;
+  count: number;
+  total_value: number;
+  opportunities: SalesOpportunity[];
+}
+
+export interface ForecastRepSummary {
+  user_id: number;
+  user_name: string;
+  email: string;
+  pipeline_value: number;
+  weighted_forecast: number;
+  actual_won: number;
+  target: number;
+  deal_count: number;
+}
+
+export interface ForecastData {
+  this_month: { pipeline: number; weighted_forecast: number; won: number; target: number };
+  next_month: { pipeline: number; weighted_forecast: number; won: number; target: number };
+  this_quarter: { pipeline: number; weighted_forecast: number; won: number; target: number };
+  by_rep: ForecastRepSummary[];
+}
