@@ -1,0 +1,22 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+
+# Directory for instrumented code
+lib-cov
+
+# Coverage directory
+coverage
+
+# dependency directories
+node_modules/
+.vscode/
+
+# vite build output
+dist/
